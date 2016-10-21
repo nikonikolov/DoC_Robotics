@@ -45,28 +45,27 @@ Ki_vals = np.arange(0.1, 0.6, 0.1)
 angle = 6.0
 
 for k_d in Kd_vals:
-	for k_i in
-	Ki_vals:
-		motorParams.pidParameters.k_i = k_i_zn*k_i
-		motorParams.pidParameters.K_d = k_d_zn*k_d
-		angle = -angle
+    for k_i in Ki_vals:
+        motorParams.pidParameters.k_i = k_i_zn*k_i
+	motorParams.pidParameters.K_d = k_d_zn*k_d
+	angle = -angle
     	
-		filename = "Ki_" + str(k_i) + "_Kd_" + srt(k_d) + ".log"
+	filename = "Ki_" + str(k_i) + "_Kd_" + str(k_d) + ".log"
 
-		interface.startLogging(filename)
+	interface.startLogging(filename)
 		
-		interface.setMotorAngleControllerParameters(motors[0],motorParams)
-		interface.setMotorAngleControllerParameters(motors[1],motorParams)
+	interface.setMotorAngleControllerParameters(motors[0],motorParams)
+	interface.setMotorAngleControllerParameters(motors[1],motorParams)
 
-    	interface.increaseMotorAngleReferences(motors,[angle,angle])
+        interface.increaseMotorAngleReferences(motors,[angle,angle])
 
-	    while not interface.motorAngleReferencesReached(motors) :
-		motorAngles = interface.getMotorAngles(motors)
-		if motorAngles :
-	    	print "Motor angles: ", motorAngles[0][0], ", ", motorAngles[1][0]
-		time.sleep(0.5)
+	while not interface.motorAngleReferencesReached(motors) :
+	    motorAngles = interface.getMotorAngles(motors)
+	    if motorAngles :
+	        print "Motor angles: ", motorAngles[0][0], ", ", motorAngles[1][0]
+	    time.sleep(0.5)
 
     	print "Destination reached!"
 
-		interface.stopLogging()
+	interface.stopLogging()
 interface.terminate()
