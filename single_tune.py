@@ -13,20 +13,18 @@ motorParams = interface.MotorAngleControllerParameters()
 motorParams.maxRotationAcceleration = 6.0
 motorParams.maxRotationSpeed = 12.0
 # tune all the following parameters
-T = 0.4
+T = 0.3
 G = 800
+
+motorParams.pidParameters.k_p = 0.3 * G
+motorParams.pidParameters.k_i = 2 * motorParams.pidParameters.k_p / T
+motorParams.pidParameters.K_d = motorParams.pidParameters.k_p * T / 8
 
 motorParams.feedForwardGain = 255/20.0
 motorParams.minPWM = 18.0
 motorParams.pidParameters.minOutput = -255
 motorParams.pidParameters.maxOutput = 255
-#motorParams.pidParameters.k_p = 100
-motorParams.pidParameters.k_p = 0.6*G
-#motorParams.pidParameters.k_i = 0
-motorParams.pidParameters.k_i = 2*motorParams.pidParameters.k_p/T*0.
-motorParams.pidParameters.K_d = motorParams.pidParameters.k_p*T/8*2.5
-#motorParams.pidParameters.K_d = 0
-interface.startLogging("a.log")
+interface.startLogging("b.log")
 interface.setMotorAngleControllerParameters(motors[0],motorParams)
 interface.setMotorAngleControllerParameters(motors[1],motorParams)
 
