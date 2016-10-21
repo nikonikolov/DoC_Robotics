@@ -36,8 +36,10 @@ def plot_data(data):
 	plt.plot(time, angle1, 'y-', label='angle1')
 	plt.xticks(np.arange(0, max(refAngle1), .1))
 	plt.grid()
+	plt.savefig('a.jpg')
 	plt.show()
 
 
 data = read_file("a.log")
 plot_data(data)
+
