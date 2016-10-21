@@ -25,7 +25,8 @@ motorParams.maxRotationSpeed = 12.0
 T = 0.4
 G = 800
 
-motorParams.feedForwardGain = 255/20.0
+# motorParams.feedForwardGain = 255/20.0
+motorParams.feedForwardGain = 0.0
 motorParams.minPWM = 18.0
 motorParams.pidParameters.minOutput = -255
 motorParams.pidParameters.maxOutput = 255
