@@ -28,7 +28,7 @@ motorParams.pidParameters.minOutput = -255
 motorParams.pidParameters.maxOutput = 255
 motorParams.pidParameters.k_p = 0.6*G
 motorParams.pidParameters.k_i = 2*motorParams.pidParameters.k_p/T*0.5
-motorParams.pidParameters.k_d = motorParams.pidParameters.k_p*T/8
+motorParams.pidParameters.K_d = motorParams.pidParameters.k_p*T/8
 
 interface.startLogging("a.log")
 interface.setMotorAngleControllerParameters(motors[0],motorParams)
