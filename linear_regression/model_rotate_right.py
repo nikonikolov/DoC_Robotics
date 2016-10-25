@@ -4,35 +4,38 @@ from sklearn import linear_model
 
 
 x = [
-  21.35,
-  21.75,
-  24.5 ,
-  24.5 ,
-  27.1 ,
-  27.1 ,
-  32.8 ,
-  32.9 ,
-  38   ,
-  38.2 ,
-  46.7 ,
-  46.2 ,
+    138.5,
+    138.5,
+    161  ,
+    158  ,
+    159.5,
+    177.5,
+    114  ,
+    112.5,
+    90.5 ,
+    91   ,
+    69.5 ,
+    70   ,
+    45.5 ,
+    46   ,
 ]
 y = [
-  8.0 ,
-  8.0 ,
-  9.0 ,
-  9.0 ,
-  10,
-  10,
-  12,
-  12,
-  14,
-  14,
-  17,
-  17,
+    6,
+    6,
+    7,
+    7,
+    7,
+    8,
+    5,
+    5,
+    4,
+    4,
+    3,
+    3,
+    2,
+    2,
 ]
 x_input = [[row] for row in x]
-
 
 lm = linear_model.LinearRegression()
 lm.fit(x_input , y)
@@ -45,8 +48,8 @@ plt.plot(x, lm.predict(x_input), color='blue',
          linewidth=3)
 
 
-plt.xticks(np.arange(20, 50, .5))
-plt.yticks(np.arange(0, 17, 1))
+plt.xticks(np.arange(0, 180, 5))
+plt.yticks(np.arange(0, 11, 1))
 plt.grid()
 
 
