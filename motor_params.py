@@ -1,3 +1,5 @@
+import time
+
 import brickpi
 
 
@@ -38,3 +40,54 @@ motorParamsRight.pidParameters.K_d = motorParamsRight.pidParameters.k_p*T/8
 
 interface.setMotorAngleControllerParameters(motors[0], motorParamsLeft)
 interface.setMotorAngleControllerParameters(motors[1], motorParamsRight)
+
+
+def TurnOpposite(angle):
+    """Given angle for motor 0, rotate 0 and 1 in opposite directions.
+    """
+    interface.increaseMotorAngleReferences(motors, [angle, -angle])
+
+    while not interface.motorAngleReferencesReached(motors):
+	time.sleep(0.03)
+    interface.setMotorPwm(motors[0], 0)
+    interface.setMotorPwm(motors[1], 0)
+    print "Destination reached!"
+
+
+def Left90deg():
+    rotate(-90)
+
+
+def Right90deg():
+    rotate(90)
+
+
+# dist is in cm
+def dist_to_motor_angle(dist):
+    return (dist*0.2959687 + 0.1) 
+    #return (dist*0.2959687 - 0.03339163) 
+
+# angle is in degrees
+def rotate_to_motor_angle(angle):
+    #return (angle*0.038050073 + 0.0998)
+    # return (angle*0.038050073 + 0.08)
+    return (angle*0.038050073 + 0.0675)
+    
+#angle is in degrees - positive angle turns right
+def rotate(angle):
+    #wheels_dist = 13.6 
+    #perimeter = 2*math.pi*(wheels_dist/2) 
+    #travel_dist = angle/360*perimeter
+    #motor_angle = dist_to_motor_angle(travel_dist)
+    motor_angle = rotate_to_motor_angle(angle)
+    TurnOpposite(motor_angle)
+
+def forward(dist):
+    angle = dist_to_motor_angle(dist)
+    interface.increaseMotorAngleReferences(motors,[angle,angle])
+
+    while not interface.motorAngleReferencesReached(motors) :
+        time.sleep(0.03)
+    interface.setMotorPwm(motors[0], 0)
+    interface.setMotorPwm(motors[1], 0)
+    print "Destination reached!"
