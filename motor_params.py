@@ -18,7 +18,7 @@ motorParamsLeft = interface.MotorAngleControllerParameters()
 motorParamsLeft.maxRotationAcceleration = 8.0
 motorParamsLeft.maxRotationSpeed = 12.0
 motorParamsRight = interface.MotorAngleControllerParameters()
-motorParamsRight.maxRotationAcceleration = 8.0
+motorParamsRight.maxRotationAcceleration = 8.1
 motorParamsRight.maxRotationSpeed = 12.0
 # tune all the following parameters
 
@@ -34,7 +34,7 @@ motorParamsRight.feedForwardGain = 255/20.0
 motorParamsRight.minPWM = 18.0
 motorParamsRight.pidParameters.minOutput = -255
 motorParamsRight.pidParameters.maxOutput = 255
-motorParamsRight.pidParameters.k_p = 0.58*G
+motorParamsRight.pidParameters.k_p = 0.6*G
 motorParamsRight.pidParameters.k_i = 2*motorParamsRight.pidParameters.k_p/T*0.3
 motorParamsRight.pidParameters.K_d = motorParamsRight.pidParameters.k_p*T/8
 
@@ -79,6 +79,8 @@ def rotate_right_to_motor_angle(angle):
     
 # angle is in degrees
 def rotate_left_to_motor_angle(angle):
+    # Small Wheels with refreshed PID values
+    return (angle*0.0437977717284 - 0.0235027479275)
     # Small Wheels
     return (angle*0.0437977717284 + 0.0235027479275)
     # Big Wheels
