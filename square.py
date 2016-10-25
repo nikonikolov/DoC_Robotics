@@ -17,8 +17,8 @@ def square(side=None):
     if side==None:
         side = 40
     for i in range(4):
-        motor_paarams.forward(side)
-        motor_paarams.Right90deg()
+        motor_params.forward(side)
+        motor_params.Left90deg()
 
 def test_angle(angle):
     motor_params.forward(10)
@@ -59,11 +59,14 @@ if __name__ == "__main__":
     main()
 """
 
-#square()
+square()
 #test_angle(float(sys.argv[1]))
 #motor_params.forward(40)
+#motor_params.rotate(90)
+
+
 #rot_angle(90)
 #motor_params.motor_rotate(17)
-rot_angle_calibrate(-7)
+#rot_angle_calibrate(-7)
 
 
