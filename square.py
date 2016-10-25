@@ -1,7 +1,8 @@
 import argparse
 import contextlib
 import time
-
+import sys
+import math
 import brickpi
 
 #cmd_parser = argparse.ArgumentParser(description = 'Tune controller')
@@ -69,8 +70,7 @@ def dist_to_angle(dist):
 
 # angle is in degrees
 def rotate(angle):
-    ################## CHANGE wheels_dist
-    wheels_dist = 10 
+    wheels_dist = 13.6 
     perimeter = 2*math.pi*(wheels_dist/2) 
     travel_dist = angle/360*perimeter
     motor_angle = dist_to_angle(travel_dist)
@@ -87,6 +87,7 @@ def forward(dist):
 
 
 def square(side=None):
+    forward(-5.0)
     Right90deg()
     Left90deg()
     return
@@ -95,6 +96,12 @@ def square(side=None):
     for i in range(4):
         forward(side)
         Left90deg()
+
+def test_angle(angle):
+    forward(10)
+    #rotate(angle)
+    TurnOpposite(angle)
+    forward(10)
 
 
 @contextlib.contextmanager
@@ -115,4 +122,8 @@ if __name__ == "__main__":
     main()
 """
 
-square()
+#square()
+test_angle(float(sys.argv[1]))
+
+
+
