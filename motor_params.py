@@ -91,3 +91,19 @@ def forward(dist):
     interface.setMotorPwm(motors[0], 0)
     interface.setMotorPwm(motors[1], 0)
     print "Destination reached!"
+
+
+# angle is in radians
+def motor_rotate(angle):
+    interface.increaseMotorAngleReferences(motors,[angle,angle])
+
+    while not interface.motorAngleReferencesReached(motors) :
+        time.sleep(0.03)
+    interface.setMotorPwm(motors[0], 0)
+    interface.setMotorPwm(motors[1], 0)
+    print "Destination reached!"
+
+
+
+
+

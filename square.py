@@ -33,6 +33,14 @@ def rot_angle(angle, dist=None):
     motor_params.rotate(angle)
     motor_params.forward(dist)
 
+def rot_angle_calibrate(angle, dist=None):
+    if dist==None:
+        dist=10
+    motor_params.forward(dist)
+    motor_params.TurnOpposite(angle)
+    motor_params.forward(dist)
+
+
 @contextlib.contextmanager
 def OpenInterface(filename):
     interface.startLogging()
@@ -54,8 +62,8 @@ if __name__ == "__main__":
 #square()
 #test_angle(float(sys.argv[1]))
 #motor_params.forward(40)
-rot_angle(90)
-
-
+#rot_angle(90)
+#motor_params.motor_rotate(17)
+rot_angle_calibrate(-7)
 
 
