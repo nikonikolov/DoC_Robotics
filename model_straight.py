@@ -2,7 +2,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import linear_model
 
+
 x = [
+    17.2 ,
+    20.55,
+    23.6 ,
+    27   ,
+    30.65,
+    34   ,
+    17   ,
+    20.35,
+    23.6 ,
+    27.05,
+    30.45,
+    33.99,
+]
+y = [
     5 ,
     6 ,
     7 ,
@@ -18,20 +33,6 @@ x = [
 ]
 x_input = [[row] for row in x]
 
-y = [
-17.2 ,
-20.55,
-23.6 ,
-27   ,
-30.65,
-34   ,
-17   ,
-20.35,
-23.6 ,
-27.05,
-30.45,
-33.99,
-]
 
 lm = linear_model.LinearRegression()
 lm.fit(x_input , y)
