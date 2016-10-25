@@ -37,7 +37,8 @@ def plot_data(data):
     plt.plot(time, angle0, 'r-', label='angle0')
     plt.plot(time, refAngle1, 'g-', label='refAngle1')
     plt.plot(time, angle1, 'y-', label='angle1')
-    plt.xticks(np.arange(0, max(refAngle1), .1))
+    plt.xticks(np.arange(min(time), max(time), .1))
+    plt.yticks(np.arange(min(min(refAngle1), min(refAngle0))-0.5, max(max(refAngle1), max(refAngle0))+0.5, .1))
     plt.grid()
 
 
@@ -59,4 +60,8 @@ def main(args):
     plt.show()
 
 
-main(sys.argv[1:])
+#main(sys.argv[1:])
+data = read_file("a.log")
+plot_data(data)
+plt.show()
+
