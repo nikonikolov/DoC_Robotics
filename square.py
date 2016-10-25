@@ -55,11 +55,12 @@ def TurnOpposite(angle):
 
 
 def Left90deg():
-    TurnOpposite(-3.1)
+    TurnOpposite(dist_to_angle(-10.691415022205297))
+    # TurnOpposite(-3.1)
 
 
 def Right90deg():
-    TurnOpposite(-1.0)
+    TurnOpposite(dist_to_angle(10.711415022205297))
 
 
 # dist is in cm
@@ -86,6 +87,9 @@ def forward(dist):
 
 
 def square(side=None):
+    Right90deg()
+    Left90deg()
+    return
     if side==None:
         side = 40
     for i in range(4):
