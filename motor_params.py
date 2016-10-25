@@ -65,7 +65,7 @@ def Right90deg():
 # dist is in cm
 def dist_to_motor_angle(dist):
     # Small wheels
-    return (dist*0.362569757118 + 0.152055463539) 
+    return (dist*0.362569757118 + 0.172055463539) 
     # Big wheels
     #return (dist*0.2959687 + 0.1) 
     #return (dist*0.2959687 - 0.03339163) 
@@ -80,7 +80,7 @@ def rotate_right_to_motor_angle(angle):
 # angle is in degrees
 def rotate_left_to_motor_angle(angle):
     # Small Wheels
-    return (angle*0.0.0437977717284 + 0.0235027479275)
+    return (angle*0.0437977717284 + 0.0235027479275)
     # Big Wheels
     #return (angle*0.038050073 + 0.0675)
 
