@@ -80,7 +80,7 @@ def rotate_right_to_motor_angle(angle):
 # angle is in degrees
 def rotate_left_to_motor_angle(angle):
     # Small Wheels
-    return (angle*0.0444657336443 + -0.0642952349217)
+    return (angle*0.0.0437977717284 + 0.0235027479275)
     # Big Wheels
     #return (angle*0.038050073 + 0.0675)
 
