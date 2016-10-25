@@ -64,7 +64,16 @@ def Right90deg():
 
 # dist is in cm
 def dist_to_angle(dist):
-    return dist/40*11.8
+    return dist*0.296
+
+# angle is in degrees
+def rotate(angle):
+    ################## CHANGE wheels_dist
+    wheels_dist = 10 
+    perimeter = 2*math.pi*(wheels_dist/2) 
+    travel_dist = angle/360*perimeter
+    motor_angle = dist_to_angle(travel_dist)
+    TurnOpposite(motor_angle)
 
 def forward(dist):
     angle = dist_to_angle(dist)
