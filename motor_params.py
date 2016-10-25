@@ -64,22 +64,38 @@ def Right90deg():
 
 # dist is in cm
 def dist_to_motor_angle(dist):
-    return (dist*0.2959687 + 0.1) 
+    # Small wheels
+    return (dist*0.362569757118 + 0.152055463539) 
+    # Big wheels
+    #return (dist*0.2959687 + 0.1) 
     #return (dist*0.2959687 - 0.03339163) 
 
 # angle is in degrees
-def rotate_to_motor_angle(angle):
-    #return (angle*0.038050073 + 0.0998)
-    # return (angle*0.038050073 + 0.08)
-    return (angle*0.038050073 + 0.0675)
+def rotate_right_to_motor_angle(angle):
+    # Small Wheels
+    return (angle*0.0444657336443 + -0.0642952349217)
+    # Big Wheels
+    #return (angle*0.038050073 + 0.0675)
     
+# angle is in degrees
+def rotate_left_to_motor_angle(angle):
+    # Small Wheels
+    return (angle*0.0444657336443 + -0.0642952349217)
+    # Big Wheels
+    #return (angle*0.038050073 + 0.0675)
+
 #angle is in degrees - positive angle turns right
 def rotate(angle):
     #wheels_dist = 13.6 
     #perimeter = 2*math.pi*(wheels_dist/2) 
     #travel_dist = angle/360*perimeter
     #motor_angle = dist_to_motor_angle(travel_dist)
-    motor_angle = rotate_to_motor_angle(angle)
+    if angle>0:
+        motor_angle = rotate_right_to_motor_angle(angle)
+    elif angle<0:
+        motor_angle = rotate_left_to_motor_angle(angle)
+    else:
+        motor_angle = 0
     TurnOpposite(motor_angle)
 
 def forward(dist):
