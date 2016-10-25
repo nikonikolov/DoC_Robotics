@@ -4,32 +4,32 @@ from sklearn import linear_model
 
 
 x = [
-    17.2 ,
-    20.55,
-    23.6 ,
-    27   ,
-    30.65,
-    34   ,
-    17   ,
-    20.35,
-    23.6 ,
-    27.05,
-    30.45,
-    33.99,
+  21.35,
+  21.75,
+  24.5 ,
+  24.5 ,
+  27.1 ,
+  27.1 ,
+  32.8 ,
+  32.9 ,
+  38   ,
+  38.2 ,
+  46.7 ,
+  46.2 ,
 ]
 y = [
-    5 ,
-    6 ,
-    7 ,
-    8 ,
-    9 ,
-    10,
-    5 ,
-    6 ,
-    7 ,
-    8 ,
-    9 ,
-    10,
+  8.0 ,
+  8.0 ,
+  9.0 ,
+  9.0 ,
+  10,
+  10,
+  12,
+  12,
+  14,
+  14,
+  17,
+  17,
 ]
 x_input = [[row] for row in x]
 
@@ -45,8 +45,8 @@ plt.plot(x, lm.predict(x_input), color='blue',
          linewidth=3)
 
 
-plt.xticks(np.arange(0, 11, 1))
-plt.yticks(np.arange(17, 35, .5))
+plt.xticks(np.arange(20, 50, .5))
+plt.yticks(np.arange(0, 17, 1))
 plt.grid()
 
 
