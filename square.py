@@ -56,28 +56,35 @@ def TurnOpposite(angle):
 
 
 def Left90deg():
-    TurnOpposite(dist_to_angle(-10.691415022205297))
+    rotate(-90)
+    #TurnOpposite(dist_to_motor_angle(-10.691415022205297))
     # TurnOpposite(-3.1)
 
 
 def Right90deg():
-    TurnOpposite(dist_to_angle(10.711415022205297))
+    rotate(90)
+    #TurnOpposite(dist_to_motor_angle(10.711415022205297))
 
 
 # dist is in cm
-def dist_to_angle(dist):
+def dist_to_motor_angle(dist):
     return dist*0.296
 
 # angle is in degrees
+def rotate_to_motor_angle(angle):
+    return (angle*0.038050073 + 0.0998)
+
+# angle is in degrees - positive angle turns right
 def rotate(angle):
-    wheels_dist = 13.6 
-    perimeter = 2*math.pi*(wheels_dist/2) 
-    travel_dist = angle/360*perimeter
-    motor_angle = dist_to_angle(travel_dist)
+    #wheels_dist = 13.6 
+    #perimeter = 2*math.pi*(wheels_dist/2) 
+    #travel_dist = angle/360*perimeter
+    #motor_angle = dist_to_motor_angle(travel_dist)
+    motor_angle = rotate_to_motor_angle(angle)
     TurnOpposite(motor_angle)
 
 def forward(dist):
-    angle = dist_to_angle(dist)
+    angle = dist_to_motor_angle(dist)
 
     interface.increaseMotorAngleReferences(motors,[angle,angle])
 
@@ -122,8 +129,8 @@ if __name__ == "__main__":
     main()
 """
 
-#square()
-test_angle(float(sys.argv[1]))
+square()
+#test_angle(float(sys.argv[1]))
 
 
 
