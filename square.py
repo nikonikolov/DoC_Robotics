@@ -17,25 +17,35 @@ motors = [0,1]
 interface.motorEnable(motors[0])
 interface.motorEnable(motors[1])
 
-motorParams = interface.MotorAngleControllerParameters()
-motorParams.maxRotationAcceleration = 6.0
-motorParams.maxRotationSpeed = 12.0
+motorParamsLeft = interface.MotorAngleControllerParameters()
+motorParamsLeft.maxRotationAcceleration = 8.0
+motorParamsLeft.maxRotationSpeed = 12.0
+motorParamsRight = interface.MotorAngleControllerParameters()
+motorParamsRight.maxRotationAcceleration = 8.0
+motorParamsRight.maxRotationSpeed = 12.0
 # tune all the following parameters
 
 T = 0.4
 G = 800
 
-motorParams.feedForwardGain = 255/20.0
-motorParams.minPWM = 18.0
-motorParams.pidParameters.minOutput = -255
-motorParams.pidParameters.maxOutput = 255
-motorParams.pidParameters.k_p = 0.6*G
-motorParams.pidParameters.k_i = 2*motorParams.pidParameters.k_p/T*0.3
-motorParams.pidParameters.K_d = motorParams.pidParameters.k_p*T/8*1.5
+motorParamsLeft.feedForwardGain = 255/20.0
+motorParamsLeft.minPWM = 18.0
+motorParamsLeft.pidParameters.minOutput = -255
+motorParamsLeft.pidParameters.maxOutput = 255
+motorParamsLeft.pidParameters.k_p = 0.6*G
+motorParamsLeft.pidParameters.k_i = 2*motorParamsLeft.pidParameters.k_p/T*0.3
+motorParamsLeft.pidParameters.K_d = motorParamsLeft.pidParameters.k_p*T/8
 
+motorParamsRight.feedForwardGain = 255/20.0
+motorParamsRight.minPWM = 18.0
+motorParamsRight.pidParameters.minOutput = -255
+motorParamsRight.pidParameters.maxOutput = 255
+motorParamsRight.pidParameters.k_p = 0.58*G
+motorParamsRight.pidParameters.k_i = 2*motorParamsRight.pidParameters.k_p/T*0.3
+motorParamsRight.pidParameters.K_d = motorParamsRight.pidParameters.k_p*T/8
 
-interface.setMotorAngleControllerParameters(motors[0],motorParams)
-interface.setMotorAngleControllerParameters(motors[1],motorParams)
+interface.setMotorAngleControllerParameters(motors[0], motorParamsLeft)
+interface.setMotorAngleControllerParameters(motors[1], motorParamsRight)
 
 
 # DO NOT EDIT ABOVE THIS LINE, THOSE ARE ALL THE TUNING STUFF
@@ -50,8 +60,9 @@ def TurnOpposite(angle):
 	# motorAngles = interface.getMotorAngles(motors)
 	# if motorAngles :
 	#     print "Motor angles: ", motorAngles[0][0], ", ", motorAngles[1][0]
-	time.sleep(0.1)
-
+	time.sleep(0.03)
+    interface.setMotorPwm(motors[0], 0)
+    interface.setMotorPwm(motors[1], 0)
     print "Destination reached!"
 
 
@@ -68,11 +79,14 @@ def Right90deg():
 
 # dist is in cm
 def dist_to_motor_angle(dist):
-    return dist*0.296
+    return (dist*0.2959687 + 0.1) 
+    #return (dist*0.2959687 - 0.03339163) 
 
 # angle is in degrees
 def rotate_to_motor_angle(angle):
-    return (angle*0.038050073 + 0.0998)
+    #return (angle*0.038050073 + 0.0998)
+    # return (angle*0.038050073 + 0.08)
+    return (angle*0.038050073 + 0.068)
 
 # angle is in degrees - positive angle turns right
 def rotate(angle):
@@ -89,20 +103,18 @@ def forward(dist):
     interface.increaseMotorAngleReferences(motors,[angle,angle])
 
     while not interface.motorAngleReferencesReached(motors) :
-        time.sleep(0.1)
+        time.sleep(0.03)
+    interface.setMotorPwm(motors[0], 0)
+    interface.setMotorPwm(motors[1], 0)
     print "Destination reached!"
 
 
 def square(side=None):
-    forward(-5.0)
-    Right90deg()
-    Left90deg()
-    return
     if side==None:
         side = 40
     for i in range(4):
         forward(side)
-        Left90deg()
+        Right90deg()
 
 def test_angle(angle):
     forward(10)
