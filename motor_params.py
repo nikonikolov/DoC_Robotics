@@ -10,6 +10,8 @@ interface = brickpi.Interface()
 interface.initialize()
 
 motors = [0,1]
+MOTOR_LEFT = 0
+MOTOR_RIGHT = 1
 
 interface.motorEnable(motors[0])
 interface.motorEnable(motors[1])
