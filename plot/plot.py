@@ -32,13 +32,25 @@ def plot_data(data):
     angle0 = data[2]
     refAngle1 = data[3]
     angle1 = data[4]
+    npRefAngle0 = np.array(refAngle0)
+    npAngle0 = np.array(angle0)
+    npRefAngle1 = np.array(refAngle1)
+    npAngle1 = np.array(angle1)
+    error0 = npRefAngle0 - npAngle0
+    error1 = npRefAngle1 - npAngle1
 
+    plt.figure()
     plt.plot(time, refAngle0, 'b-', label='refAngle0')
     plt.plot(time, angle0, 'r-', label='angle0')
     plt.plot(time, refAngle1, 'g-', label='refAngle1')
     plt.plot(time, angle1, 'y-', label='angle1')
     plt.xticks(np.arange(min(time), max(time), .1))
     plt.yticks(np.arange(min(min(refAngle1), min(refAngle0))-0.5, max(max(refAngle1), max(refAngle0))+0.5, .1))
+    plt.grid()
+
+    plt.figure()
+    plt.plot(time, error0, 'c-', label='error0')
+    plt.plot(time, error1, 'k-', label='error1')
     plt.grid()
 
 
@@ -61,7 +73,8 @@ def main(args):
 
 
 #main(sys.argv[1:])
-data = read_file("a.log")
+#data = read_file("a.log")
+data = read_file(sys.argv[1])
 plot_data(data)
 plt.show()
 
