@@ -7,7 +7,7 @@
 
 set ip [lindex $argv 0];
 
-spawn scp pi@$ip:~/BrickPi/a.log .
+spawn scp pi@$ip:~/BrickPi/b.log .
 expect "assword:"
 send "icrsislife2k16\r"
 wait
