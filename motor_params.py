@@ -18,7 +18,7 @@ motorParamsLeft = interface.MotorAngleControllerParameters()
 motorParamsLeft.maxRotationAcceleration = 8.0
 motorParamsLeft.maxRotationSpeed = 12.0
 motorParamsRight = interface.MotorAngleControllerParameters()
-motorParamsRight.maxRotationAcceleration = 8.1
+motorParamsRight.maxRotationAcceleration = 8.04
 motorParamsRight.maxRotationSpeed = 12.0
 # tune all the following parameters
 
@@ -49,8 +49,6 @@ def TurnOpposite(angle):
 
     while not interface.motorAngleReferencesReached(motors):
 	time.sleep(0.03)
-    interface.setMotorPwm(motors[0], 0)
-    interface.setMotorPwm(motors[1], 0)
     print "Destination reached!"
 
 
@@ -80,7 +78,7 @@ def rotate_right_to_motor_angle(angle):
 # angle is in degrees
 def rotate_left_to_motor_angle(angle):
     # Small Wheels with refreshed PID values
-    return (angle*0.0437977717284 - 0.0235027479275)
+    return (angle*0.0437977717284 - 0.0205027479275)
     # Small Wheels
     return (angle*0.0437977717284 + 0.0235027479275)
     # Big Wheels
@@ -106,8 +104,6 @@ def forward(dist):
 
     while not interface.motorAngleReferencesReached(motors) :
         time.sleep(0.03)
-    interface.setMotorPwm(motors[0], 0)
-    interface.setMotorPwm(motors[1], 0)
     print "Destination reached!"
 
 
@@ -117,11 +113,4 @@ def motor_rotate(angle):
 
     while not interface.motorAngleReferencesReached(motors) :
         time.sleep(0.03)
-    interface.setMotorPwm(motors[0], 0)
-    interface.setMotorPwm(motors[1], 0)
     print "Destination reached!"
-
-
-
-
-
