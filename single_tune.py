@@ -13,10 +13,10 @@ motorParams = interface.MotorAngleControllerParameters()
 motorParams.maxRotationAcceleration = 6.0
 motorParams.maxRotationSpeed = 12.0
 # tune all the following parameters
-T = 0.3
+T = 0.4
 G = 800
 
-motorParams.pidParameters.k_p = 0.3 * G
+motorParams.pidParameters.k_p = 0.6 * G
 motorParams.pidParameters.k_i = 2 * motorParams.pidParameters.k_p / T
 motorParams.pidParameters.K_d = motorParams.pidParameters.k_p * T / 8
 

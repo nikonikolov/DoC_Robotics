@@ -30,7 +30,7 @@ def rot_angle(angle, dist=None):
     if dist==None:
         dist=10
     motor_params.forward(dist)
-    motor_params.rotate(angle)
+    motor_params.Right90deg()
     motor_params.forward(dist)
 
 def rot_angle_calibrate(angle, dist=None):
@@ -58,6 +58,7 @@ if __name__ == "__main__":
     main()
 """
 
+#rot_angle(4)
 square()
 #test_angle(float(sys.argv[1]))
 #motor_params.forward(40)

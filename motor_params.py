@@ -71,7 +71,7 @@ def dist_to_motor_angle(dist):
 # angle is in degrees
 def rotate_right_to_motor_angle(angle):
     # Small Wheels
-    return (angle*0.0444657336443 + -0.0642952349217)
+    return (angle*0.0444657336443 + -0.0442952349217)
     # Big Wheels
     #return (angle*0.038050073 + 0.0675)
     
@@ -99,7 +99,12 @@ def rotate(angle):
     TurnOpposite(motor_angle)
 
 def forward(dist):
-    angle = dist_to_motor_angle(dist)
+    if dist > 0:
+        angle = dist_to_motor_angle(dist)
+    elif dist < 0:
+        angle = -dist_to_motor_angle(-dist)
+    else:
+        angle = 0
     interface.increaseMotorAngleReferences(motors,[angle,angle])
 
     while not interface.motorAngleReferencesReached(motors) :
