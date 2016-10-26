@@ -45,7 +45,6 @@ def rot_angle_calibrate(angle, dist=None):
 def OpenInterface(filename):
     interface.startLogging()
     yield
-    interface.terminate()
     interface.stopLogging()
 
 """
