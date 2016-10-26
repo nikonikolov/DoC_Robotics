@@ -16,6 +16,7 @@ STATE_RIGHT_BUMP = 2
 STATE_BOTH_BUMP = 3
 STATE_LEFT_BACKTRACK = 4
 STATE_RIGHT_BACKTRACK = 5
+STATE_BOTH_BACKTRACK = 6
 
 
 interface = motor_params.interface
@@ -23,8 +24,8 @@ interface = motor_params.interface
 
 def execute_state_transition(unused_old_state, new_state):
     # Clean up things from the old state
-    interface.setMotorPwm(0, 0)
-    interface.setMotorPwm(1, 0)
+    interface.setMotorPwm(motor_params.MOTOR_LEFT, 0)
+    interface.setMotorPwm(motor_params.MOTOR_RIGHT, 0)
     time.sleep(0.4)
 
     # Start entering the new state
@@ -40,40 +41,37 @@ def execute_state_transition(unused_old_state, new_state):
     elif new_state == STATE_RIGHT_BACKTRACK:
         angle = motor_params.rotate_right_to_motor_angle(45)
         interface.increaseMotorAngleReferences(motor_params.motors, [-angle, angle])
+    elif new_state == STATE_BOTH_BACKTRACK:
+        angle = motor_params.rotate_right_to_motor_angle(180)
+        interface.increaseMotorAngleReferences(motor_params.motors, [-angle, angle])
     else:
         raise RuntimeError("Unknown state")
 
 
 def navigate(state):
     if state == STATE_DRIVE:
-        left = interface.getSensorValue(TOUCH_PORT_LEFT)
-        right = interface.getSensorValue(TOUCH_PORT_RIGHT)
-        next_state = left[0] + (right[0] << 1)
-
+        left = right = 0
+        t_end = time.time() + 0.1
+        while time.time() < t_end:
+            left = interface.getSensorValue(TOUCH_PORT_LEFT)[0] | left
+            right = interface.getSensorValue(TOUCH_PORT_RIGHT)[0] | right
+        next_state = left + (right << 1)
     elif state == STATE_LEFT_BUMP:
         done = interface.motorAngleReferencesReached(
                 motor_params.motors)
         next_state = STATE_LEFT_BACKTRACK if done else state
-
     elif state == STATE_RIGHT_BUMP:
         done = interface.motorAngleReferencesReached(
                 motor_params.motors)
         next_state = STATE_RIGHT_BACKTRACK if done else state
-
     elif state == STATE_BOTH_BUMP:
         done = interface.motorAngleReferencesReached(
                 motor_params.motors)
-        next_state = STATE_LEFT_BACKTRACK if done else state
-
-    elif state == STATE_LEFT_BACKTRACK:
+        next_state = STATE_BOTH_BACKTRACK if done else state
+    elif state in [STATE_LEFT_BACKTRACK, STATE_RIGHT_BACKTRACK, STATE_BOTH_BACKTRACK]:
         done = interface.motorAngleReferencesReached(
                 motor_params.motors)
         next_state = STATE_DRIVE if done else state
-
-    elif state == STATE_RIGHT_BACKTRACK:
-        done = interface.motorAngleReferencesReached(motor_params.motors)
-        next_state = STATE_DRIVE if done else state
-
     else:
         raise RuntimeError("Unknown state")
 
