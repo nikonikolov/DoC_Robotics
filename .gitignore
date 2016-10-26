@@ -1,3 +1,4 @@
-motor_params.pyc
+*.pyc
 *.swp
 *.swo
+*.o

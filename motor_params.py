@@ -40,9 +40,21 @@ motorParamsRight.pidParameters.k_p = 0.6*G
 motorParamsRight.pidParameters.k_i = 2*motorParamsRight.pidParameters.k_p/T*0.3
 motorParamsRight.pidParameters.K_d = motorParamsRight.pidParameters.k_p*T/8
 
-interface.setMotorAngleControllerParameters(motors[0], motorParamsLeft)
-interface.setMotorAngleControllerParameters(motors[1], motorParamsRight)
+interface.setMotorAngleControllerParameters(motors[MOTOR_LEFT], motorParamsLeft)
+interface.setMotorAngleControllerParameters(motors[MOTOR_RIGHT], motorParamsRight)
 
+
+def updateParams(motorParams, motor_idx=None):
+    if motor_idx==None:
+        interface.setMotorAngleControllerParameters(motors[MOTOR_LEFT], motorParamsLeft)
+        interface.setMotorAngleControllerParameters(motors[MOTOR_RIGHT], motorParamsRight)
+    else:
+        if motor_idx == MOTOR_RIGHT:
+            interface.setMotorAngleControllerParameters(motors[motor_idx], motorParamsRight)
+        elif motor_idx == MOTOR_LEFT:
+            interface.setMotorAngleControllerParameters(motors[motor_idx], motorParamsLeft)
+        else:
+            print "Warning wrong motor port [%d] in motor_params.updateParams " % motor_idx
 
 def TurnOpposite(angle):
     """Given angle for motor 0, rotate 0 and 1 in opposite directions.
