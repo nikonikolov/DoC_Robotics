@@ -19,6 +19,7 @@ def square(side=None):
     for i in range(4):
         motor_params.forward(side)
         motor_params.Left90deg()
+        time.sleep(0.5)
 
 def test_angle(angle):
     motor_params.forward(10)

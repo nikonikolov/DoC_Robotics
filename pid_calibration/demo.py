@@ -12,9 +12,10 @@ import motor_params
 interface = motor_params.interface#args = cmd_parser.parse_args()
 motors = motor_params.motors
 
-motor_params.forward(40)
-motor_params.forward(-40)
+motor_params.forward(40*40/39.5)
+motor_params.forward(-40*40/39.5)
 motor_params.Left90deg()
+time.sleep(0.5)
 motor_params.Right90deg()
 
 
