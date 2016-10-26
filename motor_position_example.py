@@ -1,29 +1,14 @@
-import brickpi
 import time
 
-interface=brickpi.Interface()
-interface.initialize()
 
-motors = [0,1]
+import brickpi
+import motor_params
 
-interface.motorEnable(motors[0])
-interface.motorEnable(motors[1])
 
-motorParams = interface.MotorAngleControllerParameters()
-motorParams.maxRotationAcceleration = 6.0
-motorParams.maxRotationSpeed = 12.0
-# tune all the following parameters
-motorParams.feedForwardGain = 255/20.0
-motorParams.minPWM = 18.0
-motorParams.pidParameters.minOutput = -255
-motorParams.pidParameters.maxOutput = 255
-motorParams.pidParameters.k_p = 100.0
-motorParams.pidParameters.k_i = 0.0
-motorParams.pidParameters.K_d = 0.0
+interface = motor_params.interface
+motors = motor_params.motors
 
-interface.startLogging("a.log")
-interface.setMotorAngleControllerParameters(motors[0],motorParams)
-interface.setMotorAngleControllerParameters(motors[1],motorParams)
+interface.startLogging("motor_position_example.log")
 
 while True:
     angle = float(input("Enter a angle to rotate (in radians): "))
