@@ -1,7 +1,12 @@
-"""Module to calculate covarience matrix. Answer obtained is:
+"""Module to calculate covarience matrix and standard deviation of x and y.
+
+
+Answer obtained is:
 
      [[ 0.59142618 -0.12348744]
       [-0.12348744  0.31164677]]
+      ('np.std(xs) =', 0.76904237580657286)
+      ('np.std(ys) =', 0.55825331913327891)
 """
 
 
@@ -31,3 +36,5 @@ var_x_y = sum((x - mean_x) * (y - mean_y) for x, y in zip(xs, ys))  / len(positi
 
 print(np.array([[var_x, var_x_y],
                 [var_x_y, var_y]]))
+print("np.std(xs) =", np.sqrt(var_x))
+print("np.std(ys) =", np.sqrt(var_y))
