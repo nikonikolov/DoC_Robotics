@@ -1,26 +1,48 @@
 #import brickpi
 import time
 import motor_params
+import numpy as np
 
 interface = motor_params.interface
 
 ULTRASONIC_PORT = 2 
+HISTORY_SIZE = 5
+ERROR_TRESHOLD = 1.0
+K_P = 1.0
+DEISRED_DIST = 30
 
-interface.sensorEnable(ULTRASONIC_PORT, brickpi.SensorType.SENSOR_ULTRASONIC);
-desired_dist = 30
 
-while True:
-	usReading = interface.getSensorValue(ULTRASONIC_PORT)
 
-	if usReading :
-		dist = usReading[0]
-		error = desired_dist - dist
-		if error => 1 or error <= -1:
-			motor_params.motorParamsLeft.maxRotationSpeed = motor_params.motorParamsRight.maxRotationSpeed = error
-			motor_params.updateParams()
+def get_reading():
+	us_reading = interface.getSensorValue(ULTRASONIC_PORT)
+
+	if us_reading :
+		dist = us_reading[0]
+
+		if len(get_reading.history>=5):
+			get_reading.history.pop(0)
+		get_reading.history.append(dist)	
+		return med_dist = np.median(get_reading.history)
 	else:
 		print "Failed US reading"
+		return None
 
-	time.sleep(0.05)
+def main():
+	interface.sensorEnable(ULTRASONIC_PORT, brickpi.SensorType.SENSOR_ULTRASONIC);
 
-interface.terminate()
+	get_reading.history = []
+
+	while True:
+		dist = get_reading()
+
+		if dist != None:
+
+			error = DEISRED_DIST - dist
+			speed = - K_P * error
+			if error => ERROR_TRESHOLD or error <= -ERROR_TRESHOLD:
+				interface.setMotorRotationSpeedReferences(motor_params.motors, [speed,speed])
+			else:
+			    interface.setMotorPwm(motor_params.MOTOR_LEFT, 0)
+	    		interface.setMotorPwm(motor_params.MOTOR_RIGHT, 0)
+
+		time.sleep(0.05)
