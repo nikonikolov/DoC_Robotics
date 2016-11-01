@@ -15,75 +15,76 @@ MIN_SPEED = 3.0
 
 
 def get_reading():
-	us_reading = interface.getSensorValue(ULTRASONIC_PORT)
+    us_reading = interface.getSensorValue(ULTRASONIC_PORT)
 
-	if us_reading :
-		dist = us_reading[0]
+    if us_reading :
+        dist = us_reading[0]
 
-		if len(get_reading.history>=get_reading.HISTORY_SIZE):
-			get_reading.history.pop(0)
-		get_reading.history.append(dist)	
-		return med_dist = np.median(get_reading.history)
-	else:
-		print "Failed US reading"
-		return None
+        if len(get_reading.history) >= get_reading.HISTORY_SIZE:
+            get_reading.history.pop(0)
+
+        get_reading.history.append(dist)    
+        return np.median(get_reading.history)
+    else:
+        print "Failed US reading"
+        return None
 
 
 def keep_front_distance():
-	while True:
-		dist = get_reading()
+    while True:
+        dist = get_reading()
 
-		if dist != None:
-			error = DESIRED_DIST - dist
-			speed = - keep_front_distance.K_P * error
-			if error => keep_front_distance.ERROR_TRESHOLD or error <= -keep_front_distance.ERROR_TRESHOLD:
-				interface.setMotorRotationSpeedReferences(motor_params.motors, [speed,speed])
-			else:
-			    interface.setMotorPwm(motor_params.MOTOR_LEFT, 0)
-	    		interface.setMotorPwm(motor_params.MOTOR_RIGHT, 0)
-		time.sleep(0.05)
+        if dist != None:
+            error = DESIRED_DIST - dist
+            speed = - keep_front_distance.K_P * error
+            if error >= keep_front_distance.ERROR_TRESHOLD or error <= -keep_front_distance.ERROR_TRESHOLD:
+                interface.setMotorRotationSpeedReferences(motor_params.motors, [speed,speed])
+            else:
+                interface.setMotorPwm(motor_params.MOTOR_LEFT, 0)
+                interface.setMotorPwm(motor_params.MOTOR_RIGHT, 0)
+        time.sleep(0.05)
 
 
 def follow_wall():
-	while True:
-		dist = get_reading()
+    while True:
+        dist = get_reading()
 
-		if dist != None:
-			error = DESIRED_DIST - dist
-			speed_difference = - K_P * error
-	
-			if error => follow_wall.ERROR_TRESHOLD or error <= -follow_wall.ERROR_TRESHOLD:
-				speed_left = NORMAL_SPEED - speed_difference/2
-				speed_right = NORMAL_SPEED - speed_difference/2
-	
-				if speed_right > MAX_SPEED: 
-					speed_right = MAX_SPEED
-				if speed_left > MAX_SPEED: 
-					speed_left = MAX_SPEED
-				if speed_right < MIN_SPEED: 
-					speed_right = MIN_SPEED
-				if speed_left < MIN_SPEED: 
-					speed_left = MIN_SPEED
+        if dist != None:
+            error = DESIRED_DIST - dist
+            speed_difference = - K_P * error
+    
+            if error >= follow_wall.ERROR_TRESHOLD or error <= -follow_wall.ERROR_TRESHOLD:
+                speed_left = NORMAL_SPEED - speed_difference/2
+                speed_right = NORMAL_SPEED - speed_difference/2
+    
+                if speed_right > MAX_SPEED: 
+                    speed_right = MAX_SPEED
+                if speed_left > MAX_SPEED: 
+                    speed_left = MAX_SPEED
+                if speed_right < MIN_SPEED: 
+                    speed_right = MIN_SPEED
+                if speed_left < MIN_SPEED: 
+                    speed_left = MIN_SPEED
 
-				interface.setMotorRotationSpeedReference(motor_params.MOTOR_LEFT, speed_left)
-				interface.setMotorRotationSpeedReference(motor_params.MOTOR_RIGHT, speed_right)
-			else:
-				interface.setMotorRotationSpeedReferences(motor_params.motors, [NORMAL_SPEED,NORMAL_SPEED])
-		time.sleep(0.05)
+                interface.setMotorRotationSpeedReference(motor_params.MOTOR_LEFT, speed_left)
+                interface.setMotorRotationSpeedReference(motor_params.MOTOR_RIGHT, speed_right)
+            else:
+                interface.setMotorRotationSpeedReferences(motor_params.motors, [NORMAL_SPEED,NORMAL_SPEED])
+        time.sleep(0.05)
 
 
 def main():
-	interface.sensorEnable(ULTRASONIC_PORT, brickpi.SensorType.SENSOR_ULTRASONIC);
-	get_reading.history = []
-	get_reading.HISTORY_SIZE = 5
+    interface.sensorEnable(ULTRASONIC_PORT, brickpi.SensorType.SENSOR_ULTRASONIC);
+    get_reading.history = []
+    get_reading.HISTORY_SIZE = 5
 
-	# TUNE THESE VALUES
-	keep_front_distance.K_P = 1.0
-	keep_front_distance.ERROR_TRESHOLD = 1.0
+    # TUNE THESE VALUES
+    keep_front_distance.K_P = 1.0
+    keep_front_distance.ERROR_TRESHOLD = 1.0
 
-	follow_wall.K_P = 1.0
-	follow_wall.ERROR_TRESHOLD = 1.0
+    follow_wall.K_P = 1.0
+    follow_wall.ERROR_TRESHOLD = 1.0
 
-	keep_front_distance()
-	#follow_wall()
+    keep_front_distance()
+    #follow_wall()
 
