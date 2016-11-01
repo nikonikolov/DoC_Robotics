@@ -29,11 +29,24 @@ def get_reading():
         print "Failed US reading"
         return None
 
+def get_sleep_time(error):
+    default_sleep = 0.08
+    max_sleep = 0.08
+    min_sleep = 0.06
+    
+    tuning_dist_max = 15.0
+    tuning_dist_min = 0.0
+    
+    if abs(error) >= tuning_dist_max:
+        return max_sleep
+    return abs(error)/tuning_dist_max*(max_sleep - min_sleep) + min_sleep
 
 def keep_front_distance():
+    default_sleep = 0.08
     while True:
         dist = get_reading()
-
+        
+        #print dist
         if dist != None:
             error = DESIRED_DIST - dist
             speed = - keep_front_distance.K_P * error
@@ -42,8 +55,11 @@ def keep_front_distance():
             else:
                 interface.setMotorPwm(motor_params.MOTOR_LEFT, 0)
                 interface.setMotorPwm(motor_params.MOTOR_RIGHT, 0)
-        time.sleep(0.05)
-
+            
+            sleep_time = get_sleep_time(error)
+        #time.sleep(0.08)
+        time.sleep(sleep_time)
+        sleep_time = default_sleep
 
 def follow_wall():
     while True:
@@ -79,7 +95,7 @@ def main():
     get_reading.HISTORY_SIZE = 5
 
     # TUNE THESE VALUES
-    keep_front_distance.K_P = 1.0
+    keep_front_distance.K_P = 0.6
     keep_front_distance.ERROR_TRESHOLD = 1.0
 
     follow_wall.K_P = 1.0
@@ -88,3 +104,5 @@ def main():
     keep_front_distance()
     #follow_wall()
 
+
+main()
