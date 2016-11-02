@@ -1,6 +1,12 @@
 import math
 import random
+import sys
 import time
+
+
+sys.path.append('/home/pi/DoC_Robotics/')
+
+import motor_params
 
 
 STANDARD_DEVIATION = 1.0
@@ -8,7 +14,6 @@ DISTANCE_TO_PIXEL = 10.0
 particles = [(0, 0, 0) for _ in range(100)]  # type: Tuple[int, int, int]
 
 def draw_particles():
-    time.sleep(0.25)
     print "drawParticles:" + str([(200 + x * DISTANCE_TO_PIXEL,
                                    200 + y * DISTANCE_TO_PIXEL,
                                    t)
@@ -36,8 +41,10 @@ def update_particles_rotation(alpha):
 for __ in range(4):
     draw_particles()
     for _ in range(4):
+        motor_params.forward(10)
         update_particles_straight(10)
         draw_particles()
 
+    motor_params.Left90deg()
     update_particles_rotation(math.pi / 2)
     draw_particles()
