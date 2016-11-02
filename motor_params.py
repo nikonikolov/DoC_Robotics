@@ -67,11 +67,11 @@ def TurnOpposite(angle):
 
 
 def Left90deg():
-    rotate(-90)
+    rotate(90)
 
 
 def Right90deg():
-    rotate(90)
+    rotate(-90)
 
 
 # dist is in cm
@@ -104,10 +104,10 @@ def rotate(angle):
     #perimeter = 2*math.pi*(wheels_dist/2) 
     #travel_dist = angle/360*perimeter
     #motor_angle = dist_to_motor_angle(travel_dist)
-    if angle>0:
-        motor_angle = rotate_right_to_motor_angle(angle)
-    elif angle<0:
-        motor_angle = rotate_left_to_motor_angle(angle)
+    if angle<0:
+        motor_angle = rotate_right_to_motor_angle(-angle)
+    elif angle>0:
+        motor_angle = rotate_left_to_motor_angle(-angle)
     else:
         motor_angle = 0
     TurnOpposite(motor_angle)
