@@ -89,11 +89,13 @@ def follow_wall():
         time.sleep(0.05)
 
 
-def main():
+def setup():
     interface.sensorEnable(ULTRASONIC_PORT, brickpi.SensorType.SENSOR_ULTRASONIC);
     get_reading.history = []
     get_reading.HISTORY_SIZE = 5
 
+
+def main():
     # TUNE THESE VALUES
     keep_front_distance.K_P = 0.6
     keep_front_distance.ERROR_TRESHOLD = 1.0
@@ -105,4 +107,7 @@ def main():
     #follow_wall()
 
 
-main()
+setup()
+
+if __name__=="__main__":
+	main()
