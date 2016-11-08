@@ -7,7 +7,8 @@
         MIN DIST = 20cm
         MAX DIST = 85cm
 
-2. MAX ANGLE =    
+2. MAX ANGLE = 34 Degrees (with reliable readings 38 read, 39 actual)
+	       35-40 Degrees (with unreliable readings, e.g. 33 read, 42 actual)   
    The angle is measured relative to the perpendicular, not relative to the wall
 
 
@@ -27,4 +28,30 @@
 
 
 4. ACCURACY
+ 
+  Readings | 40cm | 100cm
+  ---------|------|------
+          1|	41|   102
+	  2|	41|   102
+	  3|	41|   102
+	  4|	41|   102
+	  5|	41|   102(fluctuating regularly between 102 and 101)
+	  6|	41|   102
+	  7|	41|   102
+	  8|	41|   102
+	  9|	41|   102
+	 10|	41|   102
 
+
+5. GARBAGE READINGS
+
+Lines display at 10 times a second
+Run for 30 seconds roughly
+
+Total log.txt 269 lines
+	"255" found 95 times
+Quick changes in Distance: 35.32%
+
+Total log_slower.txt 280 lines
+	"255" found 15 times
+Slow changes in Distance: 5.36%
