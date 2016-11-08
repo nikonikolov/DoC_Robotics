@@ -1,0 +1,30 @@
+1.
+    1.1 Sensible values - consistent measures but wrong
+        MIN DIST = 2cm - measured as 6cm 
+        MAX DIST = 92cm - measured as 96cm
+
+    Reliable measurements
+        MIN DIST = 20cm
+        MAX DIST = 85cm
+
+2. MAX ANGLE =    
+   The angle is measured relative to the perpendicular, not relative to the wall
+
+
+3. SYSTEMATIC ERRORS
+    Actual  Reading
+    20 cm   21 cm
+    20 cm   21 cm
+    18 cm   20 cm
+    20 cm   21 cm
+    40 cm   41 cm
+    60 cm   62 cm
+    80 cm   81 cm
+    85 cm   87 cm
+    90 cm   93 cm
+    100 cm  255 cm
+
+
+
+4. ACCURACY
+
