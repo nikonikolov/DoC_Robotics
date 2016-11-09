@@ -8,8 +8,15 @@ NUMBER_OF_PARTICLES = 100
 
 
 def rotation_noise(p, alpha):
-    return p + alpha + random.gauss(0, 2.0) * math.pi / 180.0
-
+    #return p + alpha + random.gauss(0, 2.0) * math.pi / 180.0
+    
+    angle = p + alpha + random.gauss(0, 2.0) * math.pi / 180.0
+    if angle > 180:
+        angle -= 360
+    elif angle < -180:
+        angle += 360
+    return angle    
+    
 
 StateBase = collections.namedtuple("StateBase", ["particles", "weights"])
 
@@ -56,8 +63,12 @@ Dest = collections.namedtuple("Dest", ["x", "y"])
 def navigateToWaypoint(state, dest):
     goal_theta = math.atan2(dest.y - state.y, dest.x - state.x)
     delta_theta_rad = goal_theta - state.theta
+    #if delta_theta_rad > math.pi:
+    #    delta_theta_rad = 2*math.pi - delta_theta_rad
     if delta_theta_rad > math.pi:
-        delta_theta_rad = 2*math.pi - delta_theta_rad
+        delta_theta_rad = delta_theta_rad - 2*math.pi
+    elif delta_theta_rad < -math.pi:
+        delta_theta_rad += 2*math.pi  
     motor_params.rotate(delta_theta_rad / math.pi * 180.0)
     state = state.rotate(delta_theta_rad)
     dist = math.sqrt((state.y - dest.y)**2 + (state.x - dest.x)**2)
