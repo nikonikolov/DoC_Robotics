@@ -14,8 +14,6 @@
 
 3. SYSTEMATIC ERRORS
     Actual  Reading
-    20 cm   21 cm
-    20 cm   21 cm
     18 cm   20 cm
     20 cm   21 cm
     40 cm   41 cm

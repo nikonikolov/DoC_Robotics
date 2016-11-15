@@ -8,10 +8,16 @@ interface = motor_params.interface
 ULTRASONIC_PORT = 2 
 DESIRED_DIST = 30
 
-# TUNE THESE VALUES
 NORMAL_SPEED = 10.0
 MAX_SPEED = max(motor_params.motorParamsRight.maxRotationSpeed, motor_params.motorParamsLeft.maxRotationSpeed)
 MIN_SPEED = 3.0
+
+
+# TO DO - calibrate these values
+SENSOR_OFFSET = 6.5
+MAX_DIST = 85.0 - SENSOR_OFFSET 
+MIN_DIST = 20.0 - SENSOR_OFFSET 
+MAX_ANGLE = 34.0 * math.pi / 180.0
 
 
 def get_reading():
@@ -24,7 +30,7 @@ def get_reading():
             get_reading.history.pop(0)
 
         get_reading.history.append(dist)    
-        return np.median(get_reading.history)
+        return np.median(get_reading.history) + SENSOR_OFFSET
     else:
         print "Failed US reading"
         return None

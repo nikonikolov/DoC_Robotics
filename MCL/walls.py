@@ -6,15 +6,19 @@ import time
 import random
 import math
 import collections
+import sys
 
+sys.path.append('/home/pi/DoC_Robotics/ultrasonic_sensors')
+
+import ultrasound
 
 # Configurable Parameters
 # Max / Minimum distance, angle that sonar sensor can measure
 # Note that angle is relative to the perpendicular rather than the wall.
 # and is in radians.
-SONAR_MIN_DIST = 20.0
-SONAR_MAX_DIST = 85.0
-SONAR_MAX_ANGLE = 34.0 * math.pi / 180.0
+SONAR_MIN_DIST = ultrasound.MIN_DIST
+SONAR_MAX_DIST = ultrasound.MAX_DIST
+SONAR_MAX_ANGLE = ultrasound.MAX_ANGLE
 
 
 Point = collections.namedtuple("Point", ["x", "y"])

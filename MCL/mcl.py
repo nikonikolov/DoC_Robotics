@@ -3,16 +3,21 @@ import sys
 import bisect
 
 sys.path.append('/home/pi/DoC_Robotics/pmotion')
+sys.path.append('/home/pi/DoC_Robotics/ultrasonic_sensors')
 
 import motion_predict
 import walls
+import ultrasound
 
 # TO DO: calculate the standard deviation and the constant likelihood
 SONAR_CONSTANT_LIKELIHOOD =  
 SONAR_STD =
+UNSENSIBLE_READINNGS_THRESHOLD = 
 
 NUMBER_OF_PARTICLES = motion_predict.NUMBER_OF_PARTICLES
 
+class UnsensibleReadings(Expcetion):
+    pass
 
 def calculateLikelihood(x, y, theta, z):
     """
@@ -45,6 +50,8 @@ def updateMeasurement(state, z):
             new_weights.append(SONAR_CONSTANT_LIKELIHOOD * w)     
         else:
             new_weights.append(likelihood * w)     
+    if unsensible_readings > UNSENSIBLE_READINNGS_THRESHOLD:
+        raise UnsensibleReadings
     return motion_predict.State(particles=state.particles, weights=new_weights)
 
 def normalize(state):
@@ -69,15 +76,35 @@ def resample(state):
     return new_state
 
 def MCLStep(state):
-    return resample(normalize(updateMeasurement(state)))
+    try:
+        return resample(normalize(updateMeasurement(state, ultrasound.get_reading())))
+    except UnsensibleReadings:
+        return state
+
 
 
 def main();
+    ultrasound.setup()
     state = motion_predict.State(particles=[motion_predict.Particle(x=0, y=0, theta=0)] * NUMBER_OF_PARTICLES,
                   weights=[1.0 / NUMBER_OF_PARTICLES
                            for _ in range(NUMBER_OF_PARTICLES)])
 
+    WAPOINTS =[
+            (84, 30),
+            (180, 30),
+            (180, 54),
+            (138, 54),
+            (138, 168),
+            (114, 168),
+            (114, 84),
+            (84, 84),
+            (84, 30)]
 
+
+    for waypoint in WAYPOINTS:
+        state = motion_predict.navigateToWaypoint(state, dest)
+        state = MCLStep(state)        
+        print (state.x, state.y, state.theta)
 
 
 if __name__ == "__main__":
