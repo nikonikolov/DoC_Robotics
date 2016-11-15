@@ -3,7 +3,7 @@ CXX=arm-linux-gnueabi-g++
 
 
 src/brickpi.so: src/Interface_python.o  src/Interface.o  src/PidController.o
-	${CXX} -shared -fPIC -o a.so  src/Interface_python.o  src/Interface.o  src/PidController.o
+	${CXX} src/Interface_python.o  src/Interface.o  src/PidController.o -shared -o libmod.so  -Wl,--whole-archive  -Wl,--no-whole-archive
 
 
 clean:
