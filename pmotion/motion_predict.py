@@ -10,7 +10,7 @@ NUMBER_OF_PARTICLES = 100
 
 
 def rotation_noise(p, alpha):
-    angle = p + alpha + random.gauss(0, 1.4) * math.pi / 180.0
+    angle = p + alpha + random.gauss(0, 1.0) * math.pi / 180.0
     #angle = p + alpha + random.gauss(0, 2.0) * math.pi / 180.0
     if angle > math.pi:
         angle -= 2 * math.pi

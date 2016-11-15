@@ -35,7 +35,10 @@ def get_reading():
         med_reading = np.median(get_reading.history)
         if med_reading < 20:
             med_reading +=3.5
-        return med_reading + SENSOR_OFFSET
+        med_reading += SENSOR_OFFSET
+        print "US Reading: " + str(med_reading)
+        return med_reading
+        #return med_reading + SENSOR_OFFSET
         #return np.median(get_reading.history) + SENSOR_OFFSET
     else:
         print "Failed US reading"
