@@ -15,11 +15,12 @@ SONAR_STD =
 UNSENSIBLE_READINNGS_THRESHOLD = 
 
 NUMBER_OF_PARTICLES = motion_predict.NUMBER_OF_PARTICLES
+WAYPOINTS = []
 
 class UnsensibleReadings(Expcetion):
     pass
 
-def calculateLikelihood(x, y, theta, z):
+def calculate_likelihood(x, y, theta, z):
     """
     param: z: sonar measurement
     """
@@ -29,13 +30,14 @@ def calculateLikelihood(x, y, theta, z):
         param: x:   variable (z = actual measurement)
         param: mu:  mean (estimated measurement)
         """
-        return np.exp(-np.power(x - mu, 2.) / (2 * np.power(SONAR_STD, 2.))) + SONAR_CONSTANT_LIKELIHOOD
 
+    particle = motion_predict.Particle(x=x, y=y, theta=theta)
     m = walls.getWallDist(particle, walls.wallmap)          # calculate estimated measurment for this particle
     # if incidence angle or distance is out of range then skip the update
-    if m == 0:
+    if m == float("inf"):
         return -1
-    return sonarLikelihood(z, m)
+    return np.exp(-np.power(z - mu, 2.) / (2 * np.power(SONAR_STD, 2.))) + SONAR_CONSTANT_LIKELIHOOD
+
 
 def updateMeasurement(state, z):
     """
@@ -44,7 +46,7 @@ def updateMeasurement(state, z):
     unsensible_readings = 0
     new_weights = []
     for p,w in zip(state.particles, state.weights):
-        likelihood = calculateLikelihood(p.x, p.y, p.theta, z)
+        likelihood = calculate_likelihood(p.x, p.y, p.theta, z)
         if likelihood < 0:
             unsensible_readings+=1
             new_weights.append(SONAR_CONSTANT_LIKELIHOOD * w)     
@@ -54,10 +56,12 @@ def updateMeasurement(state, z):
         raise UnsensibleReadings
     return motion_predict.State(particles=state.particles, weights=new_weights)
 
+
 def normalize(state):
     total_weight = sum(w for w in state.weights)
     return motion_predict.State(particles=state.particles, 
                                 weights=[w/total_weight for w in state.weights])
+
 
 def resample(state):
     first = True
@@ -75,6 +79,7 @@ def resample(state):
         new_state.particles.append(state.particles[i])
     return new_state
 
+
 def MCLStep(state):
     try:
         return resample(normalize(updateMeasurement(state, ultrasound.get_reading())))
@@ -82,13 +87,25 @@ def MCLStep(state):
         return state
 
 
+"""
+def navigateToWaypoint(state, dest):
+    goal_theta = math.atan2(dest.y - state.y, dest.x - state.x)
+    delta_theta_rad = goal_theta - state.theta
+    if delta_theta_rad > math.pi:
+        delta_theta_rad -= 2*math.pi
+    elif delta_theta_rad < -math.pi:
+        delta_theta_rad += 2*math.pi  
+    motor_params.rotate(delta_theta_rad / math.pi * 180.0)
+    state = state.rotate(delta_theta_rad)
+    dist = min(20, math.sqrt(
+            (state.y - dest.y)**2 + (state.x - dest.x)**2))
+    motor_params.forward(dist)
+    return MCLStep(state.move_forward(dist))
+"""
 
 def main();
     ultrasound.setup()
-    state = motion_predict.State(particles=[motion_predict.Particle(x=0, y=0, theta=0)] * NUMBER_OF_PARTICLES,
-                  weights=[1.0 / NUMBER_OF_PARTICLES
-                           for _ in range(NUMBER_OF_PARTICLES)])
-
+    
     WAPOINTS =[
             (84, 30),
             (180, 30),
@@ -100,11 +117,24 @@ def main();
             (84, 84),
             (84, 30)]
 
+    state = motion_predict.State(
+            particles=[motion_predict.Particle(x=WAYPOINTS[0][0], y=WAYPOINTS[0][1], theta=0)] * NUMBER_OF_PARTICLES,
+            weights=[1.0 / NUMBER_OF_PARTICLES
+                     for _ in range(NUMBER_OF_PARTICLES)])
+    
+    for waypoint in WAYPOINTS[1:]:
+        # waypoint refers to the next destination
+        while True:
+            x_is_close = np.isclose(state.x, waypoint.x, atol=0.5)
+            y_is_close = np.isclose(state.y, waypoint.y, atol=0.5)
 
-    for waypoint in WAYPOINTS:
-        state = motion_predict.navigateToWaypoint(state, dest)
-        state = MCLStep(state)        
-        print (state.x, state.y, state.theta)
+            if x_is_close and y_is_close:
+                # We have reached our destination, rotate!
+                break
+            else:
+                state = motion_predict.navigateToWaypoint(state, dest)
+                state = MCLStep(state)        
+                print (state.x, state.y, state.theta)
 
 
 if __name__ == "__main__":
