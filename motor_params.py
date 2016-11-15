@@ -84,17 +84,19 @@ def dist_to_motor_angle(dist):
 
 # angle is in degrees
 def rotate_right_to_motor_angle(angle):
+    return 360.0 / 335.0 * (angle*0.0444657336443 + -0.0442952349217)
     # Small Wheels
-    return (angle*0.0444657336443 + -0.0442952349217)
+    # return (angle*0.0444657336443 + -0.0442952349217)
     # Big Wheels
     #return (angle*0.038050073 + 0.0675)
     
 # angle is in degrees
 def rotate_left_to_motor_angle(angle):
+    return 360.0 / 332.5 * (angle*0.0437977717284 - 0.0205027479275)
     # Small Wheels with refreshed PID values
-    return (angle*0.0437977717284 - 0.0205027479275)
+    # return (angle*0.0437977717284 - 0.0205027479275)
     # Small Wheels
-    return (angle*0.0437977717284 + 0.0235027479275)
+    # return (angle*0.0437977717284 + 0.0235027479275)
     # Big Wheels
     #return (angle*0.038050073 + 0.0675)
 
@@ -119,6 +121,7 @@ def forward(dist):
         angle = -dist_to_motor_angle(-dist)
     else:
         angle = 0
+    angle = angle * 40.0 / 38.84
     interface.increaseMotorAngleReferences(motors,[angle,angle])
 
     while not interface.motorAngleReferencesReached(motors) :

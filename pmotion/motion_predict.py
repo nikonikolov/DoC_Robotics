@@ -1,7 +1,9 @@
 import collections
 import math
 import random
+import sys
 
+sys.path.append('/home/pi/DoC_Robotics')
 import motor_params
 
 NUMBER_OF_PARTICLES = 100
@@ -9,10 +11,10 @@ NUMBER_OF_PARTICLES = 100
 
 def rotation_noise(p, alpha):
     angle = p + alpha + random.gauss(0, 2.0) * math.pi / 180.0
-    if angle > 180:
-        angle -= 360
-    elif angle < -180:
-        angle += 360
+    if angle > math.pi:
+        angle -= 2 * math.pi
+    elif angle < -math.pi:
+        angle += 2 * math.pi
     return angle    
     
 
@@ -36,6 +38,13 @@ class State(StateBase):
     def rotate(self, alpha):
         return State(   particles=[Particle(x=p.x, y=p.y, theta=rotation_noise(p.theta, alpha)) for p in self.particles],
                         weights=self.weights)
+
+    def draw_particles(self):
+        DISTANCE_TO_PIXEL = 10.0
+        print "drawParticles:" + str([(200 + p.x * DISTANCE_TO_PIXEL,
+                                       200 + p.y * DISTANCE_TO_PIXEL,
+                                       p.theta)
+                                      for p in self.particles])
 
     def move_forward(self, d):
         particles = []

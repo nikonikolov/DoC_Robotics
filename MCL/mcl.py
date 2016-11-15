@@ -70,14 +70,22 @@ def resample(state):
     new_state = motion_predict.State(particles=[], weights=[])
     for _ in range(NUMBER_OF_PARTICLES):
         i = bisect.bisect(stack, random.random())
-        new_state.weights.append(state.weights[i])
+        new_state.weights.append(1.0 / NUMBER_OF_PARTICLES)
         new_state.particles.append(state.particles[i])
     return new_state
 
 
 def MCLStep(state):
     try:
-        return resample(normalize(updateMeasurement(state, ultrasound.get_reading())))
+        print "Begining:"
+        print state.x, state.y, state.theta
+        state = updateMeasurement(state, ultrasound.get_reading())
+        print "updated measurement:"
+        print state.x, state.y, state.theta
+        state = normalize(state)
+        print "normalized:"
+        print state.x, state.y, state.theta
+        return resample(state)
     except UnsensibleReadings:
         return state
 
@@ -113,8 +121,10 @@ def main():
                 break
             else:
                 state = motion_predict.navigateToWaypoint(state, waypoint)
-                state = MCLStep(state)        
-                print (state.x, state.y, state.theta)
+                state = MCLStep(state)
+                print "Final:"
+                print state.x, state.y, state.theta
+                # state.draw_particles()
 
 
 if __name__ == "__main__":
