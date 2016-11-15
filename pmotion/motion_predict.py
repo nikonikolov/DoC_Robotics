@@ -33,11 +33,16 @@ class State(StateBase):
 
     @property
     def theta(self):
-        return sum(p.theta * w for p, w in zip(self.particles, self.weights))
+        x = y = 0.
+        for p, w in zip(self.particles, self.weights):
+            x += math.cos(p.theta) * w
+            y += math.sin(p.theta) * w
+
+        return math.atan2(y, x)
 
     def rotate(self, alpha):
-        return State(   particles=[Particle(x=p.x, y=p.y, theta=rotation_noise(p.theta, alpha)) for p in self.particles],
-                        weights=self.weights)
+        return State(particles=[Particle(x=p.x, y=p.y, theta=rotation_noise(p.theta, alpha)) for p in self.particles],
+                     weights=self.weights)
 
     def draw_particles(self):
         DISTANCE_TO_PIXEL = 10.0

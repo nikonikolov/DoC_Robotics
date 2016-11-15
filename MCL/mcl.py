@@ -47,6 +47,7 @@ def updateMeasurement(state, z):
         else:
             new_weights.append(likelihood * w)     
     if unsensible_readings > UNSENSIBLE_READINNGS_THRESHOLD:
+        print "I am here"
         raise UnsensibleReadings
     return motion_predict.State(particles=state.particles, weights=new_weights)
 
