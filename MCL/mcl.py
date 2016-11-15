@@ -91,8 +91,14 @@ def MCLStep(state):
         return state
 
 
+def draw_particles(state):
+    particles = [(p.x, p.y, p.theta, w) for w, p in zip(state.weights, state.particles)]
+    walls.wallmap.canvas.drawParticles(particles)
+
+
 def main():
     ultrasound.setup()
+    walls.wallmap.draw()
     
     WAYPOINTS =[
             walls.Point(84, 30),
@@ -125,7 +131,7 @@ def main():
                 state = MCLStep(state)
                 print "Final:"
                 print state.x, state.y, state.theta
-                # state.draw_particles()
+                draw_particles(state)
 
 
 if __name__ == "__main__":

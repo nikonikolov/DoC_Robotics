@@ -46,8 +46,8 @@ class State(StateBase):
 
     def draw_particles(self):
         DISTANCE_TO_PIXEL = 10.0
-        print "drawParticles:" + str([(200 + p.x * DISTANCE_TO_PIXEL,
-                                       200 + p.y * DISTANCE_TO_PIXEL,
+        print "drawParticles:" + str([(100 + p.x * DISTANCE_TO_PIXEL,
+                                       100 + p.y * DISTANCE_TO_PIXEL,
                                        p.theta)
                                       for p in self.particles])
 
