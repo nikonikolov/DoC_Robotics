@@ -65,7 +65,7 @@ def calculate_likelihood(x, y, theta, z):
 
     m = walls.getWallDist(particle, walls.wallmap)          # calculate estimated measurment for this particle
     # if incidence angle or distance is out of range then skip the update
-    if m == 0:
+    if m == float("inf"):
         return -1
     return sonar_likelihood(z, m)
 
