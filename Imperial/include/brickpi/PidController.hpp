@@ -3,6 +3,7 @@
 #ifndef INCLUDE_BRICKPI_PIDCONTROLLER_HPP_
 #define INCLUDE_BRICKPI_PIDCONTROLLER_HPP_
 
+#include <iostream>
 #include <stdint.h>
 
 namespace brickpi {
@@ -74,6 +75,8 @@ class PidController
   /// guarantee smooth change between manual and automatic:
   void reset()
   {
+    std::cout << "Resetting" << std::endl;
+    lastError_ = 0;
     lastTime_=0;
     integratedError_=0.0;
   }

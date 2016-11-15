@@ -52,6 +52,7 @@ double PidController::computeOutput(double error, uint64_t time_nanosec,
 
 double PidController::computeOutput(double error, uint64_t time_nanosec)
 {
+  std::cout << "This is a new version" << std::endl;
   bool isSaturated;
   double output = computeOutput(error, time_nanosec, isSaturated);
   if (isSaturated) {
