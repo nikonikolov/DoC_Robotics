@@ -78,17 +78,20 @@ def resample(state):
 
 def MCLStep(state):
     try:
-        print "Begining:"
-        print state.x, state.y, state.theta
+        #print "Begining:"
+        #print state.x, state.y, state.theta
         state = updateMeasurement(state, ultrasound.get_reading())
-        print "updated measurement:"
-        print state.x, state.y, state.theta
-        state = normalize(state)
-        print "normalized:"
-        print state.x, state.y, state.theta
-        return resample(state)
+        #print "updated measurement:"
+        #print state.x, state.y, state.theta
     except UnsensibleReadings:
+        draw_particles(state)
         return state
+    else:
+        state = normalize(state)
+        draw_particles(state)
+        #print "normalized:"
+        #print state.x, state.y, state.theta
+        return resample(state)
 
 
 def draw_particles(state):
@@ -129,9 +132,7 @@ def main():
             else:
                 state = motion_predict.navigateToWaypoint(state, waypoint)
                 state = MCLStep(state)
-                print "Final:"
                 print state.x, state.y, state.theta
-                draw_particles(state)
 
 
 if __name__ == "__main__":

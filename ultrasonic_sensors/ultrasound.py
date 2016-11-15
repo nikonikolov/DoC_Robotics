@@ -17,8 +17,8 @@ MIN_SPEED = 3.0
 
 # TO DO - calibrate these values
 SENSOR_OFFSET = 6.5
-MAX_DIST = 100.0 - SENSOR_OFFSET 
-MIN_DIST = 20.0 - SENSOR_OFFSET 
+MAX_DIST = 100.0 + SENSOR_OFFSET 
+MIN_DIST = 10.0 + SENSOR_OFFSET 
 MAX_ANGLE = 34.0 * math.pi / 180.0
 
 
@@ -32,7 +32,11 @@ def get_reading():
             get_reading.history.pop(0)
 
         get_reading.history.append(dist)    
-        return np.median(get_reading.history) + SENSOR_OFFSET
+        med_reading = np.median(get_reading.history)
+        if med_reading < 20:
+            med_reading +=3.5
+        return med_reading + SENSOR_OFFSET
+        #return np.median(get_reading.history) + SENSOR_OFFSET
     else:
         print "Failed US reading"
         return None
