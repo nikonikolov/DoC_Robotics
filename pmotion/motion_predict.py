@@ -49,6 +49,26 @@ class State(StateBase):
                     theta + f))
         return State(particles=particles, weights=self.weights)
 
+    @property
+    def position(self):
+        x_total =0
+        y_total =0
+        theta_total =0
+        for p in self.particles:
+            x_total += p.x
+            y_total += p.y
+            if p.theta < 0:
+                theta_total += (2*math.pi - p.theta)
+            else:
+                theta_total += p.theta
+    
+        theta_average = theta_total/NUMBER_OF_PARTICLES
+        if theta_average > math.pi:
+            theta_average %= 2*math.pi
+            theta_average -= 2*math.pi
+
+        return Particle(x=x_total/NUMBER_OF_PARTICLES, y=y_total/NUMBER_OF_PARTICLES, theta=theta_average)
+
 
 Particle = collections.namedtuple("Particle", ["x", "y", "theta"])
 Dest = collections.namedtuple("Dest", ["x", "y"])

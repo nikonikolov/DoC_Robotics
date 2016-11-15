@@ -1,0 +1,17 @@
+Practical 5 TO DO:
+    - Add sonar mounting offset to the measurement
+    - return 0 from the distance estimation to wall if the particle is out of range
+    - make the partcile distribution proportional to the distance moved by
+    - compute the Standard Deviation and constant likelihood for the sonar and put them in MCL/mcl.py
+
+    - fix the main in MCL/mcl.py - decide how often to run the MCL - check the 3.3 Waypoint Navigation
+
+
+PID calibration
+Acceleration calibration
+
+Calibrartion of distance and rotation 
+    - make sure to run after you have made proper PID and velocity calibration - you want the robot to be as fast as possible 
+    - use some tape for the robot to draw on while the wheels are rotation on the actual floor
+
+

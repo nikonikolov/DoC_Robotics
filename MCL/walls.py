@@ -54,7 +54,8 @@ class Canvas:
         print "drawLine:" + str((x1,y1,x2,y2))
 
     def drawParticles(self,data):
-        display = [(self.__screenX(d[0]),self.__screenY(d[1])) + d[2:] for d in data];
+        #display = [(self.__screenX(p.x]), self.__screenY(p.y)) + d[2:] for p, w in data];
+        display = [(self.__screenX(d[0]), self.__screenY(d[1])) + d[2:] for d in data];
         print "drawParticles:" + str(display);
 
     def __screenX(self,x):
