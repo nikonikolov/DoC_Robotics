@@ -55,7 +55,7 @@ class State(StateBase):
         particles = []
         for particle in self.particles:
             x, y, theta = particle
-            e = random.gauss(0, 0.07)
+            e = random.gauss(0, 1)
             f = random.gauss(0, 0.25 * math.pi / 180.0)
             particles.append(Particle(
                     x + (d + e) * math.cos(theta),
