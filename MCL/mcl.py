@@ -13,21 +13,39 @@ SONAR_STD =
 
 NUMBER_OF_PARTICLES = motion_predict.NUMBER_OF_PARTICLES
 
-def measurement_update(state, z):
+
+def calculateLikelihood(x, y, theta, z):
+    """
+    param: z: sonar measurement
+    """
+    
+    def sonarLikelihood(x, mu):
+        """ 
+        param: x:   variable (z = actual measurement)
+        param: mu:  mean (estimated measurement)
+        """
+        return np.exp(-np.power(x - mu, 2.) / (2 * np.power(SONAR_STD, 2.))) + SONAR_CONSTANT_LIKELIHOOD
+
+    m = walls.getWallDist(particle, walls.wallmap)          # calculate estimated measurment for this particle
+    # if incidence angle or distance is out of range then skip the update
+    if m == 0:
+        return -1
+    return sonarLikelihood(z, m)
+
+def updateMeasurement(state, z):
     """
     param: z: sonar measurement
     """
     unsensible_readings = 0
     new_weights = []
     for p,w in zip(state.particles, state.weights):
-        likelihood = calculate_likelihood(p.x, p.y, p.theta, z)
+        likelihood = calculateLikelihood(p.x, p.y, p.theta, z)
         if likelihood < 0:
             unsensible_readings+=1
             new_weights.append(SONAR_CONSTANT_LIKELIHOOD * w)     
         else:
             new_weights.append(likelihood * w)     
     return motion_predict.State(particles=state.particles, weights=new_weights)
-
 
 def normalize(state):
     total_weight = sum(w for w in state.weights)
@@ -50,24 +68,8 @@ def resample(state):
         new_state.particles.append(state.particles[i])
     return new_state
 
-
-def calculate_likelihood(x, y, theta, z):
-    """
-    param: z: sonar measurement
-    """
-    
-    def sonar_likelihood(x, mu):
-        """ 
-        param: x:   variable (z = actual measurement)
-        param: mu:  mean (estimated measurement)
-        """
-        return np.exp(-np.power(x - mu, 2.) / (2 * np.power(SONAR_STD, 2.))) + SONAR_CONSTANT_LIKELIHOOD
-
-    m = walls.getWallDist(particle, walls.wallmap)          # calculate estimated measurment for this particle
-    # if incidence angle or distance is out of range then skip the update
-    if m == 0:
-        return -1
-    return sonar_likelihood(z, m)
+def MCLStep(state):
+    return resample(normalize(updateMeasurement(state)))
 
 
 def main();
