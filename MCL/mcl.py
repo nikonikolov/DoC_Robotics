@@ -3,17 +3,21 @@ import sys
 import bisect
 
 sys.path.append('/home/pi/DoC_Robotics/pmotion')
+sys.path.append('/home/pi/DoC_Robotics/ultrasonic_sensors')
 
 import motion_predict
 import walls
+import ultrasound
 
 # TO DO: calculate the standard deviation and the constant likelihood
-SONAR_CONSTANT_LIKELIHOOD =  
-SONAR_STD = 
+SONAR_CONSTANT_LIKELIHOOD = 0.05 
+SONAR_STD = 2
+UNSENSIBLE_READINNGS_THRESHOLD = 50
 
 NUMBER_OF_PARTICLES = motion_predict.NUMBER_OF_PARTICLES
-WAYPOINTS = []
 
+class UnsensibleReadings(Expcetion):
+    pass
 
 def calculate_likelihood(x, y, theta, z):
     """
@@ -47,6 +51,8 @@ def updateMeasurement(state, z):
             new_weights.append(SONAR_CONSTANT_LIKELIHOOD * w)     
         else:
             new_weights.append(likelihood * w)     
+    if unsensible_readings > UNSENSIBLE_READINNGS_THRESHOLD:
+        raise UnsensibleReadings
     return motion_predict.State(particles=state.particles, weights=new_weights)
 
 
@@ -74,9 +80,13 @@ def resample(state):
 
 
 def MCLStep(state):
-    return resample(normalize(updateMeasurement(state)))
+    try:
+        return resample(normalize(updateMeasurement(state, ultrasound.get_reading())))
+    except UnsensibleReadings:
+        return state
 
 
+"""
 def navigateToWaypoint(state, dest):
     goal_theta = math.atan2(dest.y - state.y, dest.x - state.x)
     delta_theta_rad = goal_theta - state.theta
@@ -90,13 +100,27 @@ def navigateToWaypoint(state, dest):
             (state.y - dest.y)**2 + (state.x - dest.x)**2))
     motor_params.forward(dist)
     return MCLStep(state.move_forward(dist))
-
+"""
 
 def main();
+    ultrasound.setup()
+    
+    WAPOINTS =[
+            (84, 30),
+            (180, 30),
+            (180, 54),
+            (138, 54),
+            (138, 168),
+            (114, 168),
+            (114, 84),
+            (84, 84),
+            (84, 30)]
+
     state = motion_predict.State(
-            particles=[motion_predict.Particle(x=84, y=30, theta=0)] * NUMBER_OF_PARTICLES,
+            particles=[motion_predict.Particle(x=WAYPOINTS[0][0], y=WAYPOINTS[0][1], theta=0)] * NUMBER_OF_PARTICLES,
             weights=[1.0 / NUMBER_OF_PARTICLES
                      for _ in range(NUMBER_OF_PARTICLES)])
+    
     for waypoint in WAYPOINTS[1:]:
         # waypoint refers to the next destination
         while True:
@@ -107,7 +131,9 @@ def main();
                 # We have reached our destination, rotate!
                 break
             else:
-                state = navigate_to_waypoint(state, waypoint)
+                state = motion_predict.navigateToWaypoint(state, dest)
+                state = MCLStep(state)        
+                print (state.x, state.y, state.theta)
 
 
 if __name__ == "__main__":

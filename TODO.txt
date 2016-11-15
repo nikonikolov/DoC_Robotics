@@ -6,6 +6,19 @@ Practical 5 TO DO:
 
     - fix the main in MCL/mcl.py - decide how often to run the MCL - check the 3.3 Waypoint Navigation
 
+PARAMETERS TO TUNE:
+    SONAR_CONSTANT_LIKELIHOOD =  
+    SONAR_STD =
+    UNSENSIBLE_READINNGS_THRESHOLD = 
+
+    SENSOR_OFFSET = 6.5
+    MAX_DIST = 85.0 - SENSOR_OFFSET 
+    MIN_DIST = 20.0 - SENSOR_OFFSET 
+    MAX_ANGLE = 34.0 * math.pi / 180.0
+
+TO TEST:
+    ARTIFICALLY WORSEN ODOMETRY AND TEST MCL
+
 
 PID calibration
 Acceleration calibration
