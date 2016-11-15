@@ -1,5 +1,7 @@
-import brickpi
+import math
 import time
+
+import brickpi
 import motor_params
 import numpy as np
 

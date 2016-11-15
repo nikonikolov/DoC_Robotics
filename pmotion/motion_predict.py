@@ -83,7 +83,7 @@ def navigateToWaypoint(state, dest):
         delta_theta_rad += 2*math.pi  
     motor_params.rotate(delta_theta_rad / math.pi * 180.0)
     state = state.rotate(delta_theta_rad)
-    dist = math.sqrt((state.y - dest.y)**2 + (state.x - dest.x)**2)
+    dist = min(20.0, math.sqrt((state.y - dest.y)**2 + (state.x - dest.x)**2))
     motor_params.forward(dist)
     return state.move_forward(dist)
 

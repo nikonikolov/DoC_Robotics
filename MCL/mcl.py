@@ -1,6 +1,7 @@
 import numpy as np
 import sys
 import bisect
+import random
 
 sys.path.append('/home/pi/DoC_Robotics/pmotion')
 sys.path.append('/home/pi/DoC_Robotics/ultrasonic_sensors')
@@ -13,29 +14,23 @@ import ultrasound
 SONAR_CONSTANT_LIKELIHOOD = 0.05 
 SONAR_STD = 2
 UNSENSIBLE_READINNGS_THRESHOLD = 50
-
 NUMBER_OF_PARTICLES = motion_predict.NUMBER_OF_PARTICLES
 
-class UnsensibleReadings(Expcetion):
+
+class UnsensibleReadings(Exception):
     pass
+
 
 def calculate_likelihood(x, y, theta, z):
     """
     param: z: sonar measurement
     """
-    
-    def sonarLikelihood(x, mu):
-        """ 
-        param: x:   variable (z = actual measurement)
-        param: mu:  mean (estimated measurement)
-        """
-
     particle = motion_predict.Particle(x=x, y=y, theta=theta)
     m = walls.getWallDist(particle, walls.wallmap)          # calculate estimated measurment for this particle
     # if incidence angle or distance is out of range then skip the update
     if m == float("inf"):
         return -1
-    return np.exp(-np.power(z - mu, 2.) / (2 * np.power(SONAR_STD, 2.))) + SONAR_CONSTANT_LIKELIHOOD
+    return np.exp(-np.power(z - m, 2.) / (2 * np.power(SONAR_STD, 2.))) + SONAR_CONSTANT_LIKELIHOOD
 
 
 def updateMeasurement(state, z):
@@ -64,7 +59,8 @@ def normalize(state):
 
 def resample(state):
     first = True
-    for w, i in enumerate(state.weights):
+    stack = []
+    for i, w in enumerate(state.weights):
         if first:
             stack.append(w)
             first = False
@@ -86,52 +82,37 @@ def MCLStep(state):
         return state
 
 
-"""
-def navigateToWaypoint(state, dest):
-    goal_theta = math.atan2(dest.y - state.y, dest.x - state.x)
-    delta_theta_rad = goal_theta - state.theta
-    if delta_theta_rad > math.pi:
-        delta_theta_rad -= 2*math.pi
-    elif delta_theta_rad < -math.pi:
-        delta_theta_rad += 2*math.pi  
-    motor_params.rotate(delta_theta_rad / math.pi * 180.0)
-    state = state.rotate(delta_theta_rad)
-    dist = min(20, math.sqrt(
-            (state.y - dest.y)**2 + (state.x - dest.x)**2))
-    motor_params.forward(dist)
-    return MCLStep(state.move_forward(dist))
-"""
-
-def main();
+def main():
     ultrasound.setup()
     
-    WAPOINTS =[
-            (84, 30),
-            (180, 30),
-            (180, 54),
-            (138, 54),
-            (138, 168),
-            (114, 168),
-            (114, 84),
-            (84, 84),
-            (84, 30)]
+    WAYPOINTS =[
+            walls.Point(84, 30),
+            walls.Point(180, 30),
+            walls.Point(180, 54),
+            walls.Point(138, 54),
+            walls.Point(138, 168),
+            walls.Point(114, 168),
+            walls.Point(114, 84),
+            walls.Point(84, 84),
+            walls.Point(84, 30)]
 
     state = motion_predict.State(
-            particles=[motion_predict.Particle(x=WAYPOINTS[0][0], y=WAYPOINTS[0][1], theta=0)] * NUMBER_OF_PARTICLES,
+            particles=[motion_predict.Particle(
+                    x=WAYPOINTS[0].x, y=WAYPOINTS[0].y, theta=0)] * NUMBER_OF_PARTICLES,
             weights=[1.0 / NUMBER_OF_PARTICLES
                      for _ in range(NUMBER_OF_PARTICLES)])
     
     for waypoint in WAYPOINTS[1:]:
         # waypoint refers to the next destination
         while True:
-            x_is_close = np.isclose(state.x, waypoint.x, atol=0.5)
-            y_is_close = np.isclose(state.y, waypoint.y, atol=0.5)
+            x_is_close = abs(state.x - waypoint.x) <= 1.0
+            y_is_close = abs(state.y - waypoint.y) <= 1.0
 
             if x_is_close and y_is_close:
                 # We have reached our destination, rotate!
                 break
             else:
-                state = motion_predict.navigateToWaypoint(state, dest)
+                state = motion_predict.navigateToWaypoint(state, waypoint)
                 state = MCLStep(state)        
                 print (state.x, state.y, state.theta)
 

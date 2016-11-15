@@ -105,9 +105,11 @@ def getWallDist(particle, wallmap):
         dist = ((By - Ay)*(Ax - particle.x) - (Bx - Ax)*(Ay - particle.y)) / ( (By-Ay)*math.cos(particle.theta) - (Bx-Ax)*math.sin(particle.theta) )
         if dist < SONAR_MIN_DIST or dist > SONAR_MAX_DIST:
             continue
-        beta = math.acos(
-                math.cos(particle.theta) * (Ay - By) + math.sin(particle.theta) * (Bx - Ax)
-                / math.sqrt((Ay - By) ** 2 + (Bx - Ax) ** 2))
+        acos_value = math.cos(particle.theta) * (Ay - By) + math.sin(particle.theta) * (Bx - Ax) \
+                / math.sqrt((Ay - By) ** 2 + (Bx - Ax) ** 2)
+        if acos_value  > 1 or acos_value < -1:
+            continue 
+        beta = math.acos(acos_value)
         if beta > SONAR_MAX_ANGLE:
             continue
 
