@@ -15,7 +15,7 @@ MIN_SPEED = 3.0
 
 # TO DO - calibrate these values
 SENSOR_OFFSET = 6.5
-MAX_DIST = 85.0 - SENSOR_OFFSET 
+MAX_DIST = 100.0 - SENSOR_OFFSET 
 MIN_DIST = 20.0 - SENSOR_OFFSET 
 MAX_ANGLE = 34.0 * math.pi / 180.0
 

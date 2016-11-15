@@ -10,12 +10,11 @@ import walls
 import ultrasound
 
 # TO DO: calculate the standard deviation and the constant likelihood
-SONAR_CONSTANT_LIKELIHOOD =  
-SONAR_STD =
-UNSENSIBLE_READINNGS_THRESHOLD = 
+SONAR_CONSTANT_LIKELIHOOD = 0.05 
+SONAR_STD = 2
+UNSENSIBLE_READINNGS_THRESHOLD = 50
 
 NUMBER_OF_PARTICLES = motion_predict.NUMBER_OF_PARTICLES
-WAYPOINTS = []
 
 class UnsensibleReadings(Expcetion):
     pass
