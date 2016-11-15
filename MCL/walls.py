@@ -7,6 +7,16 @@ import random
 import math
 import collections
 
+
+# Configurable Parameters
+# Max / Minimum distance, angle that sonar sensor can measure
+# Note that angle is relative to the perpendicular rather than the wall.
+# and is in radians.
+SONAR_MIN_DIST = 20.0
+SONAR_MAX_DIST = 85.0
+SONAR_MAX_ANGLE = 34.0 * math.pi / 180.0
+
+
 Point = collections.namedtuple("Point", ["x", "y"])
 
 # Functions to generate some dummy particles data:
@@ -79,38 +89,41 @@ def getWallDist(particle, wallmap):
     param: particle : @type motion_predict.Particle - x, y, theta
     param: wallmap  : @type Map
 
-    Calculate distance from each wall. Then take the shortest wall where the point of intersection is within the wall
+    Calculate distance from each wall. Then take the shortest wall where the point
+    of intersection is within the wall
     """
     smallest_inside_dist = float("inf")
-    
+
     for wall in wallmap.walls:
         Ax, Ay, Bx, By = wall
-        Ax = wall[0]
-        Ay = wall[1]
-        Bx = wall[2]
-        By = wall[3]
-        
+
         dist = ((By - Ay)*(Ax - particle.x) - (Bx - Ax)*(Ay - particle.y)) / ( (By-Ay)*math.cos(particle.theta) - (Bx-Ax)*math.sin(particle.theta) )
-        if (dist < 0):
+        if dist < SONAR_MIN_DIST or dist > SONAR_MAX_DIST:
             continue
-            
+        beta = math.acos(
+                math.cos(particle.theta) * (Ay - By) + math.sin(particle.theta) * (Bx - Ax)
+                / math.sqrt((Ay - By) ** 2 + (Bx - Ax) ** 2))
+        if beta > SONAR_MAX_ANGLE:
+            continue
+
         meetX = particle.x + dist*math.cos(particle.theta)
         meetY = particle.y + dist*math.sin(particle.theta)
         inside = True
-        # Check if x coordinate is inside           
+        # Check if x coordinate is inside
         if Ax>Bx:
             Ax, Bx = Bx, Ax
         if meetX<Ax or meetX>Bx:
             inside = False
-        
-        # Check if y coordinate is inside           
+
+        # Check if y coordinate is inside
         if Ay>By:
             Ay, By = By, Ay
         if meetY<Ay or meetY>By:
             inside = False
-        
+
         if inside and dist<smallest_inside_dist:
             smallest_inside_dist = dist
+
     return smallest_inside_dist
 
 
@@ -119,7 +132,7 @@ class Particles:
     Simple Particles set
     """
     def __init__(self, canvas):
-        self.n = 10;    
+        self.n = 10;
         self.data = [];
         self.canvas = canvas
 
