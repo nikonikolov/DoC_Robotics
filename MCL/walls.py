@@ -12,8 +12,8 @@ import collections
 # Max / Minimum distance, angle that sonar sensor can measure
 # Note that angle is relative to the perpendicular rather than the wall.
 # and is in radians.
-SONAR_MIN_DIST = 20.0
-SONAR_MAX_DIST = 85.0
+SONAR_MIN_DIST = 10.0
+SONAR_MAX_DIST = 95.0
 SONAR_MAX_ANGLE = 34.0 * math.pi / 180.0
 
 
@@ -155,14 +155,14 @@ E = Point(168, 210)
 F = Point(168, 84)
 G = Point(210, 84)
 H = Point(210, 0)
-wallmap.add_wall( (O.x, O.y, A.x, A.y) )        # a    
-wallmap.add_wall( (A.x, A.y, B.x, B.y) )        # b    
-wallmap.add_wall( (C.x, C.y, D.x, D.y) )        # c    
-wallmap.add_wall( (D.x, D.y, E.x, E.y) )        # d    
-wallmap.add_wall( (E.x, E.y, F.x, F.y) )        # e    
-wallmap.add_wall( (F.x, F.y, G.x, G.y) )        # f    
-wallmap.add_wall( (G.x, G.y, H.x, H.y) )        # g    
-wallmap.add_wall( (H.x, H.y, O.x, O.y) )        # h    
+wallmap.add_wall( (O.x, O.y, A.x, A.y) )        # a
+wallmap.add_wall( (A.x, A.y, B.x, B.y) )        # b
+wallmap.add_wall( (C.x, C.y, D.x, D.y) )        # c
+wallmap.add_wall( (D.x, D.y, E.x, E.y) )        # d
+wallmap.add_wall( (E.x, E.y, F.x, F.y) )        # e
+wallmap.add_wall( (F.x, F.y, G.x, G.y) )        # f
+wallmap.add_wall( (G.x, G.y, H.x, H.y) )        # g
+wallmap.add_wall( (H.x, H.y, O.x, O.y) )        # h
 
 
 def main():
