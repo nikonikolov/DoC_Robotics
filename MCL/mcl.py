@@ -63,7 +63,7 @@ def calculate_likelihood(x, y, theta, z):
         """
         return np.exp(-np.power(x - mu, 2.) / (2 * np.power(SONAR_STD, 2.))) + SONAR_CONSTANT_LIKELIHOOD
 
-    m = tom_function()          # calculate estimated measurment for this particle
+    m = walls.getWallDist(particle, walls.wallmap)          # calculate estimated measurment for this particle
     # if incidence angle or distance is out of range then skip the update
     if m == 0:
         return -1

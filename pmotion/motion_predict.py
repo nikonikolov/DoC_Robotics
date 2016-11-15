@@ -34,12 +34,8 @@ class State(StateBase):
         return sum(p.theta * w for p, w in zip(self.particles, self.weights))
 
     def rotate(self, alpha):
-        return State(
-                particles=[Particle(
-                        x=p.x, y=p.y,
-                        theta=rotation_noise(p.theta, alpha))
-                                for p in self.particles],
-                weights=self.weights)
+        return State(   particles=[Particle(x=p.x, y=p.y, theta=rotation_noise(p.theta, alpha)) for p in self.particles],
+                        weights=self.weights)
 
     def move_forward(self, d):
         particles = []

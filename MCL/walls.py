@@ -73,62 +73,45 @@ class Map:
             self.canvas.drawLine(wall);
 
 
-class Pose:
+# TO DO - return 0 if the measurement is supposed to be out of range
+def getWallDist(particle, wallmap):
     """
-    Position of the robot
+    param: particle : @type motion_predict.Particle - x, y, theta
+    param: wallmap  : @type Map
+
+    Calculate distance from each wall. Then take the shortest wall where the point of intersection is within the wall
     """
-    def __init__(self, x, y, theta):
-        """
-        param: theta: in radians
-        """
-        self.x = x
-        self.y = y
-
-        # Get theta in the proper range
-        clampedTheta = (theta % (math.pi*2))
-        if clampedTheta > math.pi:
-            clampedTheta -= 2*math.pi
-        elif clampedTheta < math.pi:
-            clampedTheta += 2*math.pi
-        self.theta = clampedTheta
-
-    def getWallDist(self, wallmap):
-        """
-        Calculate distance from each wall. Then take the shortest wall where the point of intersection is within the wall
-        """
-        smallest_inside_dist = float("inf")
+    smallest_inside_dist = float("inf")
+    
+    for wall in wallmap.walls:
+        Ax, Ay, Bx, By = wall
+        Ax = wall[0]
+        Ay = wall[1]
+        Bx = wall[2]
+        By = wall[3]
         
-        for wall in wallmap.walls:
-            Ax, Ay, Bx, By = wall
-
-            Ax = wall[0]
-            Ay = wall[1]
-            Bx = wall[2]
-            By = wall[3]
+        dist = ((By - Ay)*(Ax - particle.x) - (Bx - Ax)*(Ay - particle.y)) / ( (By-Ay)*math.cos(particle.theta) - (Bx-Ax)*math.sin(particle.theta) )
+        if (dist < 0):
+            continue
             
-            dist = ((By - Ay)*(Ax - self.x) - (Bx - Ax)*(Ay - self.y)) / ( (By-Ay)*math.cos(self.theta) - (Bx-Ax)*math.sin(self.theta) )
-            if (dist < 0):
-                continue
-                
-            meetX = self.x + dist*math.cos(self.theta)
-            meetY = self.y + dist*math.sin(self.theta)
-            inside = True
- 
-            # Check if x coordinate is inside           
-            if Ax>Bx:
-                Ax, Bx = Bx, Ax
-            if meetX<Ax or meetX>Bx:
-                inside = False
-            
-            # Check if y coordinate is inside           
-            if Ay>By:
-                Ay, By = By, Ay
-            if meetY<Ay or meetY>By:
-                inside = False
-            
-            if inside and dist<smallest_inside_dist:
-                smallest_inside_dist = dist
-        return smallest_inside_dist
+        meetX = particle.x + dist*math.cos(particle.theta)
+        meetY = particle.y + dist*math.sin(particle.theta)
+        inside = True
+        # Check if x coordinate is inside           
+        if Ax>Bx:
+            Ax, Bx = Bx, Ax
+        if meetX<Ax or meetX>Bx:
+            inside = False
+        
+        # Check if y coordinate is inside           
+        if Ay>By:
+            Ay, By = By, Ay
+        if meetY<Ay or meetY>By:
+            inside = False
+        
+        if inside and dist<smallest_inside_dist:
+            smallest_inside_dist = dist
+    return smallest_inside_dist
 
 
 class Particles:
@@ -147,53 +130,28 @@ class Particles:
         self.canvas.drawParticles(self.data);
 
 
-def initMap(canvas):
-    wallmap = Map(canvas);
-    O = Point(0, 0)
-    A = Point(0, 168)
-    B = Point(84, 168)
-    C = Point(84, 126)
-    D = Point(84, 210)
-    E = Point(168, 210)
-    F = Point(168, 84)
-    G = Point(210, 84)
-    H = Point(210, 0)
+canvas = Canvas()  # global canvas we are going to draw on
+wallmap = Map(canvas);
+O = Point(0, 0)
+A = Point(0, 168)
+B = Point(84, 168)
+C = Point(84, 126)
+D = Point(84, 210)
+E = Point(168, 210)
+F = Point(168, 84)
+G = Point(210, 84)
+H = Point(210, 0)
+wallmap.add_wall( (O.x, O.y, A.x, A.y) )        # a    
+wallmap.add_wall( (A.x, A.y, B.x, B.y) )        # b    
+wallmap.add_wall( (C.x, C.y, D.x, D.y) )        # c    
+wallmap.add_wall( (D.x, D.y, E.x, E.y) )        # d    
+wallmap.add_wall( (E.x, E.y, F.x, F.y) )        # e    
+wallmap.add_wall( (F.x, F.y, G.x, G.y) )        # f    
+wallmap.add_wall( (G.x, G.y, H.x, H.y) )        # g    
+wallmap.add_wall( (H.x, H.y, O.x, O.y) )        # h    
 
-    wallmap.add_wall( (O.x, O.y, A.x, A.y) )        # a    
-    wallmap.add_wall( (A.x, A.y, B.x, B.y) )        # b    
-    wallmap.add_wall( (C.x, C.y, D.x, D.y) )        # c    
-    wallmap.add_wall( (D.x, D.y, E.x, E.y) )        # d    
-    wallmap.add_wall( (E.x, E.y, F.x, F.y) )        # e    
-    wallmap.add_wall( (F.x, F.y, G.x, G.y) )        # f    
-    wallmap.add_wall( (G.x, G.y, H.x, H.y) )        # g    
-    wallmap.add_wall( (H.x, H.y, O.x, O.y) )        # h    
-    return wallmap
 
 def main():
-    canvas = Canvas()  # global canvas we are going to draw on
-    
-    """
-    wallmap = Map(canvas);
-    O = Point(0, 0)
-    A = Point(0, 168)
-    B = Point(84, 168)
-    C = Point(84, 126)
-    D = Point(84, 210)
-    E = Point(168, 210)
-    F = Point(168, 84)
-    G = Point(210, 84)
-    H = Point(210, 0)
-
-    wallmap.add_wall( (O.x, O.y, A.x, A.y) )        # a    
-    wallmap.add_wall( (A.x, A.y, B.x, B.y) )        # b    
-    wallmap.add_wall( (C.x, C.y, D.x, D.y) )        # c    
-    wallmap.add_wall( (D.x, D.y, E.x, E.y) )        # d    
-    wallmap.add_wall( (E.x, E.y, F.x, F.y) )        # e    
-    wallmap.add_wall( (F.x, F.y, G.x, G.y) )        # f    
-    wallmap.add_wall( (G.x, G.y, H.x, H.y) )        # g    
-    wallmap.add_wall( (H.x, H.y, O.x, O.y) )        # h    
-    """
-    wallmap = initMap(canvas)
     wallmap.draw()
 
     particles = Particles(canvas);
