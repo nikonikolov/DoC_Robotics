@@ -165,20 +165,16 @@ wallmap.add_wall( (H.x, H.y, O.x, O.y) )        # h
 
 
 def main():
+    global t
     wallmap.draw()
 
     particles = Particles(canvas);
-
-    #pos = Pose(H.x-5, G.y-4, 145/180*math.pi)
-    pos = Pose(10, 10, 45/180*math.pi)
-    print pos.getWallDist(wallmap)
-
     while True:
         particles.update();
         particles.draw();
         t += 0.05;
         time.sleep(0.05);
-      
+
 
 if __name__ == "__main__":
     t = 0
