@@ -5,6 +5,7 @@ import bisect
 sys.path.append('/home/pi/DoC_Robotics/pmotion')
 
 import motion_predict
+import walls
 
 # TO DO: calculate the standard deviation and the constant likelihood
 SONAR_CONSTANT_LIKELIHOOD =  

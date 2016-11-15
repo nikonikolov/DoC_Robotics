@@ -5,6 +5,9 @@
 import time
 import random
 import math
+import collections
+
+Point = collections.namedtuple("Point", ["x", "y"])
 
 # Functions to generate some dummy particles data:
 def calcX():
@@ -13,16 +16,20 @@ def calcX():
 def calcY():
     return random.gauss(70,3) + 60*(math.sin(2*t)); # in cm
 
-def calcW():
+def calcWeight():
     return random.random();
 
 def calcTheta():
+    return random.randint(-180,180);
     return random.randint(0,360);
 
-# A Canvas class for drawing a map and particles:
-# 	- it takes care of a proper scaling and coordinate transformation between
-#	  the map frame of reference (in cm) and the display (in pixels)
+
 class Canvas:
+    """
+    Canvas class for drawing map and particles:
+    : takes care of a proper scaling and coordinate transformation between
+      the map frame of reference (in cm) and the display (in pixels)
+    """
     def __init__(self,map_size=210):
         self.map_size    = map_size;    # in cm;
         self.canvas_size = 768;         # in pixels;
@@ -46,10 +53,14 @@ class Canvas:
     def __screenY(self,y):
         return (self.map_size + self.margin - y)*self.scale
 
-# A Map class containing walls
+
 class Map:
-    def __init__(self):
+    """
+    Map class containing the walls of the arena
+    """
+    def __init__(self, canvas):
         self.walls = [];
+        self.canvas = canvas
 
     def add_wall(self,wall):
         self.walls.append(wall);
@@ -59,94 +70,146 @@ class Map:
 
     def draw(self):
         for wall in self.walls:
-            canvas.drawLine(wall);
+            self.canvas.drawLine(wall);
 
-    def getDist(self, pose):
-        #Calculate distance from each wall. Then take the shortest wall where the point of intersection is within the wall
-        smallestInsideDist = float("inf")
-        for wall in self.walls:
+
+class Pose:
+    """
+    Position of the robot
+    """
+    def __init__(self, x, y, theta):
+        """
+        param: theta: in radians
+        """
+        self.x = x
+        self.y = y
+
+        # Get theta in the proper range
+        clampedTheta = (theta % (math.pi*2))
+        if clampedTheta > math.pi:
+            clampedTheta -= 2*math.pi
+        elif clampedTheta < math.pi:
+            clampedTheta += 2*math.pi
+        self.theta = clampedTheta
+
+    def getWallDist(self, wallmap):
+        """
+        Calculate distance from each wall. Then take the shortest wall where the point of intersection is within the wall
+        """
+        smallest_inside_dist = float("inf")
+        
+        for wall in wallmap.walls:
+            Ax, Ay, Bx, By = wall
+
             Ax = wall[0]
             Ay = wall[1]
             Bx = wall[2]
             By = wall[3]
-            dist = ((By - Ay)*(Ax - pose.x) - (Bx - Ax)*(Ay - pose.y))/((By-Ay)*math.cos(pose.theta) - (Bx-Ax)*math.sin(pose.y))
+            
+            dist = ((By - Ay)*(Ax - self.x) - (Bx - Ax)*(Ay - self.y)) / ( (By-Ay)*math.cos(self.theta) - (Bx-Ax)*math.sin(self.theta) )
             if (dist < 0):
                 continue
                 
-            meetX = pose.x + dist*math.cos(pose.theta)
-            meetY = pose.y + dist*math.sin(pose.theta)
+            meetX = self.x + dist*math.cos(self.theta)
+            meetY = self.y + dist*math.sin(self.theta)
             inside = True
-            
-            if (Ax>Bx):
-                (Ax, Bx) = (Bx, Ax)
-            if (meetX<Ax or meetX>Bx):
+ 
+            # Check if x coordinate is inside           
+            if Ax>Bx:
+                Ax, Bx = Bx, Ax
+            if meetX<Ax or meetX>Bx:
                 inside = False
             
-            if (Ay>By):
-                (Ay, By) = (By, Ay)
-            if (meetY<Ay or meetY>By):
+            # Check if y coordinate is inside           
+            if Ay>By:
+                Ay, By = By, Ay
+            if meetY<Ay or meetY>By:
                 inside = False
             
-            if (inside and (dist<smallestInsideDist)):
-                smallestInsideDist = dist
-        return smallestInsideDist
+            if inside and dist<smallest_inside_dist:
+                smallest_inside_dist = dist
+        return smallest_inside_dist
 
-class Pose:
-    def __init__(self, x, y, theta):
-        self.x = x
-        self.y = y
-        clampedTheta = (theta % (math.pi*2))
-        if (clampedTheta > math.pi):
-            clampedTheta-=2*math.pi
-        self.theta = clampedTheta
 
-            
-# Simple Particles set
 class Particles:
-    def __init__(self):
+    """
+    Simple Particles set
+    """
+    def __init__(self, canvas):
         self.n = 10;    
         self.data = [];
+        self.canvas = canvas
 
     def update(self):
-        self.data = [(calcX(), calcY(), calcTheta(), calcW()) for i in range(self.n)];
+        self.data = [(calcX(), calcY(), calcTheta(), calcWeight()) for i in range(self.n)];
     
     def draw(self):
-        canvas.drawParticles(self.data);
+        self.canvas.drawParticles(self.data);
 
-canvas = Canvas();	# global canvas we are going to draw on
 
-mymap = Map();
-# Definitions of walls
-# a: O to A
-# b: A to B
-# c: C to D
-# d: D to E
-# e: E to F
-# f: F to G
-# g: G to H
-# h: H to O
-mymap.add_wall((0,0,0,168));        # a    #x, y ---> x, y
-mymap.add_wall((0,168,84,168));     # b
-mymap.add_wall((84,126,84,210));    # c
-mymap.add_wall((84,210,168,210));   # d
-mymap.add_wall((168,210,168,84));   # e
-mymap.add_wall((168,84,210,84));    # f
-mymap.add_wall((210,84,210,0));     # g
-mymap.add_wall((210,0,0,0));        # h
-mymap.draw();
+def initMap(canvas):
+    wallmap = Map(canvas);
+    O = Point(0, 0)
+    A = Point(0, 168)
+    B = Point(84, 168)
+    C = Point(84, 126)
+    D = Point(84, 210)
+    E = Point(168, 210)
+    F = Point(168, 84)
+    G = Point(210, 84)
+    H = Point(210, 0)
 
-particles = Particles();
+    wallmap.add_wall( (O.x, O.y, A.x, A.y) )        # a    
+    wallmap.add_wall( (A.x, A.y, B.x, B.y) )        # b    
+    wallmap.add_wall( (C.x, C.y, D.x, D.y) )        # c    
+    wallmap.add_wall( (D.x, D.y, E.x, E.y) )        # d    
+    wallmap.add_wall( (E.x, E.y, F.x, F.y) )        # e    
+    wallmap.add_wall( (F.x, F.y, G.x, G.y) )        # f    
+    wallmap.add_wall( (G.x, G.y, H.x, H.y) )        # g    
+    wallmap.add_wall( (H.x, H.y, O.x, O.y) )        # h    
+    return wallmap
 
-t = 0;
-
-p = Pose(205,80,2.5)
-print mymap.getDist(p)
-
-'''
-while True:
-    particles.update();
-    particles.draw();
-    t += 0.05;
-    time.sleep(0.05);
+def main():
+    canvas = Canvas()  # global canvas we are going to draw on
     
-'''
+    """
+    wallmap = Map(canvas);
+    O = Point(0, 0)
+    A = Point(0, 168)
+    B = Point(84, 168)
+    C = Point(84, 126)
+    D = Point(84, 210)
+    E = Point(168, 210)
+    F = Point(168, 84)
+    G = Point(210, 84)
+    H = Point(210, 0)
+
+    wallmap.add_wall( (O.x, O.y, A.x, A.y) )        # a    
+    wallmap.add_wall( (A.x, A.y, B.x, B.y) )        # b    
+    wallmap.add_wall( (C.x, C.y, D.x, D.y) )        # c    
+    wallmap.add_wall( (D.x, D.y, E.x, E.y) )        # d    
+    wallmap.add_wall( (E.x, E.y, F.x, F.y) )        # e    
+    wallmap.add_wall( (F.x, F.y, G.x, G.y) )        # f    
+    wallmap.add_wall( (G.x, G.y, H.x, H.y) )        # g    
+    wallmap.add_wall( (H.x, H.y, O.x, O.y) )        # h    
+    """
+    wallmap = initMap(canvas)
+    wallmap.draw()
+
+    particles = Particles(canvas);
+
+    #pos = Pose(H.x-5, G.y-4, 145/180*math.pi)
+    pos = Pose(10, 10, 45/180*math.pi)
+    print pos.getWallDist(wallmap)
+
+    while True:
+        particles.update();
+        particles.draw();
+        t += 0.05;
+        time.sleep(0.05);
+      
+
+if __name__ == "__main__":
+    t = 0
+    main()
+
