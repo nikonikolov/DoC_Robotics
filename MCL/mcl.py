@@ -11,8 +11,8 @@ import walls
 import ultrasound
 
 # TO DO: calculate the standard deviation and the constant likelihood
-SONAR_CONSTANT_LIKELIHOOD = 0.008
-SONAR_STD = 1.8
+SONAR_CONSTANT_LIKELIHOOD = 0.003
+SONAR_STD = 1.3
 UNSENSIBLE_READINNGS_THRESHOLD = 50
 NUMBER_OF_PARTICLES = motion_predict.NUMBER_OF_PARTICLES
 
@@ -91,7 +91,9 @@ def MCLStep(state):
         draw_particles(state)
         #print "normalized:"
         #print state.x, state.y, state.theta
-        return resample(state)
+        state = resample(state)
+        draw_particles(state)
+        return state
 
 
 def draw_particles(state):

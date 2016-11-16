@@ -8,6 +8,9 @@ import motor_params
 
 NUMBER_OF_PARTICLES = 100
 
+class RotationHere(Exception):
+    pass
+
 
 def rotation_noise(p, alpha):
     angle = p + alpha + random.gauss(0, 1.0) * math.pi / 180.0
@@ -98,6 +101,8 @@ def navigateToWaypoint(state, dest):
         delta_theta_rad += 2*math.pi  
     motor_params.rotate(delta_theta_rad / math.pi * 180.0)
     state = state.rotate(delta_theta_rad)
+    if(delta_theta_rad/math.pi*180) > 45 or delta_theta_rad/math.pi*180 < -45:
+        return state
     dist = min(20.0, math.sqrt((state.y - dest.y)**2 + (state.x - dest.x)**2))
     motor_params.forward(dist)
     return state.move_forward(dist)

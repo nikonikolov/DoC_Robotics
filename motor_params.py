@@ -21,7 +21,7 @@ motorParamsLeft.maxRotationAcceleration = 8.0
 motorParamsLeft.maxRotationSpeed = 12.0
 motorParamsRight = interface.MotorAngleControllerParameters()
 motorParamsRight.maxRotationAcceleration = 8.6
-motorParamsRight.maxRotationSpeed = 12.0
+motorParamsRight.maxRotationSpeed = 12.1
 # tune all the following parameters
 
 motorParamsLeft.feedForwardGain = 255/20.0
