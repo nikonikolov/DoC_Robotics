@@ -11,8 +11,8 @@ import walls
 import ultrasound
 
 # TO DO: calculate the standard deviation and the constant likelihood
-SONAR_CONSTANT_LIKELIHOOD = 0.004 
-SONAR_STD = 1.5
+SONAR_CONSTANT_LIKELIHOOD = 0.008
+SONAR_STD = 1.8
 UNSENSIBLE_READINNGS_THRESHOLD = 50
 NUMBER_OF_PARTICLES = motion_predict.NUMBER_OF_PARTICLES
 
@@ -119,6 +119,7 @@ def main():
                     x=WAYPOINTS[0].x, y=WAYPOINTS[0].y, theta=0)] * NUMBER_OF_PARTICLES,
             weights=[1.0 / NUMBER_OF_PARTICLES
                      for _ in range(NUMBER_OF_PARTICLES)])
+    draw_particles(state)
     
     for waypoint in WAYPOINTS[1:]:
         # waypoint refers to the next destination
