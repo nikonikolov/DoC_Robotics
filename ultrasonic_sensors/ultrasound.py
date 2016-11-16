@@ -23,26 +23,30 @@ MAX_ANGLE = 34.0 * math.pi / 180.0
 
 
 def get_reading():
-    us_reading = interface.getSensorValue(ULTRASONIC_PORT)
+    for _ in range(10): 
+        us_reading = interface.getSensorValue(ULTRASONIC_PORT)
 
-    if us_reading :
-        dist = us_reading[0]
+        if us_reading :
+            dist = us_reading[0]
 
-        if len(get_reading.history) >= get_reading.HISTORY_SIZE:
-            get_reading.history.pop(0)
+            if len(get_reading.history) >= get_reading.HISTORY_SIZE:
+                get_reading.history.pop(0)
 
-        get_reading.history.append(dist)    
-        med_reading = np.median(get_reading.history)
-        if med_reading < 20:
-            med_reading +=3.5
-        med_reading += SENSOR_OFFSET
-        print "US Reading: " + str(med_reading)
-        return med_reading
+            get_reading.history.append(dist)    
+            med_reading = np.median(get_reading.history)
+        else:
+            print "Failed Reading"
+    
+    if med_reading < 20:
+        med_reading +=3.5
+    med_reading += SENSOR_OFFSET
+    print "US Reading: " + str(med_reading)
+    return med_reading
         #return med_reading + SENSOR_OFFSET
         #return np.median(get_reading.history) + SENSOR_OFFSET
-    else:
-        print "Failed US reading"
-        return None
+    #else:
+    #   print "Failed US reading"
+    #    return None
 
 def get_sleep_time(error):
     default_sleep = 0.08
