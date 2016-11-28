@@ -3,7 +3,9 @@
 # Based on original C code by Adrien Angeli, 2009
 
 import random
+import math
 import os
+import sys
 
 sys.path.append('/home/pi/DoC_Robotics/ultrasonic_sensors')
 
@@ -92,13 +94,11 @@ class RotatingSensor:
     """
         Save state of the rotating sonar sensor and take LocationSignature readings 
     """
-    def __init__(self, orientation=0):
+    def __init__(self, orientation=math.pi / 2):
         """
-            @param orienatation:
-                - 0 means centered
-                - range is -PI to PI
-                - negative orientation means CCW plane, positive means CW plane
-                - value is in radians
+        Arguments:
+            orientation(Number): PI / 2 means it is centered. It is ranged from -PI to PI
+                                 Its values are in radians.
         """
         self.orientation = orientation
 
@@ -123,9 +123,9 @@ class RotatingSensor:
     def setOrientation(self, orientation):
         if orientation < -math.pi:
             orientation = -math.pi
-        else if orientation > math.pi:
+        elif orientation > math.pi:
             orientation = math.pi
-        ultrasound.rotate_sensor(orientation - self.orientation)
+        ultrasound.rotate_sensor(-(orientation - self.orientation))
         self.orientation = orientation
 
 
@@ -184,10 +184,29 @@ def recognize_location():
 # Then, either learn a location, until all the locations are learned, or try to
 # recognize one of them, if locations have already been learned.
 
+
+
 signatures = SignatureContainer(5)
 rot_sensor = RotatingSensor()
 
 #signatures.delete_loc_files()
 
-learn_location();
-recognize_location();
+
+FACE_FORWARD = math.pi / 2
+FACE_LEFT = math.pi
+FACE_RIGHT = 0.0
+FACE_BACK = -math.pi / 2
+
+
+def main():
+    rot_sensor.setOrientation(FACE_FORWARD)
+    rot_sensor.setOrientation(FACE_BACK)
+    rot_sensor.setOrientation(FACE_RIGHT)
+    rot_sensor.setOrientation(FACE_LEFT)
+    rot_sensor.setOrientation(FACE_FORWARD)
+    # learn_location();
+    # recognize_location();
+
+
+if __name__ == "__main__":
+    main()
