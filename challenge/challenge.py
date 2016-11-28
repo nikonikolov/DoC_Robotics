@@ -1,6 +1,7 @@
-import sys
 import bisect
+import math
 import random
+import sys
 
 sys.path.append('/home/pi/DoC_Robotics/MCL')
 sys.path.append('/home/pi/DoC_Robotics/pmotion')
@@ -13,7 +14,9 @@ import walls
 
 
 def main():
-    ultrasound.rotate_sensor()
+    while True:
+        ultrasound.rotate_sensor(-math.pi)
+        ultrasound.rotate_sensor(math.pi)
 
 
 if __name__ == "__main__":

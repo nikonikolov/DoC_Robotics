@@ -120,6 +120,8 @@ def setup():
     G = 800
     interface.motorEnable(SONAR_MOTOR_PORT)
     sonar_motor_params = interface.MotorAngleControllerParameters()
+    sonar_motor_params.maxRotationAcceleration = 20.0
+    sonar_motor_params.maxRotationSpeed = 20.0
     sonar_motor_params.maxRotationAcceleration = 8.0
     sonar_motor_params.maxRotationSpeed = 12.0
     sonar_motor_params.feedForwardGain = 255/20.0
@@ -127,16 +129,16 @@ def setup():
     sonar_motor_params.pidParameters.minOutput = -255
     sonar_motor_params.pidParameters.maxOutput = 255
     sonar_motor_params.pidParameters.k_p = 0.65*G
-    sonar_motor_params.pidParameters.k_i = 1.6*sonar_motor_params.pidParameters.k_p/T*0.3
-    sonar_motor_params.pidParameters.K_d = sonar_motor_params.pidParameters.k_p*T/8
+    sonar_motor_params.pidParameters.k_i = sonar_motor_params.pidParameters.k_p/T
+    sonar_motor_params.pidParameters.K_d = sonar_motor_params.pidParameters.k_p * T / 8
     interface.setMotorAngleControllerParameters(SONAR_MOTOR_PORT, sonar_motor_params)
 
 
-def rotate_sensor():
-    interface.increaseMotorAngleReference(SONAR_MOTOR_PORT, 1.0)
+def rotate_sensor(angle):
+    interface.increaseMotorAngleReference(SONAR_MOTOR_PORT, angle)
     while not interface.motorAngleReferenceReached(SONAR_MOTOR_PORT):
 	time.sleep(0.03)
-    print "Destination reached!"
+    print "Ultrasonic rotation reached."
 
 
 def main():
