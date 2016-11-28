@@ -39,6 +39,14 @@ BottleLocation = collections.namedtuple(
         "BottleLocation", ["angle", "distance"])
 
 
+def remove_cluster_anomalies(clusters):
+    if len(clusters) == 0:
+        return clusters
+    threshold = math.floor(0.7 * max(c[1] - c[0] for c in cluters))
+    threshold = threshold or 1
+    return [c for c in clusters if c[1] - c[0] > threshold]
+
+
 def binary_signal_partition_by(arr):
     in_signal = False
     indices = []
@@ -78,7 +86,12 @@ def get_bottle_belief(test_signature, observed_signature, point):
     thresholded = [1 if ((observed - expected) ** 2) > 200.0 else 0
                    for observed, expected
                    in zip(observations, test_signature.sig)]
-    clusters = binary_signal_partition_by(thresholded)
+    print thresholded
+    print "Observations:"
+    print observations
+    print "Expected:"
+    print test_signature.sig
+    clusters = remove_cluster_anomalies(binary_signal_partition_by(thresholded))
     if len(clusters) == 1:
         cluster_indices = range(clusters[0][0], clusters[0][1])
         cluster_readings = [observations[i] for i in cluster_indices]
@@ -189,6 +202,29 @@ class RotatingSensor:
         self.orientation = orientation
         print "self.orientation =", orientation
 
+
+def test_production():
+    for sig_point in SIGNATURE_POINTS:
+
+        ls_normal = LocationSignature()
+        ls_normal.read(sig_point, NORMAL_DIR)
+
+        raw_input("Place a bottle somewhere and press enter")    
+
+        ls_bottle = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend)
+        ls_bottle.save(sig_point, BOTTLE_DIR)
+    
+        bottle_loc = get_bottle_belief(ls_bottle, ls_normal, sig_point)
+
+        if bottle_loc is not None:
+            print bottle_loc
+            motor_params.rotate(bottle_loc.angle)
+            motor_params.forward(bottle_loc.distance)
+        else:
+            print "Bottle loc is None!"
+
+        raw_input("Place the robot in a the next signature point for a new test and press enter")    
+
 def test_performance():
     for sig_point in SIGNATURE_POINTS:
 
@@ -200,7 +236,7 @@ def test_performance():
         ls_bottle = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend)
         ls_bottle.save(sig_point, BOTTLE_DIR)
     
-        bottle_loc = get_bottle_belief(ls_bottle, ls_normal, sig_point)
+        bottle_loc = get_bottle_belief(ls_normal, ls_bottle, sig_point)
 
         print bottle_loc
 
@@ -240,7 +276,7 @@ def show_plots(test_sig, observed_sig):
 rot_sensor = RotatingSensor()
 
 def main():
-    test_performance()
+    test_production()
 
 if __name__ == "__main__":
     main()
