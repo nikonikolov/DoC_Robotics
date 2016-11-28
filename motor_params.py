@@ -102,7 +102,7 @@ def rotate_left_to_motor_angle(angle):
     # Big Wheels
     #return (angle*0.038050073 + 0.0675)
 
-#angle is in degrees - positive angle turns right
+#angle is in degrees - positive angle turns left
 def rotate(angle):
     #wheels_dist = 13.6 
     #perimeter = 2*math.pi*(wheels_dist/2) 

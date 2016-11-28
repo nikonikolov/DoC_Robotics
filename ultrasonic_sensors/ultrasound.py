@@ -5,7 +5,7 @@ import brickpi
 import motor_params
 
 SONAR_MOTOR_PORT = 2
-ULTRASONIC_PORT = 2
+ULTRASONIC_PORT = 3
 
 # TO DO - CALIBRATE THESE VALUES
 SENSOR_OFFSET = 6.5                             # Offset of the sensor from the center of the robot

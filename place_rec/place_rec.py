@@ -9,11 +9,12 @@ import sys
 import collections
 
 import numpy as np
-import matplotlib.pyplot as plt
 
+sys.path.append('/home/pi/DoC_Robotics')
 sys.path.append('/home/pi/DoC_Robotics/ultrasonic_sensors')
 
-#import ultrasound
+import motor_params
+import ultrasound
 
 # NOTE: if you change this, reading a signature from file might read a wrong signature; Comparing signatures will also fail; Solution - delete all current signatures
 STEP = 5
@@ -84,7 +85,7 @@ def get_bottle_belief(test_signature, observed_signature, point):
         distance = np.median(cluster_readings) + 10.0
         angle = np.median([angles[i] for i in cluster_indices])
         return BottleLocation(
-                distance=distance, angle=90.0 - angle)
+                distance=distance, angle=angle - 90.0)
     else:
         return None
 
@@ -113,11 +114,8 @@ class LocationSignature:
         """
         Save the signature in a file with a proper name based on the point and STEP
         """
-        if self.x == 0 or self.y == 0:
-            print "ERROR in SingatureManager.save() - point is not set"
-            return
-
-        filename = "%s%d.%d.%d.dat" % (target_dir, self.x, self.y, int(STEP))
+        filename = "%s%d.%d.%d.dat" % (
+                target_dir, sig_point.x, sig_point.y, int(STEP))
         if os.path.isfile(filename):
             os.remove(filename)
 
@@ -197,7 +195,7 @@ def test_performance():
         ls_normal = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend)
         ls_normal.save(sig_point, NORMAL_DIR)
 
-        input("Place a bottle somewhere and press enter")    
+        raw_input("Place a bottle somewhere and press enter")    
 
         ls_bottle = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend)
         ls_bottle.save(sig_point, BOTTLE_DIR)
@@ -210,7 +208,7 @@ def test_performance():
         motor_params.forward(bottle_loc.distance)
 
 
-        input("Place the robot in a the next signature point for a new test and press enter")    
+        raw_input("Place the robot in a the next signature point for a new test and press enter")    
 
 def show_plots(test_sig, observed_sig):
     for sig_point in SIGNATURE_POINTS:
@@ -218,7 +216,7 @@ def show_plots(test_sig, observed_sig):
         observed_sig = LocationSignature()
         observed_sig.read(sig_point, NORMAL_DIR)
 
-        input("Place a bottle somewhere and press enter")    
+        raw_input("Place a bottle somewhere and press enter")    
 
         test_sig = LocationSignature()
         test_sig.read(sig_point, BOTTLE_DIR)
@@ -242,7 +240,7 @@ def show_plots(test_sig, observed_sig):
 rot_sensor = RotatingSensor()
 
 def main():
-    test()
+    test_performance()
 
 if __name__ == "__main__":
     main()
