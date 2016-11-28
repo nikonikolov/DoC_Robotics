@@ -1,27 +1,32 @@
-Practical 5 TO DO:
-    - Add sonar mounting offset to the measurement
-    - return 0 from the distance estimation to wall if the particle is out of range
+TO DO:
+    - calibrate PID for the sonar motor - need to do it from scratch - params from other motors are not relevant
+    - calibrate PID for the moving motors - make sure we can go in straight lines and rotate properly
+
+    - take readings for places with and without bottles and compare them - might need to train a classifier
+
+    - write code for finding free area to make sure you can run MCL in that area - essentially OCCUPANCY MAPPING
+
+
+
+MCL MODIFICATIONS:
     - make the partcile distribution proportional to the distance moved by
-    - compute the Standard Deviation and constant likelihood for the sonar and put them in MCL/mcl.py
-
-    - fix the main in MCL/mcl.py - decide how often to run the MCL - check the 3.3 Waypoint Navigation
-
-PARAMETERS TO TUNE:
-    SONAR_CONSTANT_LIKELIHOOD =  
-    SONAR_STD =
-    UNSENSIBLE_READINNGS_THRESHOLD = 
-
-    SENSOR_OFFSET = 6.5
-    MAX_DIST = 85.0 - SENSOR_OFFSET 
-    MIN_DIST = 20.0 - SENSOR_OFFSET 
-    MAX_ANGLE = 34.0 * math.pi / 180.0
-
-TO TEST:
-    ARTIFICALLY WORSEN ODOMETRY AND TEST MCL
+    - PARAMETERS THAT MIGHT NEED TUNING
+        SONAR_CONSTANT_LIKELIHOOD   mcl.py 
+        SONAR_STD                   mcl.py
+        ODOMETRY STD                pmotion.py
 
 
-PID calibration
-Acceleration calibration
+
+
+
+
+
+K_i 0.27
+Old c++ interface
+variance 1.4 for roatation
+SONAR CONST LIK = 0.008 or 0.01
+SNOAR STD = 1.8??
+
 
 Calibrartion of distance and rotation 
     - make sure to run after you have made proper PID and velocity calibration - you want the robot to be as fast as possible 

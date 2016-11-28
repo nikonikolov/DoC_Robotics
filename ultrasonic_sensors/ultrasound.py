@@ -1,30 +1,26 @@
 import math
 import time
-
-import brickpi
-import motor_params
 import numpy as np
+import brickpi
 
-interface = motor_params.interface
+import motor_params
 
 SONAR_MOTOR_PORT = 2
 ULTRASONIC_PORT = 2
-DESIRED_DIST = 30
 
-NORMAL_SPEED = 10.0
-MAX_SPEED = max(motor_params.motorParamsRight.maxRotationSpeed, motor_params.motorParamsLeft.maxRotationSpeed)
-MIN_SPEED = 3.0
+# TO DO - CALIBRATE THESE VALUES
+SENSOR_OFFSET = 6.5                             # Offset of the sensor from the center of the robot
+MAX_DIST = 100.0 + SENSOR_OFFSET                # Max distance from a wall for a reliable reading
+MIN_DIST = 10.0 + SENSOR_OFFSET                 # Min distance from a wall for a reliable reading 
+MAX_ANGLE = 34.0 * math.pi / 180.0              # Max angle between wall normal and the robot for a reliable reading
 
+# Number of readings to take before get_reading() returns a value 
+NUM_READINGS = 10
 
-# TO DO - calibrate these values
-SENSOR_OFFSET = 6.5
-MAX_DIST = 100.0 + SENSOR_OFFSET 
-MIN_DIST = 10.0 + SENSOR_OFFSET 
-MAX_ANGLE = 34.0 * math.pi / 180.0
-
+interface = motor_params.interface
 
 def get_reading():
-    for _ in range(10): 
+    for _ in range(NUM_READINGS): 
         us_reading = interface.getSensorValue(ULTRASONIC_PORT)
 
         if us_reading :
@@ -42,12 +38,54 @@ def get_reading():
         med_reading +=3.5
     med_reading += SENSOR_OFFSET
     print "US Reading: " + str(med_reading)
+    
     return med_reading
-        #return med_reading + SENSOR_OFFSET
-        #return np.median(get_reading.history) + SENSOR_OFFSET
-    #else:
-    #   print "Failed US reading"
-    #    return None
+
+
+def setup():
+    # Setup ultrasonic sensor here.
+    interface.sensorEnable(ULTRASONIC_PORT, brickpi.SensorType.SENSOR_ULTRASONIC);
+    get_reading.history = []
+    get_reading.HISTORY_SIZE = 5
+
+    # The motor holding the sonar sensor.
+    T = 0.4
+    G = 800
+    interface.motorEnable(SONAR_MOTOR_PORT)
+    sonar_motor_params = interface.MotorAngleControllerParameters()
+    #sonar_motor_params.maxRotationAcceleration = 20.0
+    #sonar_motor_params.maxRotationSpeed = 20.0
+    sonar_motor_params.maxRotationAcceleration = 8.0
+    sonar_motor_params.maxRotationSpeed = 12.0
+    sonar_motor_params.feedForwardGain = 255/20.0
+    sonar_motor_params.minPWM = 18.0
+    sonar_motor_params.pidParameters.minOutput = -255
+    sonar_motor_params.pidParameters.maxOutput = 255
+    sonar_motor_params.pidParameters.k_p = 0.65 * G
+    sonar_motor_params.pidParameters.k_i = 3 * sonar_motor_params.pidParameters.k_p / T
+    sonar_motor_params.pidParameters.K_d = sonar_motor_params.pidParameters.k_p * T / 8
+    interface.setMotorAngleControllerParameters(SONAR_MOTOR_PORT, sonar_motor_params)
+
+
+def rotate_sensor(angle):
+    """
+        @param: angle - the angle the motor should rotate by - in radians
+    """
+    interface.increaseMotorAngleReference(SONAR_MOTOR_PORT, angle)
+    while not interface.motorAngleReferenceReached(SONAR_MOTOR_PORT):
+	time.sleep(0.03)
+    print "Ultrasonic rotation reached."
+
+# setup on import
+setup()
+
+
+"""
+#OLD PRACTICAL PARAMS
+DESIRED_DIST = 30
+NORMAL_SPEED = 10.0
+MAX_SPEED = max(motor_params.motorParamsRight.maxRotationSpeed, motor_params.motorParamsLeft.maxRotationSpeed)
+MIN_SPEED = 3.0
 
 def get_sleep_time(error):
     default_sleep = 0.08
@@ -60,7 +98,6 @@ def get_sleep_time(error):
     if abs(error) >= tuning_dist_max:
         return max_sleep
     return abs(error)/tuning_dist_max*(max_sleep - min_sleep) + min_sleep
-
 def keep_front_distance():
     default_sleep = 0.08
     while True:
@@ -109,38 +146,6 @@ def follow_wall():
         time.sleep(0.05)
 
 
-def setup():
-    # Setup ultrasonic sensor here.
-    interface.sensorEnable(ULTRASONIC_PORT, brickpi.SensorType.SENSOR_ULTRASONIC);
-    get_reading.history = []
-    get_reading.HISTORY_SIZE = 5
-
-    # The motor holding the sonar sensor.
-    T = 0.4
-    G = 800
-    interface.motorEnable(SONAR_MOTOR_PORT)
-    sonar_motor_params = interface.MotorAngleControllerParameters()
-    sonar_motor_params.maxRotationAcceleration = 20.0
-    sonar_motor_params.maxRotationSpeed = 20.0
-    sonar_motor_params.maxRotationAcceleration = 8.0
-    sonar_motor_params.maxRotationSpeed = 12.0
-    sonar_motor_params.feedForwardGain = 255/20.0
-    sonar_motor_params.minPWM = 18.0
-    sonar_motor_params.pidParameters.minOutput = -255
-    sonar_motor_params.pidParameters.maxOutput = 255
-    sonar_motor_params.pidParameters.k_p = 0.65 * G
-    sonar_motor_params.pidParameters.k_i = 3 * sonar_motor_params.pidParameters.k_p / T
-    sonar_motor_params.pidParameters.K_d = sonar_motor_params.pidParameters.k_p * T / 8
-    interface.setMotorAngleControllerParameters(SONAR_MOTOR_PORT, sonar_motor_params)
-
-
-def rotate_sensor(angle):
-    interface.increaseMotorAngleReference(SONAR_MOTOR_PORT, angle)
-    while not interface.motorAngleReferenceReached(SONAR_MOTOR_PORT):
-	time.sleep(0.03)
-    print "Ultrasonic rotation reached."
-
-
 def main():
     # TUNE THESE VALUES
     keep_front_distance.K_P = 0.6
@@ -152,8 +157,9 @@ def main():
     keep_front_distance()
     #follow_wall()
 
-
-setup()
-
 if __name__=="__main__":
-	main()
+    main()
+
+
+"""
+

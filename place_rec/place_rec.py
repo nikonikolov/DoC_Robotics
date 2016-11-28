@@ -5,8 +5,15 @@
 import random
 import os
 
-# Location signature class: stores a signature characterizing one location
+sys.path.append('/home/pi/DoC_Robotics/ultrasonic_sensors')
+
+import ultrasound
+
+
 class LocationSignature:
+    """
+        Store a signature characterizing a location
+    """
     def __init__(self, no_bins = 360):
         self.sig = [0] * no_bins
         
@@ -14,8 +21,11 @@ class LocationSignature:
         for i in range(len(self.sig)):
             print self.sig[i]
 
-# --------------------- File management class ---------------
+
 class SignatureContainer():
+    """
+        Manage files that contain location signatures
+    """
     def __init__(self, size = 5):
         self.size      = size; # max number of signatures that can be stored
         self.filenames = [];
@@ -77,11 +87,55 @@ class SignatureContainer():
         
         return ls
         
+
+class RotatingSensor:
+    """
+        Save state of the rotating sonar sensor and take LocationSignature readings 
+    """
+    def __init__(self, orientation=0):
+        """
+            @param orienatation:
+                - 0 means centered
+                - range is -PI to PI
+                - negative orientation means CCW plane, positive means CW plane
+                - value is in radians
+        """
+        self.orientation = orientation
+
+
+    def takeSignature(self, start_angle, end_angle, step=1):
+        """
+            Take a signature and return LocationSignature()
+            @param start_angle: orientation angle relative to the robot orienation to start taking sonar measurements from
+            @param end_angle:   orientation angle relative to the robot orienation to end taking sonar measurements
+            @param step:        steps at which to take sonar measurements
+        """
+
+        angle_readings = range(start_angle, end_angle, step)
+        ls = LocationSignature(len(angle_readings))
+ 
+        for i, angle in enumerate(angle_readings):
+            self.setOrientation(angle)
+            ls[i] = ultrasound.get_reading()
+
+        return ls
+
+    def setOrientation(self, orientation):
+        if orientation < -math.pi:
+            orientation = -math.pi
+        else if orientation > math.pi:
+            orientation = math.pi
+        ultrasound.rotate_sensor(orientation - self.orientation)
+        self.orientation = orientation
+
+
+"""
 # FILL IN: spin robot or sonar to capture a signature and store it in ls
 def characterize_location(ls):
     print "TODO:    You should implement the function that captures a signature."
     for i in range(len(ls.sig)):
         ls.sig[i] = random.randint(0, 255)
+"""
 
 # FILL IN: compare two signatures
 def compare_signatures(ls1, ls2):
@@ -89,11 +143,14 @@ def compare_signatures(ls1, ls2):
     print "TODO:    You should implement the function that compares two signatures."
     return dist
 
-# This function characterizes the current location, and stores the obtained 
-# signature into the next available file.
-def learn_location():
+def learn_location(start_angle, end_angle, step=1):
+    """
+        This function characterizes the current location, and stores the obtained 
+        signature into the next available file.
+    """
+
     ls = LocationSignature()
-    characterize_location(ls)
+    rot_sensor.takeSignature(start_angle, end_angle, step)
     idx = signatures.get_free_index();
     if (idx == -1): # run out of signature files
         print "\nWARNING:"
@@ -127,7 +184,9 @@ def recognize_location():
 # Then, either learn a location, until all the locations are learned, or try to
 # recognize one of them, if locations have already been learned.
 
-signatures = SignatureContainer(5);
+signatures = SignatureContainer(5)
+rot_sensor = RotatingSensor()
+
 #signatures.delete_loc_files()
 
 learn_location();
