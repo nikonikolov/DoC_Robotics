@@ -12,9 +12,11 @@ import numpy as np
 
 sys.path.append('/home/pi/DoC_Robotics')
 sys.path.append('/home/pi/DoC_Robotics/ultrasonic_sensors')
+sys.path.append('/home/pi/DoC_Robotics/touch_sensors')
 
 import motor_params
 import ultrasound
+import touch_sensors
 
 # NOTE: if you change this, reading a signature from file might read a wrong signature; Comparing signatures will also fail; Solution - delete all current signatures
 STEP = 5
@@ -32,7 +34,7 @@ SignaturePoint = collections.namedtuple(
         "SignaturePoint", ["x", "y", "theta", "rstart", "rend"])
 
 SIGNATURE_POINTS = [
-    SignaturePoint(x=1, y=1, theta=5, rstart=30, rend=150),
+    SignaturePoint(x=10, y=10, theta=5, rstart=30, rend=150),
 ]
 # Angle is in degrees, distance is in cm.
 BottleLocation = collections.namedtuple(
@@ -42,7 +44,7 @@ BottleLocation = collections.namedtuple(
 def remove_cluster_anomalies(clusters):
     if len(clusters) == 0:
         return clusters
-    threshold = math.floor(0.7 * max(c[1] - c[0] for c in cluters))
+    threshold = math.floor(0.7 * max(c[1] - c[0] for c in clusters))
     threshold = threshold or 1
     return [c for c in clusters if c[1] - c[0] > threshold]
 
@@ -91,6 +93,8 @@ def get_bottle_belief(test_signature, observed_signature, point):
     print observations
     print "Expected:"
     print test_signature.sig
+    print "Angles"
+    print angles
     clusters = remove_cluster_anomalies(binary_signal_partition_by(thresholded))
     if len(clusters) == 1:
         cluster_indices = range(clusters[0][0], clusters[0][1])
@@ -219,7 +223,17 @@ def test_production():
         if bottle_loc is not None:
             print bottle_loc
             motor_params.rotate(bottle_loc.angle)
-            motor_params.forward(bottle_loc.distance)
+            motor_params.interface.setMotorRotationSpeedReferences(
+                    motor_params.motors, [8.0, 8.0])
+            left = 0
+            right = 0
+            while True:
+                left = motor_params.interface.getSensorValue(touch_sensors.TOUCH_PORT_LEFT)[0] | left
+                right = motor_params.interface.getSensorValue(touch_sensors.TOUCH_PORT_RIGHT)[0] | right
+                if left or right:
+                    motor_params.interface.setMotorPwm(motor_params.motors[0], 0)
+                    motor_params.interface.setMotorPwm(motor_params.motors[1], 0)
+                    break
         else:
             print "Bottle loc is None!"
 
