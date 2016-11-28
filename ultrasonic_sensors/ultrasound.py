@@ -7,7 +7,8 @@ import numpy as np
 
 interface = motor_params.interface
 
-ULTRASONIC_PORT = 2 
+SONAR_MOTOR_PORT = 2
+ULTRASONIC_PORT = 2
 DESIRED_DIST = 30
 
 NORMAL_SPEED = 10.0
@@ -109,9 +110,33 @@ def follow_wall():
 
 
 def setup():
+    # Setup ultrasonic sensor here.
     interface.sensorEnable(ULTRASONIC_PORT, brickpi.SensorType.SENSOR_ULTRASONIC);
     get_reading.history = []
     get_reading.HISTORY_SIZE = 5
+
+    # The motor holding the sonar sensor.
+    T = 0.4
+    G = 800
+    interface.motorEnable(SONAR_MOTOR_PORT)
+    sonar_motor_params = interface.MotorAngleControllerParameters()
+    sonar_motor_params.maxRotationAcceleration = 8.0
+    sonar_motor_params.maxRotationSpeed = 12.0
+    sonar_motor_params.feedForwardGain = 255/20.0
+    sonar_motor_params.minPWM = 18.0
+    sonar_motor_params.pidParameters.minOutput = -255
+    sonar_motor_params.pidParameters.maxOutput = 255
+    sonar_motor_params.pidParameters.k_p = 0.65*G
+    sonar_motor_params.pidParameters.k_i = 1.6*sonar_motor_params.pidParameters.k_p/T*0.3
+    sonar_motor_params.pidParameters.K_d = sonar_motor_params.pidParameters.k_p*T/8
+    interface.setMotorAngleControllerParameters(SONAR_MOTOR_PORT, sonar_motor_params)
+
+
+def rotate_sensor():
+    interface.increaseMotorAngleReference(SONAR_MOTOR_PORT, 1.0)
+    while not interface.motorAngleReferenceReached(SONAR_MOTOR_PORT):
+	time.sleep(0.03)
+    print "Destination reached!"
 
 
 def main():

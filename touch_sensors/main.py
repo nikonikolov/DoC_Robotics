@@ -80,11 +80,13 @@ def navigate(state):
 
     return next_state
 
-
-def main():
+def setup():
     interface.sensorEnable(TOUCH_PORT_LEFT, brickpi.SensorType.SENSOR_TOUCH)
     interface.sensorEnable(TOUCH_PORT_RIGHT, brickpi.SensorType.SENSOR_TOUCH)
-    interface.setMotorRotationSpeedReferences(
+    
+def main():
+   setup()
+   interface.setMotorRotationSpeedReferences(
             motor_params.motors, [FORWARD_SPEED, FORWARD_SPEED])
     current_state = STATE_DRIVE
     while True:
