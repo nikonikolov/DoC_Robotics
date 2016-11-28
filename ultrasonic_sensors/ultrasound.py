@@ -135,22 +135,26 @@ def setup():
     get_reading.HISTORY_SIZE = 5
 
     # The motor holding the sonar sensor.
+    G = 250.0
     T = 0.4
-    G = 800
     interface.motorEnable(SONAR_MOTOR_PORT)
     sonar_motor_params = interface.MotorAngleControllerParameters()
-    #sonar_motor_params.maxRotationAcceleration = 20.0
-    #sonar_motor_params.maxRotationSpeed = 20.0
-    sonar_motor_params.maxRotationAcceleration = 8.0
+    sonar_motor_params.maxRotationAcceleration = 9.0
     sonar_motor_params.maxRotationSpeed = 12.0
     sonar_motor_params.feedForwardGain = 255/20.0
     sonar_motor_params.minPWM = 18.0
     sonar_motor_params.pidParameters.minOutput = -255
     sonar_motor_params.pidParameters.maxOutput = 255
-    sonar_motor_params.pidParameters.k_p = 0.65 * G
-    sonar_motor_params.pidParameters.k_i = 0
-    sonar_motor_params.pidParameters.K_d = 0
+    kp = 0.6 * G
+    sonar_motor_params.pidParameters.k_p = kp
+    sonar_motor_params.pidParameters.k_i = 3.0 * kp / T
+    sonar_motor_params.pidParameters.K_d = 1.5 * kp * T / 8.0
     interface.setMotorAngleControllerParameters(SONAR_MOTOR_PORT, sonar_motor_params)
+
+
+def simple_rotate():
+    rotate_sensor(math.pi)
+    rotate_sensor(-math.pi)
 
 
 def calibrate():
@@ -185,4 +189,4 @@ setup()
 
 
 if __name__== "__main__":
-    calibrate()
+    simple_rotate()
