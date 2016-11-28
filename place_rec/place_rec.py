@@ -193,7 +193,10 @@ class RotatingSensor:
 
         for angle in range(int(start_angle), int(end_angle), step):
             self.setOrientation(float(angle) * math.pi / 180)
-            ls.sig.append(ultrasound.get_reading())
+            reading = ultrasound.get_reading()
+            if reading > 200.0:
+                reading = ultrasound.GARBAGE
+            ls.sig.append(reading)
 
         return ls
 

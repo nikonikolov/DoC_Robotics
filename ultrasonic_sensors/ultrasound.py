@@ -15,6 +15,7 @@ MAX_ANGLE = 34.0 * math.pi / 180.0              # Max angle between wall normal 
 
 # Number of readings to take before get_reading() returns a value 
 NUM_READINGS = 10
+GARBAGE = 265.0
 
 interface = motor_params.interface
 
