@@ -38,7 +38,25 @@ BottleLocationBelief = collections.namedtuple(
         "BottleLocationBelief", ["angle", "distance"])
 
 
-def compare_signatures(test_signature, observed_signature, point):
+def binary_signal_partition_by(arr):
+    in_signal = False
+    indices = []
+    beginning = 0
+    for i, v in enumerate(arr):
+        if in_signal:
+            if not v:
+                indices.append((beginning, i))
+                in_signal = False
+        else:
+            if v:
+                beginning = i
+                in_signal = True
+    if in_signal:
+        indices.append((beginning, len(arr)))
+    return indices
+
+
+def get_bottle_belief(test_signature, observed_signature, point):
     """Check if a bottle is observed.
 
     Arguments:
@@ -54,7 +72,9 @@ def compare_signatures(test_signature, observed_signature, point):
     angles = list(range(point.rstart, point.rend, step))
     # The sonar observations.
     observations = observed_signature.sig
-    thresholded = [1 if ((observed - expected) ** 2) > 20.0 else 0
+    # TODO(fyquah): Dynamically calculate this based on the test signature.
+    threshold = 200.0
+    thresholded = [1 if ((observed - expected) ** 2) > 200.0 else 0
                    for observed, expected
                    in zip(observations, test_signature.sig)]
     clusters = binary_signal_partition_by(thresholded)
@@ -62,9 +82,9 @@ def compare_signatures(test_signature, observed_signature, point):
         cluster_indices = range(clusters[0][0], clusters[0][1])
         cluster_readings = [observations[i] for i in cluster_indices]
         distance = np.median(cluster_readings) + 10.0
-        angle = np.median(angles[i] for i in cluster_indices)
+        angle = np.median([angles[i] for i in cluster_indices])
         return BottleLocationBelief(
-                distance=distance, angle=math.pi / 2 - angle)
+                distance=distance, angle=90.0 - angle)
     else:
         return None
 
@@ -209,7 +229,7 @@ def main():
     ls_bottle = LocationSignature()
     ls_bottle.read(sig_point, BOTTLE_DIR)
     
-    print get_bottle_angle(ls_bottle, ls_normal, sig_point)
+    print get_bottle_belief(ls_bottle, ls_normal, sig_point)
 
     #plt.show()
 
