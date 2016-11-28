@@ -9,23 +9,158 @@ sys.path.append('/home/pi/DoC_Robotics/ultrasonic_sensors')
 
 import ultrasound
 
+# NOTE: if you change this, reading a signature from file might read a wrong signature; Comparing signatures will also fail; Solution - delete all current signatures
+STEP_READING = 2 
 
 class LocationSignature:
     """
         Store a signature characterizing a location
     """
-    def __init__(self, no_bins = 360):
-        self.sig = [0] * no_bins
-        
+    def __init__(self, x=0, y=0):
+        self.sig = []                   # signature data
+        self.x = x                      # x argument of the point the signature is created for
+        self.y = y                      # y argument of the point the signature is created for
+
     def print_signature(self):
         for i in range(len(self.sig)):
             print self.sig[i]
 
+    def delete_loc_files(self):
+        """
+        Delete all files in ./data
+        """
+        filenames = os.listdir("./data")
+        for f in filenames:
+            os.remove(f)
+            
+    def save(self):
+        """
+        Save the signature in a file with a proper name based on the point and STEP
+        """
+        if self.x == 0 || self.y == 0:
+            print "ERROR in SingatureManager.save() - point is not set"
+            return
+
+        filename = "%d.%d.dat" % self.x, self.y, int(STEP) 
+        if os.path.isfile(filename):
+            os.remove(filename)
+            
+        f = open(filename, 'w')
+        for i in self.sig:
+            f.write(str(i) + "\n")
+        f.close();
+
+    def read(self, x, y):
+        """
+        Read a LocationSignature from file based on the location of the point 
+        If such file does not exists, an empty LocationSignature is returned 
+        """
+        self.x = x
+        self.y = y
+
+        filename = ""
+        filenames = os.listdir("./data")
+        for f in filenames:
+            args = f.split(".")
+            if x == int(args[0]) && y == int(args[1]):
+                filename = f
+        if filename == "":
+            print "ERROR in SignatureManager.read() - no file with coordinates %d %d %d" % x, y, STEP
+        
+        f = open(filename, 'r')
+        for line in f:
+            self.sig.append(int(line))
+        f.close();
+
+        if(!len(self.sig)):
+            print "WARNING: SignatureManager.read() - signature does not exist"
+
+
+class RotatingSensor:
+    """
+        Save state of the rotating sonar sensor and take LocationSignature readings 
+    """
+    def __init__(self, orientation=0):
+        """
+            @param orienatation:
+                - 0 means centered
+                - range is -PI to PI
+                - negative orientation means CCW plane, positive means CW plane
+                - value is in radians
+        """
+        self.orientation = orientation
+
+
+    def takeSignature(self, start_angle, end_angle):
+        """
+            Take a signature and return LocationSignature()
+            @param start_angle: orientation angle relative to the robot orienation to start taking sonar measurements from - in degrees
+            @param end_angle:   orientation angle relative to the robot orienation to end taking sonar measurements - in degrees
+        """
+
+        ls = LocationSignature()
+ 
+        for angle in range(int(start_angle), int(end_angle), int(STEP)):
+            self.setOrientation(float(angle) * math.pi / 180)
+            ls.sig.append(ultrasound.get_reading())
+
+        return ls
+
+    def setOrientation(self, orientation):
+        if orientation < -math.pi:
+            orientation = -math.pi
+        else if orientation > math.pi:
+            orientation = math.pi
+        ultrasound.rotate_sensor(orientation - self.orientation)
+        self.orientation = orientation
+
+
+
+# TO DO
+def compare_signatures(ls1, ls2):
+    """
+        NOTE: orienation at which the signatures were taken matters
+    """
+    dist = 0
+    print "TODO:    You should implement the function that compares two signatures."
+    return dist
+
+# TO DO
+def learn_location(start_angle, end_angle, step=1):
+    """
+        This function characterizes the current location, and stores the obtained 
+        signature into the next available file.
+    """
+
+    ls = rot_sensor.takeSignature(start_angle, end_angle, step)
+    idx = signatures.get_free_index();
+    if (idx == -1): # run out of signature files
+        print "\nWARNING:"
+        print "No signature file is available. NOTHING NEW will be learned and stored."
+        print "Please remove some loc_%%.dat files.\n"
+        return
+    
+    signatures.save(ls,idx)
+    print "STATUS:  Location " + str(idx) + " learned and saved."
+
+# Prior to starting learning the locations, it should delete files from previous
+# learning either manually or by calling signatures.delete_loc_files(). 
+# Then, either learn a location, until all the locations are learned, or try to
+# recognize one of them, if locations have already been learned.
+
+signatures = SignatureContainer(5)
+rot_sensor = RotatingSensor()
+
+#signatures.delete_loc_files()
+
+learn_location();
+recognize_location();
+
+
+"""
 
 class SignatureContainer():
-    """
         Manage files that contain location signatures
-    """
     def __init__(self, size = 5):
         self.size      = size; # max number of signatures that can be stored
         self.filenames = [];
@@ -86,80 +221,12 @@ class SignatureContainer():
             print "WARNING: Signature does not exist."
         
         return ls
-        
 
-class RotatingSensor:
-    """
-        Save state of the rotating sonar sensor and take LocationSignature readings 
-    """
-    def __init__(self, orientation=0):
-        """
-            @param orienatation:
-                - 0 means centered
-                - range is -PI to PI
-                - negative orientation means CCW plane, positive means CW plane
-                - value is in radians
-        """
-        self.orientation = orientation
-
-
-    def takeSignature(self, start_angle, end_angle, step=1):
-        """
-            Take a signature and return LocationSignature()
-            @param start_angle: orientation angle relative to the robot orienation to start taking sonar measurements from
-            @param end_angle:   orientation angle relative to the robot orienation to end taking sonar measurements
-            @param step:        steps at which to take sonar measurements
-        """
-
-        angle_readings = range(start_angle, end_angle, step)
-        ls = LocationSignature(len(angle_readings))
- 
-        for i, angle in enumerate(angle_readings):
-            self.setOrientation(angle)
-            ls[i] = ultrasound.get_reading()
-
-        return ls
-
-    def setOrientation(self, orientation):
-        if orientation < -math.pi:
-            orientation = -math.pi
-        else if orientation > math.pi:
-            orientation = math.pi
-        ultrasound.rotate_sensor(orientation - self.orientation)
-        self.orientation = orientation
-
-
-"""
 # FILL IN: spin robot or sonar to capture a signature and store it in ls
 def characterize_location(ls):
     print "TODO:    You should implement the function that captures a signature."
     for i in range(len(ls.sig)):
         ls.sig[i] = random.randint(0, 255)
-"""
-
-# FILL IN: compare two signatures
-def compare_signatures(ls1, ls2):
-    dist = 0
-    print "TODO:    You should implement the function that compares two signatures."
-    return dist
-
-def learn_location(start_angle, end_angle, step=1):
-    """
-        This function characterizes the current location, and stores the obtained 
-        signature into the next available file.
-    """
-
-    ls = LocationSignature()
-    rot_sensor.takeSignature(start_angle, end_angle, step)
-    idx = signatures.get_free_index();
-    if (idx == -1): # run out of signature files
-        print "\nWARNING:"
-        print "No signature file is available. NOTHING NEW will be learned and stored."
-        print "Please remove some loc_%%.dat files.\n"
-        return
-    
-    signatures.save(ls,idx)
-    print "STATUS:  Location " + str(idx) + " learned and saved."
 
 # This function tries to recognize the current location.
 # 1.   Characterize current location
@@ -178,16 +245,4 @@ def recognize_location():
         print "STATUS:  Comparing signature " + str(idx) + " with the observed signature."
         ls_read = signatures.read(idx);
         dist    = compare_signatures(ls_obs, ls_read)
-
-# Prior to starting learning the locations, it should delete files from previous
-# learning either manually or by calling signatures.delete_loc_files(). 
-# Then, either learn a location, until all the locations are learned, or try to
-# recognize one of them, if locations have already been learned.
-
-signatures = SignatureContainer(5)
-rot_sensor = RotatingSensor()
-
-#signatures.delete_loc_files()
-
-learn_location();
-recognize_location();
+"""
