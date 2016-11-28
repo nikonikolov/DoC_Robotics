@@ -2,7 +2,6 @@ import math
 import time
 import numpy as np
 import brickpi
-
 import motor_params
 
 SONAR_MOTOR_PORT = 2
@@ -42,31 +41,6 @@ def get_reading():
     return med_reading
 
 
-def setup():
-    # Setup ultrasonic sensor here.
-    interface.sensorEnable(ULTRASONIC_PORT, brickpi.SensorType.SENSOR_ULTRASONIC);
-    get_reading.history = []
-    get_reading.HISTORY_SIZE = 5
-
-    # The motor holding the sonar sensor.
-    T = 0.4
-    G = 800
-    interface.motorEnable(SONAR_MOTOR_PORT)
-    sonar_motor_params = interface.MotorAngleControllerParameters()
-    #sonar_motor_params.maxRotationAcceleration = 20.0
-    #sonar_motor_params.maxRotationSpeed = 20.0
-    sonar_motor_params.maxRotationAcceleration = 8.0
-    sonar_motor_params.maxRotationSpeed = 12.0
-    sonar_motor_params.feedForwardGain = 255/20.0
-    sonar_motor_params.minPWM = 18.0
-    sonar_motor_params.pidParameters.minOutput = -255
-    sonar_motor_params.pidParameters.maxOutput = 255
-    sonar_motor_params.pidParameters.k_p = 0.65 * G
-    sonar_motor_params.pidParameters.k_i = 3 * sonar_motor_params.pidParameters.k_p / T
-    sonar_motor_params.pidParameters.K_d = sonar_motor_params.pidParameters.k_p * T / 8
-    interface.setMotorAngleControllerParameters(SONAR_MOTOR_PORT, sonar_motor_params)
-
-
 def rotate_sensor(angle):
     """
         @param: angle - the angle the motor should rotate by - in radians
@@ -75,9 +49,6 @@ def rotate_sensor(angle):
     while not interface.motorAngleReferenceReached(SONAR_MOTOR_PORT):
 	time.sleep(0.03)
     print "Ultrasonic rotation reached."
-
-# setup on import
-setup()
 
 
 #OLD PRACTICAL PARAMS
@@ -157,31 +128,60 @@ def main():
     #follow_wall()
 
 
+def setup():
+    # Setup ultrasonic sensor here.
+    interface.sensorEnable(ULTRASONIC_PORT, brickpi.SensorType.SENSOR_ULTRASONIC);
+    get_reading.history = []
+    get_reading.HISTORY_SIZE = 5
+
+    # The motor holding the sonar sensor.
+    T = 0.4
+    G = 800
+    interface.motorEnable(SONAR_MOTOR_PORT)
+    sonar_motor_params = interface.MotorAngleControllerParameters()
+    #sonar_motor_params.maxRotationAcceleration = 20.0
+    #sonar_motor_params.maxRotationSpeed = 20.0
+    sonar_motor_params.maxRotationAcceleration = 8.0
+    sonar_motor_params.maxRotationSpeed = 12.0
+    sonar_motor_params.feedForwardGain = 255/20.0
+    sonar_motor_params.minPWM = 18.0
+    sonar_motor_params.pidParameters.minOutput = -255
+    sonar_motor_params.pidParameters.maxOutput = 255
+    sonar_motor_params.pidParameters.k_p = 0.65 * G
+    sonar_motor_params.pidParameters.k_i = 0
+    sonar_motor_params.pidParameters.K_d = 0
+    interface.setMotorAngleControllerParameters(SONAR_MOTOR_PORT, sonar_motor_params)
+
+
 def calibrate():
-    interface.startLogging("sonar_motor.log")
+    G = 1000
+    kp_values = [0.1 * (i + 3) * G for i in range(20)]
 
-    ctr = 0
-    while True:
-        if ctr == 0:
-            angle = -math.pi
-            ctr = 1
-        else:
-            angle = float(input("Enter a angle to rotate (in radians): "))
+    for i, kp in enumerate(kp_values):
+        print "kp =", kp
+        interface.startLogging("sonar_logs/sonar_kp_%d.log" % int(kp))
+        sonar_motor_params = interface.MotorAngleControllerParameters()
+        sonar_motor_params.maxRotationAcceleration = 8.0
+        sonar_motor_params.maxRotationSpeed = 12.0
+        sonar_motor_params.feedForwardGain = 255/20.0
+        sonar_motor_params.minPWM = 18.0
+        sonar_motor_params.pidParameters.minOutput = -255
+        sonar_motor_params.pidParameters.maxOutput = 255
+        sonar_motor_params.pidParameters.k_p = kp
+        sonar_motor_params.pidParameters.k_i = 0
+        sonar_motor_params.pidParameters.K_d = 0
+        interface.setMotorAngleControllerParameters(SONAR_MOTOR_PORT, sonar_motor_params)
 
-        interface.increaseMotorAngleReference(SONAR_MOTOR_PORT, angle)
-
-        while not interface.motorAngleReferenceReached(SONAR_MOTOR_PORT) :
-            motorAngle = interface.getMotorAngle(SONAR_MOTOR_PORT)
-            if motorAngle:
-                print "Sonar motor angle:", motorAngle[0]
-            time.sleep(0.1)
-
-        print "Destination reached!"
-
-
-    interface.stopLogging()
+        rotate_sensor(math.pi)
+        rotate_sensor(-math.pi)
+        rotate_sensor(math.pi)
+        rotate_sensor(-math.pi)
+        interface.stopLogging()
     interface.terminate()
 
+
+# setup on import
+setup()
 
 
 if __name__== "__main__":
