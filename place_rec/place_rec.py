@@ -12,7 +12,7 @@ sys.path.append('/home/pi/DoC_Robotics/ultrasonic_sensors')
 import ultrasound
 
 # NOTE: if you change this, reading a signature from file might read a wrong signature; Comparing signatures will also fail; Solution - delete all current signatures
-STEP_READING = 5 
+STEP = 5 
 
 FACE_FORWARD = math.pi / 2
 FACE_LEFT = math.pi
@@ -46,11 +46,11 @@ class LocationSignature:
         """
         Save the signature in a file with a proper name based on the point and STEP
         """
-        if self.x == 0 || self.y == 0:
+        if self.x == 0 or self.y == 0:
             print "ERROR in SingatureManager.save() - point is not set"
             return
 
-        filename = "%d.%d.dat" % self.x, self.y, int(STEP) 
+        filename = "data/%d.%d.%d.dat" % (self.x, self.y, int(STEP))
         if os.path.isfile(filename):
             os.remove(filename)
             
@@ -71,7 +71,7 @@ class LocationSignature:
         filenames = os.listdir("./data")
         for f in filenames:
             args = f.split(".")
-            if x == int(args[0]) && y == int(args[1]):
+            if x == int(args[0]) and y == int(args[1]):
                 filename = f
         if filename == "":
             print "ERROR in SignatureManager.read() - no file with coordinates %d %d %d" % x, y, STEP
@@ -81,7 +81,7 @@ class LocationSignature:
             self.sig.append(int(line))
         f.close();
 
-        if(!len(self.sig)):
+        if not len(self.sig):
             print "WARNING: SignatureManager.read() - signature does not exist"
 
 
@@ -89,13 +89,12 @@ class RotatingSensor:
     """
         Save state of the rotating sonar sensor and take LocationSignature readings 
     """
-    def __init__(self, orientation=0):
+    def __init__(self, orientation=math.pi / 2):
         """
         Arguments:
             orientation(Number): PI / 2 means it is centered. It is ranged from -PI to PI
                                  Its values are in radians.
         """
-        self.orientation = orientation
         self.orientation = orientation
 
 
@@ -107,8 +106,12 @@ class RotatingSensor:
         """
 
         ls = LocationSignature()
+        if start_angle > end_angle:
+            step = -STEP
+        else:
+            step = STEP
  
-        for angle in range(int(start_angle), int(end_angle), int(STEP)):
+        for angle in range(int(start_angle), int(end_angle), step):
             self.setOrientation(float(angle) * math.pi / 180)
             ls.sig.append(ultrasound.get_reading())
 
@@ -117,10 +120,11 @@ class RotatingSensor:
     def setOrientation(self, orientation):
         if orientation < -math.pi:
             orientation = -math.pi
-        else if orientation > math.pi:
+        elif orientation > math.pi:
             orientation = math.pi
-        ultrasound.rotate_sensor(-(orientation - self.orientation))
+        ultrasound.rotate_sensor(self.orientation - orientation)
         self.orientation = orientation
+        print "self.orientation =", orientation
 
 
 def get_signatures_dist(ls1, ls2):
@@ -152,15 +156,13 @@ def get_bottle_angle(ls1, ls2):
 rot_sensor = RotatingSensor()
 
 def main():
-
-def main():
     #rot_sensor.setOrientation(FACE_FORWARD)
     #rot_sensor.setOrientation(FACE_BACK)
     #rot_sensor.setOrientation(FACE_RIGHT)
     #rot_sensor.setOrientation(FACE_LEFT)
     #rot_sensor.setOrientation(FACE_FORWARD)
 
-    ls = rot_sensor.takeSignature(90-45, 90+45)
+    ls = rot_sensor.takeSignature(45, 135)
     ls.x , ls.y = 1, 1
     ls.save()
 
