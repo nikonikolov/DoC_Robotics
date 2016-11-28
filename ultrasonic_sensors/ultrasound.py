@@ -129,8 +129,8 @@ def setup():
     sonar_motor_params.pidParameters.minOutput = -255
     sonar_motor_params.pidParameters.maxOutput = 255
     sonar_motor_params.pidParameters.k_p = 0.65*G
-    sonar_motor_params.pidParameters.k_i = sonar_motor_params.pidParameters.k_p/T
-    sonar_motor_params.pidParameters.K_d = sonar_motor_params.pidParameters.k_p * T / 8
+    sonar_motor_params.pidParameters.k_i = 3 * sonar_motor_params.pidParameters.k_p/T
+    sonar_motor_params.pidParameters.K_d = 3 * sonar_motor_params.pidParameters.k_p * T / 8
     interface.setMotorAngleControllerParameters(SONAR_MOTOR_PORT, sonar_motor_params)
 
 
