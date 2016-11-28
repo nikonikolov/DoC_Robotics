@@ -80,7 +80,6 @@ def rotate_sensor(angle):
 setup()
 
 
-"""
 #OLD PRACTICAL PARAMS
 DESIRED_DIST = 30
 NORMAL_SPEED = 10.0
@@ -157,9 +156,33 @@ def main():
     keep_front_distance()
     #follow_wall()
 
-if __name__=="__main__":
-    main()
+
+def calibrate():
+    interface.startLogging("sonar_motor.log")
+
+    ctr = 0
+    while True:
+        if ctr == 0:
+            angle = -math.pi
+            ctr = 1
+        else:
+            angle = float(input("Enter a angle to rotate (in radians): "))
+
+        interface.increaseMotorAngleReference(SONAR_MOTOR_PORT, angle)
+
+        while not interface.motorAngleReferenceReached(SONAR_MOTOR_PORT) :
+            motorAngle = interface.getMotorAngle(SONAR_MOTOR_PORT)
+            if motorAngle:
+                print "Sonar motor angle:", motorAngle[0]
+            time.sleep(0.1)
+
+        print "Destination reached!"
 
 
-"""
+    interface.stopLogging()
+    interface.terminate()
 
+
+
+if __name__== "__main__":
+    calibrate()
