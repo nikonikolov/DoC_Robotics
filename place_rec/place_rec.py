@@ -6,10 +6,12 @@ import random
 import math
 import os
 import sys
+import collections
+import matplotlib.pyplot as plt
 
 sys.path.append('/home/pi/DoC_Robotics/ultrasonic_sensors')
 
-import ultrasound
+#import ultrasound
 
 # NOTE: if you change this, reading a signature from file might read a wrong signature; Comparing signatures will also fail; Solution - delete all current signatures
 STEP = 5 
@@ -19,16 +21,21 @@ FACE_LEFT = math.pi
 FACE_RIGHT = 0.0
 FACE_BACK = -math.pi / 2
 
+NORMAL_DIR = "/home/pi/DoC_Robotics/place_rec/normal/"
+BOTTLE_DIR = "/home/pi/DoC_Robotics/place_rec/bottles/"
 
+SignaturePoint = collections.namedtuple("SignaturePoint", ["x", "y", "theta", "rstart","rend"])
+
+SIGNATURE_POINTS = [
+    SignaturePoint(),
+]
 
 class LocationSignature:
     """
         Store a signature characterizing a location
     """
-    def __init__(self, x=0, y=0):
-        self.sig = []                   # signature data
-        self.x = x                      # x argument of the point the signature is created for
-        self.y = y                      # y argument of the point the signature is created for
+    def __init__(self):
+        self.sig = []                           # signature data
 
     def print_signature(self):
         for i in range(len(self.sig)):
@@ -36,13 +43,13 @@ class LocationSignature:
 
     def delete_loc_files(self):
         """
-        Delete all files in ./data
+        Delete all files in target_dir
         """
-        filenames = os.listdir("./data")
+        filenames = os.listdir(target_dir)
         for f in filenames:
             os.remove(f)
             
-    def save(self):
+    def save(self, sig_point, target_dir):
         """
         Save the signature in a file with a proper name based on the point and STEP
         """
@@ -50,7 +57,7 @@ class LocationSignature:
             print "ERROR in SingatureManager.save() - point is not set"
             return
 
-        filename = "data/%d.%d.%d.dat" % (self.x, self.y, int(STEP))
+        filename = "%s%d.%d.%d.dat" % (target_dir, self.x, self.y, int(STEP))
         if os.path.isfile(filename):
             os.remove(filename)
             
@@ -59,24 +66,22 @@ class LocationSignature:
             f.write(str(i) + "\n")
         f.close();
 
-    def read(self, x, y):
+    def read(self, sig_point, target_dir):
         """
         Read a LocationSignature from file based on the location of the point 
         If such file does not exists, an empty LocationSignature is returned 
         """
-        self.x = x
-        self.y = y
 
         filename = ""
-        filenames = os.listdir("./data")
+        filenames = os.listdir(target_dir)
         for f in filenames:
             args = f.split(".")
             if x == int(args[0]) and y == int(args[1]):
                 filename = f
         if filename == "":
-            print "ERROR in SignatureManager.read() - no file with coordinates %d %d %d" % x, y, STEP
+            print "ERROR in SignatureManager.read() - no file with coordinates %d %d %d in %s" % x, y, STEP, target_dir
         
-        f = open("./data/" + filename, 'r')
+        f = open(target_dir + filename, 'r')
         for line in f:
             self.sig.append(int(float(line.strip())))
         f.close();
@@ -138,19 +143,28 @@ def get_signatures_dist(ls1, ls2):
     return dist
 
 
-def get_bottle_angle(ls1, ls2):
+def get_bottle_angle(ls1, ls2, sig_point):
     """
         NOTE: orienation at which the signatures were taken matters
     """
     max_diff = 0
     max_i = 0
-    #diff = 0
-    
+    error = []
+
     for i, val in enumerate(ls1.sig):
         diff = (ls1.sig[i] - ls2.sig[i])**2
+        error.append(diff)
         if diff > max_diff:
             max_i = i
             max_diff = diff
+
+    plt.figure()
+    plt.plot(error)
+    plt.figure()
+    plt.plot(ls1.sig)
+
+    plt.figure()
+    plt.plot(ls2.sig)
 
     return max_i*STEP
 
@@ -163,17 +177,24 @@ def main():
     #rot_sensor.setOrientation(FACE_LEFT)
     #rot_sensor.setOrientation(FACE_FORWARD)
 
-    #ls = rot_sensor.takeSignature(30.0, 150.0)
-    #ls.x , ls.y = 3, 3
-    #ls.save()
-    
-    ls = LocationSignature()
-    ls.read(1,1)
+    #for sig_point in SIGNATURE_POINTS:
+
+        # Take a measurement with     
+    #sig_point = SIGNATURE_POINTS[0]
+    #ls = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend)
+    #ls.save(sig_point, )
+
+    ls_normal = LocationSignature()
+    ls_normal.read(sig_point, NORMAL_DIR)
+
+    #input("Press Enter to continue...")    
 
     ls_bottle = LocationSignature()
-    ls_bottle.read(2,2)
+    ls_bottle.read(sig_point, BOTTLE_DIR)
     
-    print get_bottle_angle(ls_bottle, ls)
+    print get_bottle_angle(ls_bottle, ls_normal)
+
+    #plt.show()
 
 
 if __name__ == "__main__":
