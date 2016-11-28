@@ -76,9 +76,9 @@ class LocationSignature:
         if filename == "":
             print "ERROR in SignatureManager.read() - no file with coordinates %d %d %d" % x, y, STEP
         
-        f = open(filename, 'r')
+        f = open("./data/" + filename, 'r')
         for line in f:
-            self.sig.append(int(line))
+            self.sig.append(int(float(line.strip())))
         f.close();
 
         if not len(self.sig):
@@ -144,14 +144,15 @@ def get_bottle_angle(ls1, ls2):
     """
     max_diff = 0
     max_i = 0
-
-    for i, val in enumerate(ls1):
-        diff += (ls1[i] - ls2[i])**2
+    #diff = 0
+    
+    for i, val in enumerate(ls1.sig):
+        diff = (ls1.sig[i] - ls2.sig[i])**2
         if diff > max_diff:
             max_i = i
             max_diff = diff
 
-    return i*STEP
+    return max_i*STEP
 
 rot_sensor = RotatingSensor()
 
@@ -162,11 +163,17 @@ def main():
     #rot_sensor.setOrientation(FACE_LEFT)
     #rot_sensor.setOrientation(FACE_FORWARD)
 
-    ls = rot_sensor.takeSignature(45, 135)
-    ls.x , ls.y = 1, 1
-    ls.save()
+    #ls = rot_sensor.takeSignature(30.0, 150.0)
+    #ls.x , ls.y = 3, 3
+    #ls.save()
+    
+    ls = LocationSignature()
+    ls.read(1,1)
 
-
+    ls_bottle = LocationSignature()
+    ls_bottle.read(2,2)
+    
+    print get_bottle_angle(ls_bottle, ls)
 
 
 if __name__ == "__main__":
