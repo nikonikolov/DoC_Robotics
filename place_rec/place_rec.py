@@ -23,19 +23,22 @@ FACE_LEFT = math.pi
 FACE_RIGHT = 0.0
 FACE_BACK = -math.pi / 2
 
-NORMAL_DIR = "/home/pi/DoC_Robotics/place_rec/normal/"
-BOTTLE_DIR = "/home/pi/DoC_Robotics/place_rec/bottles/"
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+NORMAL_DIR = SCRIPT_DIR + "/data/normal/"
+BOTTLE_DIR = SCRIPT_DIR + "/data/bottles/"
 
-SignaturePoint = collections.namedtuple("SignaturePoint", ["x", "y", "theta", "rstart","rend"])
+SignaturePoint = collections.namedtuple(
+        "SignaturePoint", ["x", "y", "theta", "rstart", "rend"])
 
 SIGNATURE_POINTS = [
-    SignaturePoint(),
+    SignaturePoint(x=1, y=1, theta=5, rstart=30, rend=150),
 ]
+# Angle is in degrees, distance is in cm.
 BottleLocationBelief = collections.namedtuple(
         "BottleLocationBelief", ["angle", "distance"])
 
 
-def compare(test_signature, observed_signature, point):
+def compare_signatures(test_signature, observed_signature, point):
     """Check if a bottle is observed.
 
     Arguments:
@@ -113,7 +116,7 @@ class LocationSignature:
         filenames = os.listdir(target_dir)
         for f in filenames:
             args = f.split(".")
-            if x == int(args[0]) and y == int(args[1]):
+            if sig_point.x == int(args[0]) and sig_point.y == int(args[1]):
                 filename = f
         if filename == "":
             print "ERROR in SignatureManager.read() - no file with coordinates %d %d %d in %s" % x, y, STEP, target_dir
@@ -180,31 +183,6 @@ def get_signatures_dist(ls1, ls2):
     return dist
 
 
-def get_bottle_angle(ls1, ls2, sig_point):
-    """
-        NOTE: orienation at which the signatures were taken matters
-    """
-    max_diff = 0
-    max_i = 0
-    error = []
-
-    for i, val in enumerate(ls1.sig):
-        diff = (ls1.sig[i] - ls2.sig[i])**2
-        error.append(diff)
-        if diff > max_diff:
-            max_i = i
-            max_diff = diff
-
-    plt.figure()
-    plt.plot(error)
-    plt.figure()
-    plt.plot(ls1.sig)
-
-    plt.figure()
-    plt.plot(ls2.sig)
-
-    return max_i*STEP
-
 rot_sensor = RotatingSensor()
 
 def main():
@@ -221,6 +199,8 @@ def main():
     #ls = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend)
     #ls.save(sig_point, )
 
+    sig_point = SIGNATURE_POINTS[0]
+
     ls_normal = LocationSignature()
     ls_normal.read(sig_point, NORMAL_DIR)
 
@@ -229,7 +209,7 @@ def main():
     ls_bottle = LocationSignature()
     ls_bottle.read(sig_point, BOTTLE_DIR)
     
-    print get_bottle_angle(ls_bottle, ls_normal)
+    print get_bottle_angle(ls_bottle, ls_normal, sig_point)
 
     #plt.show()
 
