@@ -155,11 +155,11 @@ def setup():
 
 def calibrate():
     G = 1000
-    kp_values = [1.0 / 20.0 * (i + 1) * G for i in range(3)]
+    kp_values = [150, 200, 250]
 
     for i, kp in enumerate(kp_values):
         print "kp =", kp
-        interface.startLogging("sonar_logs/sonar_kp_%d.log" % int(kp))
+        interface.startLogging("plot/sonar_logs/sonar_kp_%d.log" % int(kp))
         sonar_motor_params = interface.MotorAngleControllerParameters()
         sonar_motor_params.maxRotationAcceleration = 8.0
         sonar_motor_params.maxRotationSpeed = 12.0
