@@ -6,29 +6,96 @@ import random
 import math
 import os
 import sys
+import collections
+
+import numpy as np
+import matplotlib.pyplot as plt
 
 sys.path.append('/home/pi/DoC_Robotics/ultrasonic_sensors')
 
-import ultrasound
+#import ultrasound
 
 # NOTE: if you change this, reading a signature from file might read a wrong signature; Comparing signatures will also fail; Solution - delete all current signatures
-STEP = 5 
+STEP = 5
 
 FACE_FORWARD = math.pi / 2
 FACE_LEFT = math.pi
 FACE_RIGHT = 0.0
 FACE_BACK = -math.pi / 2
 
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+NORMAL_DIR = SCRIPT_DIR + "/data/normal/"
+BOTTLE_DIR = SCRIPT_DIR + "/data/bottles/"
+
+SignaturePoint = collections.namedtuple(
+        "SignaturePoint", ["x", "y", "theta", "rstart", "rend"])
+
+SIGNATURE_POINTS = [
+    SignaturePoint(x=1, y=1, theta=5, rstart=30, rend=150),
+]
+# Angle is in degrees, distance is in cm.
+BottleLocation = collections.namedtuple(
+        "BottleLocation", ["angle", "distance"])
+
+
+def binary_signal_partition_by(arr):
+    in_signal = False
+    indices = []
+    beginning = 0
+    for i, v in enumerate(arr):
+        if in_signal:
+            if not v:
+                indices.append((beginning, i))
+                in_signal = False
+        else:
+            if v:
+                beginning = i
+                in_signal = True
+    if in_signal:
+        indices.append((beginning, len(arr)))
+    return indices
+
+
+def get_bottle_belief(test_signature, observed_signature, point):
+    """Check if a bottle is observed.
+
+    Arguments:
+        test_signature: The signature without the bottle.
+        observed_signature: The signature that we want to test with.
+        point: The location where the two signatures were taken.
+    Returns:
+        The angle of the bottle, relative to point.rstart if we
+        believe that a bottle is within sight. None otherwise.
+    """
+    # signature_point has attributes x, y, theta, rstart, rend
+    step = -STEP if point.rstart > point.rend else STEP
+    angles = list(range(point.rstart, point.rend, step))
+    # The sonar observations.
+    observations = observed_signature.sig
+    # TODO(fyquah): Dynamically calculate this based on the test signature.
+    threshold = 200.0
+    thresholded = [1 if ((observed - expected) ** 2) > 200.0 else 0
+                   for observed, expected
+                   in zip(observations, test_signature.sig)]
+    clusters = binary_signal_partition_by(thresholded)
+    if len(clusters) == 1:
+        cluster_indices = range(clusters[0][0], clusters[0][1])
+        cluster_readings = [observations[i] for i in cluster_indices]
+        distance = np.median(cluster_readings) + 10.0
+        angle = np.median([angles[i] for i in cluster_indices])
+        return BottleLocation(
+                distance=distance, angle=90.0 - angle)
+    else:
+        return None
 
 
 class LocationSignature:
     """
         Store a signature characterizing a location
     """
-    def __init__(self, x=0, y=0):
-        self.sig = []                   # signature data
-        self.x = x                      # x argument of the point the signature is created for
-        self.y = y                      # y argument of the point the signature is created for
+    def __init__(self):
+        # signature data
+        self.sig = []
 
     def print_signature(self):
         for i in range(len(self.sig)):
@@ -36,13 +103,13 @@ class LocationSignature:
 
     def delete_loc_files(self):
         """
-        Delete all files in ./data
+        Delete all files in target_dir
         """
-        filenames = os.listdir("./data")
+        filenames = os.listdir(target_dir)
         for f in filenames:
             os.remove(f)
-            
-    def save(self):
+
+    def save(self, sig_point, target_dir):
         """
         Save the signature in a file with a proper name based on the point and STEP
         """
@@ -50,33 +117,31 @@ class LocationSignature:
             print "ERROR in SingatureManager.save() - point is not set"
             return
 
-        filename = "data/%d.%d.%d.dat" % (self.x, self.y, int(STEP))
+        filename = "%s%d.%d.%d.dat" % (target_dir, self.x, self.y, int(STEP))
         if os.path.isfile(filename):
             os.remove(filename)
-            
+
         f = open(filename, 'w')
         for i in self.sig:
             f.write(str(i) + "\n")
         f.close();
 
-    def read(self, x, y):
+    def read(self, sig_point, target_dir):
         """
-        Read a LocationSignature from file based on the location of the point 
-        If such file does not exists, an empty LocationSignature is returned 
+        Read a LocationSignature from file based on the location of the point
+        If such file does not exists, an empty LocationSignature is returned
         """
-        self.x = x
-        self.y = y
 
         filename = ""
-        filenames = os.listdir("./data")
+        filenames = os.listdir(target_dir)
         for f in filenames:
             args = f.split(".")
-            if x == int(args[0]) and y == int(args[1]):
+            if sig_point.x == int(args[0]) and sig_point.y == int(args[1]):
                 filename = f
         if filename == "":
-            print "ERROR in SignatureManager.read() - no file with coordinates %d %d %d" % x, y, STEP
-        
-        f = open("./data/" + filename, 'r')
+            print "ERROR in SignatureManager.read() - no file with coordinates %d %d %d in %s" % x, y, STEP, target_dir
+
+        f = open(target_dir + filename, 'r')
         for line in f:
             self.sig.append(int(float(line.strip())))
         f.close();
@@ -87,7 +152,7 @@ class LocationSignature:
 
 class RotatingSensor:
     """
-        Save state of the rotating sonar sensor and take LocationSignature readings 
+        Save state of the rotating sonar sensor and take LocationSignature readings
     """
     def __init__(self, orientation=math.pi / 2):
         """
@@ -110,7 +175,7 @@ class RotatingSensor:
             step = -STEP
         else:
             step = STEP
- 
+
         for angle in range(int(start_angle), int(end_angle), step):
             self.setOrientation(float(angle) * math.pi / 180)
             ls.sig.append(ultrasound.get_reading())
@@ -126,55 +191,58 @@ class RotatingSensor:
         self.orientation = orientation
         print "self.orientation =", orientation
 
+def test_performance():
+    for sig_point in SIGNATURE_POINTS:
 
-def get_signatures_dist(ls1, ls2):
-    """
-        NOTE: orienation at which the signatures were taken matters
-    """
-    dist = 0
+        ls_normal = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend)
+        ls_normal.save(sig_point, NORMAL_DIR)
 
-    for i, val in enumerate(ls1):
-        dist += (ls1[i] - ls2[i])**2
-    return dist
+        input("Place a bottle somewhere and press enter")    
 
-
-def get_bottle_angle(ls1, ls2):
-    """
-        NOTE: orienation at which the signatures were taken matters
-    """
-    max_diff = 0
-    max_i = 0
-    #diff = 0
+        ls_bottle = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend)
+        ls_bottle.save(sig_point, BOTTLE_DIR)
     
-    for i, val in enumerate(ls1.sig):
-        diff = (ls1.sig[i] - ls2.sig[i])**2
-        if diff > max_diff:
-            max_i = i
-            max_diff = diff
+        bottle_loc = get_bottle_belief(ls_bottle, ls_normal, sig_point)
 
-    return max_i*STEP
+        print bottle_loc
+
+        motor_params.rotate(bottle_loc.angle)
+        motor_params.forward(bottle_loc.distance)
+
+
+        input("Place the robot in a the next signature point for a new test and press enter")    
+
+def show_plots(test_sig, observed_sig):
+    for sig_point in SIGNATURE_POINTS:
+
+        observed_sig = LocationSignature()
+        observed_sig.read(sig_point, NORMAL_DIR)
+
+        input("Place a bottle somewhere and press enter")    
+
+        test_sig = LocationSignature()
+        test_sig.read(sig_point, BOTTLE_DIR)
+
+        error = get_correlation_diff()
+
+        plt.figure()
+        plt.title("Observed Signature")
+        plt.plot(observed_sig.sig)
+
+        plt.figure()
+        plt.title("Test Signature")
+        plt.plot(test_sig.sig)
+
+        plt.figure()
+        plt.title("Correlation Error")
+        plt.plot(error)
+
+        plt.show()
 
 rot_sensor = RotatingSensor()
 
 def main():
-    #rot_sensor.setOrientation(FACE_FORWARD)
-    #rot_sensor.setOrientation(FACE_BACK)
-    #rot_sensor.setOrientation(FACE_RIGHT)
-    #rot_sensor.setOrientation(FACE_LEFT)
-    #rot_sensor.setOrientation(FACE_FORWARD)
-
-    #ls = rot_sensor.takeSignature(30.0, 150.0)
-    #ls.x , ls.y = 3, 3
-    #ls.save()
-    
-    ls = LocationSignature()
-    ls.read(1,1)
-
-    ls_bottle = LocationSignature()
-    ls_bottle.read(2,2)
-    
-    print get_bottle_angle(ls_bottle, ls)
-
+    test()
 
 if __name__ == "__main__":
     main()
