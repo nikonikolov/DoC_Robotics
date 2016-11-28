@@ -155,7 +155,7 @@ def setup():
 
 def calibrate():
     G = 1000
-    kp_values = [0.1 * (i + 3) * G for i in range(20)]
+    kp_values = [1.0 / 20.0 * (i + 1) * G for i in range(3)]
 
     for i, kp in enumerate(kp_values):
         print "kp =", kp
