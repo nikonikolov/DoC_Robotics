@@ -7,6 +7,7 @@ import math
 import os
 import sys
 import collections
+import getpass
 
 import numpy as np
 
@@ -14,9 +15,12 @@ sys.path.append('/home/pi/DoC_Robotics')
 sys.path.append('/home/pi/DoC_Robotics/ultrasonic_sensors')
 sys.path.append('/home/pi/DoC_Robotics/touch_sensors')
 
-import motor_params
-import ultrasound
-import touch_sensors
+if getpass.getuser() == "pi":
+    import motor_params
+    import ultrasound
+    import touch_sensors
+else:
+    import matplotlib.pyplot as plt
 
 # NOTE: if you change this, reading a signature from file might read a wrong signature; Comparing signatures will also fail; Solution - delete all current signatures
 STEP = 5
@@ -34,7 +38,7 @@ SignaturePoint = collections.namedtuple(
         "SignaturePoint", ["x", "y", "theta", "rstart", "rend"])
 
 SIGNATURE_POINTS = [
-    SignaturePoint(x=10, y=10, theta=5, rstart=30, rend=150),
+    SignaturePoint(x=3, y=3, theta=5, rstart=30, rend=150),
 ]
 # Angle is in degrees, distance is in cm.
 BottleLocation = collections.namedtuple(
@@ -67,6 +71,13 @@ def binary_signal_partition_by(arr):
     return indices
 
 
+def threshold_differences(test_values, observations):
+    threshold = 200.0
+    return [1 if ((observed - expected) ** 2) > 200.0 else 0
+            for observed, expected
+            in zip(observations, test_values)]
+
+
 def get_bottle_belief(test_signature, observed_signature, point):
     """Check if a bottle is observed.
 
@@ -84,10 +95,10 @@ def get_bottle_belief(test_signature, observed_signature, point):
     # The sonar observations.
     observations = observed_signature.sig
     # TODO(fyquah): Dynamically calculate this based on the test signature.
-    threshold = 200.0
-    thresholded = [1 if ((observed - expected) ** 2) > 200.0 else 0
-                   for observed, expected
-                   in zip(observations, test_signature.sig)]
+
+    thresholded = threshold_differences(test_signature.sig,
+                                        observations)
+    print "Thresholded:"
     print thresholded
     print "Observations:"
     print observations
@@ -263,37 +274,53 @@ def test_performance():
 
         raw_input("Place the robot in a the next signature point for a new test and press enter")    
 
-def show_plots(test_sig, observed_sig):
+
+def get_correlation_diff(test_sig, observed_sig):
+    return [(a - b) ** 2 for a, b in
+            zip(test_sig.sig, observed_sig.sig)]
+
+
+def show_plots():
     for sig_point in SIGNATURE_POINTS:
 
         observed_sig = LocationSignature()
         observed_sig.read(sig_point, NORMAL_DIR)
 
-        raw_input("Place a bottle somewhere and press enter")    
-
         test_sig = LocationSignature()
         test_sig.read(sig_point, BOTTLE_DIR)
 
-        error = get_correlation_diff()
+        error = get_correlation_diff(test_sig, observed_sig)
+        thresholded = threshold_differences(
+                test_sig.sig, observed_sig.sig)
 
         plt.figure()
         plt.title("Observed Signature")
+        plt.ylim(0, 270)
         plt.plot(observed_sig.sig)
 
         plt.figure()
         plt.title("Test Signature")
+        plt.ylim(0, 270)
         plt.plot(test_sig.sig)
 
         plt.figure()
         plt.title("Correlation Error")
         plt.plot(error)
 
+        plt.figure()
+        plt.ylim(-0.25, 1.25)
+        plt.title("Thresholded")
+        plt.plot(thresholded)
+
         plt.show()
 
 rot_sensor = RotatingSensor()
 
 def main():
-    test_production()
+    if getpass.getuser() == "pi":
+        test_production()
+    else:
+        show_plots()
 
 if __name__ == "__main__":
     main()
