@@ -34,8 +34,8 @@ SIGNATURE_POINTS = [
     SignaturePoint(x=1, y=1, theta=5, rstart=30, rend=150),
 ]
 # Angle is in degrees, distance is in cm.
-BottleLocationBelief = collections.namedtuple(
-        "BottleLocationBelief", ["angle", "distance"])
+BottleLocation = collections.namedtuple(
+        "BottleLocation", ["angle", "distance"])
 
 
 def binary_signal_partition_by(arr):
@@ -83,7 +83,7 @@ def get_bottle_belief(test_signature, observed_signature, point):
         cluster_readings = [observations[i] for i in cluster_indices]
         distance = np.median(cluster_readings) + 10.0
         angle = np.median([angles[i] for i in cluster_indices])
-        return BottleLocationBelief(
+        return BottleLocation(
                 distance=distance, angle=90.0 - angle)
     else:
         return None
@@ -191,48 +191,58 @@ class RotatingSensor:
         self.orientation = orientation
         print "self.orientation =", orientation
 
+def test_performance():
+    for sig_point in SIGNATURE_POINTS:
 
-def get_signatures_dist(ls1, ls2):
-    """
-        NOTE: orienation at which the signatures were taken matters
-    """
-    dist = 0
+        ls_normal = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend)
+        ls_normal.save(sig_point, NORMAL_DIR)
 
-    for i, val in enumerate(ls1):
-        dist += (ls1[i] - ls2[i])**2
-    return dist
+        input("Place a bottle somewhere and press enter")    
 
+        ls_bottle = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend)
+        ls_bottle.save(sig_point, BOTTLE_DIR)
+    
+        bottle_loc = get_bottle_belief(ls_bottle, ls_normal, sig_point)
+
+        print bottle_loc
+
+        motor_params.rotate(bottle_loc.angle)
+        motor_params.forward(bottle_loc.distance)
+
+
+        input("Place the robot in a the next signature point for a new test and press enter")    
+
+def show_plots(test_sig, observed_sig):
+    for sig_point in SIGNATURE_POINTS:
+
+        observed_sig = LocationSignature()
+        observed_sig.read(sig_point, NORMAL_DIR)
+
+        input("Place a bottle somewhere and press enter")    
+
+        test_sig = LocationSignature()
+        test_sig.read(sig_point, BOTTLE_DIR)
+
+        error = get_correlation_diff()
+
+        plt.figure()
+        plt.title("Observed Signature")
+        plt.plot(observed_sig.sig)
+
+        plt.figure()
+        plt.title("Test Signature")
+        plt.plot(test_sig.sig)
+
+        plt.figure()
+        plt.title("Correlation Error")
+        plt.plot(error)
+
+        plt.show()
 
 rot_sensor = RotatingSensor()
 
 def main():
-    #rot_sensor.setOrientation(FACE_FORWARD)
-    #rot_sensor.setOrientation(FACE_BACK)
-    #rot_sensor.setOrientation(FACE_RIGHT)
-    #rot_sensor.setOrientation(FACE_LEFT)
-    #rot_sensor.setOrientation(FACE_FORWARD)
-
-    #for sig_point in SIGNATURE_POINTS:
-
-        # Take a measurement with     
-    #sig_point = SIGNATURE_POINTS[0]
-    #ls = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend)
-    #ls.save(sig_point, )
-
-    sig_point = SIGNATURE_POINTS[0]
-
-    ls_normal = LocationSignature()
-    ls_normal.read(sig_point, NORMAL_DIR)
-
-    #input("Press Enter to continue...")    
-
-    ls_bottle = LocationSignature()
-    ls_bottle.read(sig_point, BOTTLE_DIR)
-    
-    print get_bottle_belief(ls_bottle, ls_normal, sig_point)
-
-    #plt.show()
-
+    test()
 
 if __name__ == "__main__":
     main()
