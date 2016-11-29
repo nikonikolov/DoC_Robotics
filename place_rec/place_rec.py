@@ -285,7 +285,7 @@ class RotatingSensor:
         # TODO(reboot): When we reboot, we will need to change the offset angle
         # to the angle when the robot is facing forward. This is due to some weird
         # thing that resets the robot angle on reboot.
-        offset = math.pi / 180.0 * -5.0
+        offset = math.pi / 180.0 * +1.0
         orientation = math.pi / 2 + offset - orientation
 
         myOrientation = motor_params.interface.getMotorAngle(
