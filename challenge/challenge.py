@@ -1,3 +1,5 @@
+import time
+import os
 import math
 import sys
 
@@ -7,6 +9,7 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '../MCL')
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '../place_rec')
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '../')
 
+from touch_sensors import touch_sensors
 import motion_predict
 import walls
 import mcl
@@ -28,10 +31,10 @@ def get_bottle(sig_point):
     """
 
     ls_normal = place_rec.LocationSignature()
-    ls_normal.read(sig_point, NORMAL_DIR)
+    ls_normal.read(sig_point, place_rec.NORMAL_DIR)
     
-    ls_bottle = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend, sig_point)
-    ls_bottle.save(sig_point, BOTTLE_DIR)
+    ls_bottle = place_rec.rot_sensor.takeSignature(sig_point.rstart, sig_point.rend, sig_point)
+    ls_bottle.save(sig_point, place_rec.BOTTLE_DIR)
 
     return place_rec.get_bottle_belief(ls_bottle, ls_normal, sig_point)
 
@@ -58,6 +61,7 @@ def uncertainNavigate(state, dest):
         dest - absolute orientation
     """
     goal_theta = math.atan2(dest.y - state.y, dest.x - state.x)
+    dist = math.sqrt((dest.y - state.y) ** 2 + (dest.x - state.x) ** 2)
     delta_theta_rad = goal_theta - state.theta
     if delta_theta_rad > math.pi:
         delta_theta_rad -= 2*math.pi
@@ -69,13 +73,11 @@ def uncertainNavigate(state, dest):
     return state.move_forward(dist)
 
 
-BOTTLES = {}
-
 
 class BumpException(Exception):
     """Exception when the touch sensor bumps into something."""
     def __init__(self, sensor):
-        super(self)
+        super(BumpException, self).__init__()
         self._sensor = sensor
 
     @property
@@ -110,16 +112,34 @@ def move_while_listen_bump(dist):
         else:
             time.sleep(0.03)
 
+BOTTLES = {
+    "A": [
+        place_rec.SignaturePoint(x=100, y=40, theta=0, rstart=30, rend=135),
+        #first point for detecting in A
+        place_rec.SignaturePoint(x=150, y=40, theta=0, rstart=30, rend=150),
+        #second point for detecting in A
+    ],
+    "B": [
+        place_rec.SignaturePoint(x=105, y=70, theta=math.pi/2, rstart=22, rend=110),
+        place_rec.SignaturePoint(x=105, y=140,  theta=math.pi/2,rstart=-20, rend=160),
+    ],
+    "C": [
+        place_rec.SignaturePoint(x=75, y=50,  theta=math.pi,rstart=0, rend=90),
+        place_rec.SignaturePoint(x=60, y=102, theta=math.pi/2, rstart=45,  rend=180),
+    ],
+    "FINAL": [
+        place_rec.SignaturePoint(x=84, y=30,  theta=-math.pi, rstart=0, rend=0),
+    ]
+}
+
 
 def main():
-
-    BOTTLES = place_rec.SIGNATURE_POINTS
 
     walls.wallmap.draw()
 
     state = motion_predict.State(
             particles=[motion_predict.Particle(
-                    x=WAYPOINTS[0].x, y=WAYPOINTS[0].y, theta=0)] * NUMBER_OF_PARTICLES,
+                    x=BOTTLES["FINAL"][0].x, y=BOTTLES["FINAL"][0].y, theta=0)] * NUMBER_OF_PARTICLES,
             weights=[1.0 / NUMBER_OF_PARTICLES
                      for _ in range(NUMBER_OF_PARTICLES)])
     mcl.draw_particles(state)
@@ -171,7 +191,7 @@ def main():
                     # 2. Regardless of whether we hit the bottle or not.
                     # TODO(fyquah): Possibly a better strategy?
                     motor_params.forward(-distance)
-                    state = state.forward(-distance)
+                    state = state.move_forward(-distance)
 
                     if hit_bottle:
                         # 3. Break if we hit the bottle. Then we go on to
