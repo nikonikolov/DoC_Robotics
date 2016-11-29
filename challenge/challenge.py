@@ -110,6 +110,7 @@ def get_bottle(sig_point):
 
     return place_rec.get_bottle_belief(ls_bottle, ls_normal, sig_point)
 
+
 def uncertainRotate(state, dest):
     """
     Arguments: 
@@ -153,7 +154,7 @@ def sigPointMCLStep(state, mcl_points):
     """
     if mcl_points:
         for point in mcl_points:
-            uncertainRotate(state, point)
+            place_rec.rot_sensor.setOrientation(point.theta - math.pi/2)
             state = mcl.MCLStep(state)
     return state
 
