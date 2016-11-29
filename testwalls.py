@@ -12,4 +12,4 @@ import walls
 import motion_predict
 
 p = motion_predict.Particle(x=124, y=120, theta=math.radians(30))
-walls.getWallDist(p, incidence_angle=False)
+print walls.getWallDist(p, incidence_angle=False)

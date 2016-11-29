@@ -408,7 +408,7 @@ rot_sensor = RotatingSensor()
 
 def main():
     if getpass.getuser() == "pi":
-        test_performance()
+        test_production()
     else:
         show_plots()
 
