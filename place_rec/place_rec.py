@@ -41,7 +41,7 @@ SignaturePoint = collections.namedtuple(
         "SignaturePoint", ["x", "y", "theta", "rstart", "rend"])
 
 SIGNATURE_POINTS = [
-    SignaturePoint(x=170, y=40, theta=0, rstart=30, rend=150),
+    SignaturePoint(x=150, y=40, theta=0, rstart=30, rend=150),
     #SignaturePoint(x=40, y=128, theta=0, rstart=30, rend=150),
     # SignaturePoint(x=170, y=40,  theta=0.0,       rstart=30, rend=150),
     # SignaturePoint(x=140, y=40,  theta=0.0,       rstart=30, rend=150),
@@ -87,8 +87,8 @@ def binary_signal_partition_by(arr):
 
 
 def remove_dc_component(x):
-    mean = np.mean(x)
-    return [t - mean for t in x]
+    mean = np.mean([t for t in x if t < 200.0])
+    return [ultrasound.GARBAGE if t > 200.0 else t - mean for t in x]
 
 
 def threshold_differences(test_values, observations):
@@ -153,7 +153,7 @@ def get_bottle_belief(test_signature, observed_signature, point):
     print filtered_test_sig
     print "Angles"
     print angles
-he
+
     # Get a list of ranges speficying the stard and end indices of the biggest clusters 
     clusters = remove_cluster_anomalies(binary_signal_partition_by(thresholded))
     if len(clusters) == 1:
@@ -288,7 +288,7 @@ class RotatingSensor:
         # TODO(reboot): When we reboot, we will need to change the offset angle
         # to the angle when the robot is facing forward. This is due to some weird
         # thing that resets the robot angle on reboot.
-        offset = math.pi / 180.0 * 96.0
+        offset = math.pi / 180.0 * 0.0
         orientation = math.pi / 2 + offset - orientation
         
         if orientation < -math.pi:
