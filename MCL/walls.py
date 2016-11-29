@@ -149,13 +149,13 @@ def getWallDist(particle, wallmap=wallmap,incidence_angle=True):
         # Check if x coordinate is inside
         if Ax>Bx:
             Ax, Bx = Bx, Ax
-        if meetX<Ax or meetX>Bx:
+        if meetX < (Ax - 0.01) or meetX > (Bx + 0.01):
             inside = False
 
         # Check if y coordinate is inside
         if Ay>By:
             Ay, By = By, Ay
-        if meetY<Ay or meetY>By:
+        if meetY < (Ay - 0.01) or meetY > (By + 0.01):
             inside = False
 
         if inside and dist<smallest_inside_dist:
