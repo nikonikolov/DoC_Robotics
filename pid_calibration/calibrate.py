@@ -1,7 +1,17 @@
 import math
 import time
+import sys
+import os
+
 import numpy as np
 import brickpi
+
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../pmotion')
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../ultrasonic_sensors')
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../MCL')
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../place_rec')
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../')
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../touch_sensors')
 
 import motor_params
 
@@ -9,7 +19,6 @@ interface = motor_params.interface
 
 
 def calibrate():
-    G = 1000
     kp_values = range(100, 1000, 50)
 
     for i, kp in enumerate(kp_values):
@@ -42,8 +51,8 @@ def calibrate():
               motor_params.MOTOR_RIGHT, right_motor_params)
 
         # Choose your action here.
-        motor_params.Left90deg()
-        motor_params.Right90deg()
+        motor_params.rotate(180.0)
+        motor_params.rotate(-180.0)
         # End of choose action.
 
         interface.stopLogging()
