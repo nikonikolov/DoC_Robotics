@@ -8,8 +8,9 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '../ultrasonic_sen
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '../MCL')
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '../place_rec')
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '../')
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '../touch_sensors')
 
-from touch_sensors import touch_sensors
+import touch_sensors
 import motion_predict
 import walls
 import mcl

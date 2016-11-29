@@ -18,6 +18,7 @@ sys.path.append('/home/pi/DoC_Robotics/ultrasonic_sensors')
 sys.path.append('/home/pi/DoC_Robotics/touch_sensors')
 sys.path.append('/home/pi/DoC_Robotics/MCL')
 sys.path.append('/home/pi/DoC_Robotics/pmotion')
+sys.path.append('/home/pi/DoC_Robotics/touch_sensors')
 
 
 if getpass.getuser() == "pi":
