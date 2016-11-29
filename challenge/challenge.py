@@ -34,6 +34,48 @@ def get_bottle(sig_point):
     return place_rec.get_bottle_belief(ls_bottle, ls_normal, sig_point)
 
 
+BOTTLES = {}
+
+
+class BumpException(Exception):
+    """Exception when the touch sensor bumps into something."""
+    def __init__(self, sensor):
+        super(self)
+        self._sensor = sensor
+
+    @property
+    def sensor(self):
+        return self._sensor
+
+
+def move_while_listen_bump(dist):
+    angle = motor_params.better_dist_to_motor_angle(dist)
+    motor_params.interface.increaseMotorAngleReferences(
+            motor_params.motors, [angle,angle])
+    while True:
+        left = motor_params.interface.getSensorValue(
+                touch_sensors.TOUCH_PORT_LEFT)[0]
+        right = motor_params.interface.getSensorValue(
+                touch_sensors.TOUCH_PORT_RIGHT)[0]
+        if left:
+            motor_params.interface.setMotorPwm(
+                    motor_params.motors[0], 0)
+            motor_params.interface.setMotorPwm(
+                    motor_params.motors[1], 0)
+            raise BumpException(touch_sensors.TOUCH_PORT_LEFT)
+        elif right:
+            motor_params.interface.setMotorPwm(
+                    motor_params.motors[0], 0)
+            motor_params.interface.setMotorPwm(
+                    motor_params.motors[1], 0)
+            raise BumpException(touch_sensors.TOUCH_PORT_RIGHT)
+        elif motor_params.interface.motorAngleReferencesReached(
+                motor_params.motors):
+            break
+        else:
+            time.sleep(0.03)
+
+
 def main():
 
     WAYPOINTS = place_rec.SIGNATURE_POINTS
@@ -79,26 +121,34 @@ def main():
                 if bottle_loc is None:
                     print "BOTTLE NOT DETECTED"
                     continue
-
-                # We have a a possible bottle location
-                # TO DO: Handle case when there are more than one bottles
+                # We have a possible bottle location
                 else:
-                    # TO DO: Navigate to the bottle with state uncertainty update
-                    # TO DO: Navigate back - how        
-                    print "BOTTLE DETECTED AT: ", bottle_loc
-                    
-                    motor_params.rotate(bottle_loc.angle)
-                    motor_params.interface.setMotorRotationSpeedReferences(
-                            motor_params.motors, [8.0, 8.0])
-                    left = 0
-                    right = 0
-                    motor_params.slow_down_forward(
-                            bottle_loc.distance, bump_termination_callback)
+                    # 1. Try navigating to the bottle.
+                    distance, hit_bottle = motor_params.slow_down_forward(
+                            bottle_loc.distance,
+                            place_rec.bump_termination_callback,
+                            overshoot=15.0)
+                    # Don't perform MCL here, we are fairly sure that it will
+                    # screw up. (Due to the bottle).
+                    state = state.move_forward(distance)
 
+                    # 2. Regardless of whether we hit the bottle or not.
+                    # TODO(fyquah): Possibly a better strategy?
+                    motor_params.forward(-distance)
+                    state = state.forward(-distance)
+
+                    if hit_bottle:
+                        # 3. Break if we hit the bottle. Then we go on to
+                        #    handle the next bottle area.
+                        break
+                    else:
+                        # 4. if we did not hit a bottle, we continue the loop.
+                        #    Going to the next waypoint in the area.
+                        continue
         # Final endpoint
         else:
             waypoint = visitpoints[0]
-            
+
             # Navigate properly
             while True:
                 x_is_close = abs(state.x - waypoint.x) <= FINAL_WAYPOINT_MIN_OFFSET

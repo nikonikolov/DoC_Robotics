@@ -143,7 +143,7 @@ def angle_to_dist(angle):
 
 
 
-def slow_down_forward(dist, termination_callback):
+def slow_down_forward(dist, termination_callback, overshoot=0.0):
     """
     Forward with decreasing velocity as we get close to an object.
 
@@ -154,15 +154,20 @@ def slow_down_forward(dist, termination_callback):
                               returns True, the motors stop immediately.
     """
     distance_moved = 0.0
+    hit_bottle = False
     beginning_angle = interface.getMotorAngle(0)[0]
     interface.setMotorRotationSpeedReferences(
             motors, [20.0, 20.0])
-    while not termination_callback() and distance_moved < dist:
+    while distance_moved < dist + overshoot:
+        if termination_callback():
+            hit_bottle = True
+            break
         angle = interface.getMotorAngle(0)[0]
         distance_moved = angle_to_dist(angle - beginning_angle)
         # Multiply by 0.7, just to be more conservative about the distance.
         speed = max(3.0, min(8.0, dist * 0.7 - distance_moved))
         print "target dist = ", dist
+        print "target dist + overshoot = ", dist + overshoot
         print "distance left = ", dist - distance_moved
         print "distanced moved = ", distance_moved
         print "Current speed = ", speed
@@ -170,6 +175,7 @@ def slow_down_forward(dist, termination_callback):
                 motors, [speed, speed])
     interface.setMotorPwm(motors[0], 0)
     interface.setMotorPwm(motors[1], 0)
+    return distance_moved, hit_bottle
 
 
 # angle is in radians
