@@ -44,7 +44,7 @@ SignaturePoint = collections.namedtuple(
         "SignaturePoint", ["x", "y", "theta", "rstart", "rend"])
 
 SIGNATURE_POINTS = [
-    SignaturePoint(x=170, y=40, theta=0, rstart=30, rend=150),
+    SignaturePoint(x=140, y=40, theta=0, rstart=30, rend=150),
 ]
 # Angle is in degrees, distance is in cm.
 BottleLocation = collections.namedtuple(
@@ -264,6 +264,9 @@ class RotatingSensor:
         return ls
 
     def setOrientation(self, orientation):
+        # We need to orientation to be in robot terms
+        orientation = math.pi * 29.0 / 180.0 - orientation
+        
         if orientation < -math.pi:
             orientation = -math.pi
         elif orientation > math.pi:
@@ -277,15 +280,14 @@ class RotatingSensor:
             myOrientation -= math.pi*2
         print "orientation =", orientation / math.pi * 180.0
         print "myOrientation =", myOrientation / math.pi * 180.0
-        raw_input("")
         ultrasound.rotate_sensor(orientation - myOrientation)
 
 
 def bump_termination_callback():
     left = motor_params.interface.getSensorValue(
-            touch_sensors.TOUCH_PORT_LEFT)[0] | left
+            touch_sensors.TOUCH_PORT_LEFT)[0]
     right = motor_params.interface.getSensorValue(
-            touch_sensors.TOUCH_PORT_RIGHT)[0] | right
+            touch_sensors.TOUCH_PORT_RIGHT)[0]
     if left or right:
         return True
 
