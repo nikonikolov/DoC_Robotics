@@ -5,11 +5,13 @@ sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '../pmotion')
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '../ultrasonic_sensors')
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '../MCL')
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '../place_rec')
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '../')
 
 import motion_predict
 import walls
 import mcl
 import place_rec
+import motor_params
 
 # TO DO: CALIBRATE THESE VALUES AND THE SONAR LIKELIHOOD VALUES IN mcl
 WAYPOINT_MIN_OFFSET = 5.0
@@ -33,10 +35,43 @@ def get_bottle(sig_point):
 
     return place_rec.get_bottle_belief(ls_bottle, ls_normal, sig_point)
 
+def uncertainRotate(state, dest):
+    """
+    Arguments: 
+        state - of type State
+        dest - absolute endpoint
+    """
+    goal_theta = math.atan2(dest.y - state.y, dest.x - state.x)
+    delta_theta_rad = goal_theta - state.theta
+    if delta_theta_rad > math.pi:
+        delta_theta_rad -= 2*math.pi
+    elif delta_theta_rad < -math.pi:
+        delta_theta_rad += 2*math.pi  
+    motor_params.rotate(delta_theta_rad / math.pi * 180.0)
+    return state.rotate(delta_theta_rad)
+
+
+def uncertainNavigate(state, dest):
+    """
+    Arguments: 
+        state - of type State
+        dest - absolute orientation
+    """
+    goal_theta = math.atan2(dest.y - state.y, dest.x - state.x)
+    delta_theta_rad = goal_theta - state.theta
+    if delta_theta_rad > math.pi:
+        delta_theta_rad -= 2*math.pi
+    elif delta_theta_rad < -math.pi:
+        delta_theta_rad += 2*math.pi  
+    motor_params.rotate(delta_theta_rad / math.pi * 180.0)
+    state = state.rotate(delta_theta_rad)
+    motor_params.forward(dist)
+    return state.move_forward(dist)
+
 
 def main():
 
-    WAYPOINTS = place_rec.SIGNATURE_POINTS
+    BOTTLES = place_rec.SIGNATURE_POINTS
 
     walls.wallmap.draw()
 
@@ -65,11 +100,12 @@ def main():
                         break
                     else:
                         # TO DO: Decide where to run MCL
-                        state = motion_predict.navigateToWaypoint(state, waypoint)
+                        state = uncertainNavigate(state, waypoint)
                         state = mcl.MCLStep(state)
                         print "CURRENT STATE: x=%f, y =%f, theta=%f" % (state.x, state.y, state.theta)
     
-                # TO DO: Make sure orientation is ok if you are trying to find a bottle
+                # Make sure your orientation is the same as the orientation a signature must be taken at 
+                state = uncertainRotate(state, waypoint)
 
                 # Compare signatures
                 bottle_loc = get_bottle(waypoint)

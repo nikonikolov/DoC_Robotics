@@ -93,6 +93,12 @@ Dest = collections.namedtuple("Dest", ["x", "y"])
 
 
 def navigateToWaypoint(state, dest):
+    """
+    NOTE: USE THIS ONLY FOR MCL
+    Arguments: 
+        state - of type State
+        dest - of type walls.Point
+    """
     goal_theta = math.atan2(dest.y - state.y, dest.x - state.x)
     delta_theta_rad = goal_theta - state.theta
     if delta_theta_rad > math.pi:

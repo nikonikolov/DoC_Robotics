@@ -41,6 +41,27 @@ BOTTLE_DIR = SCRIPT_DIR + "/data/bottles/"
 SignaturePoint = collections.namedtuple(
         "SignaturePoint", ["x", "y", "theta", "rstart", "rend"])
 
+# Signature points structure for challenge.py
+"""
+SIGNATURE_POINTS = {
+    "A": [
+    SignaturePoint(x=100, y=40, theta=0, rstart=30, rend=135), #first point for detecting in A
+    SignaturePoint(x=150, y=40, theta=0, rstart=30, rend=150), #second point for detecting in A
+    ],
+    "B":
+    SignaturePoint(x=105, y=70, theta=math.pi/2, rstart=22, rend=110),
+    SignaturePoint(x=105, y=140,  theta=math.pi/2,rstart=-20, rend=160),
+    "C": [
+    SignaturePoint(x=75, y=50,  theta=math.pi,rstart=0, rend=90),
+    SignaturePoint(x=60, y=102, theta=math.pi/2, rstart=45,  rend=180),
+    ] 
+    "FINAL": [
+    SignaturePoint(x=84, y=30,  theta=-math.pi, rstart=0, rend=0),
+    ]
+}
+
+"""
+
 SIGNATURE_POINTS = [
     SignaturePoint(x=100, y=40, theta=0, rstart=30, rend=135), #first point for detecting in A
     SignaturePoint(x=150, y=40, theta=0, rstart=30, rend=150), #second point for detecting in A
@@ -48,15 +69,6 @@ SIGNATURE_POINTS = [
     SignaturePoint(x=105, y=140,  theta=math.pi/2,rstart=-20, rend=160),
     SignaturePoint(x=75, y=50,  theta=(math.pi*0.99),rstart=0, rend=90),
     SignaturePoint(x=60, y=102, theta=math.pi/2, rstart=45,  rend=180),
-
-    # Actual Singature points
-    # A
-    # SignaturePoint(x=84,  y=30,  theta=0.0,       rstart=60, rend=-45),
-    # SignaturePoint(x=160, y=30,  theta=0.0,       rstart=85, rend=-45)
-    # B
-    # SignaturePoint(x=126, y=147, theta=math.pi/2, rstart=0,  rend=360),
-    # C
-    # SignaturePoint(x=42,  y=109, theta=math.pi*2, rstart=0,  rend=360)
 ]
 # Angle is in degrees, distance is in cm.
 BottleLocation = collections.namedtuple(
