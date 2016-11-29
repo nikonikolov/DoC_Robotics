@@ -107,11 +107,14 @@ def weighted_average_bottle_belief(bottle_vals, observations, angles):
     distance = sum( float(abs(b-o))/total_error * b for b, o in zip(bottle_vals, observations) ) + 5
 
     i = bisect.bisect_right(angles, angle)
-    d1 = observations[i]
-    d2 = observations[i+1]
-    a1 = angles[i]
-    a2 = angles[i+1]
-    distance = (d2 - d1) / (a2 - a1) * (angle - a1) + d1
+    if i == len(angles) - 1:
+        distance = angles[i]
+    else:
+        d1 = observations[i]
+        d2 = observations[i+1]
+        a1 = angles[i]
+        a2 = angles[i+1]
+        distance = (d2 - d1) / (a2 - a1) * (angle - a1) + d1
 
     return BottleLocation(distance=distance, angle=angle - 90.0)
 
