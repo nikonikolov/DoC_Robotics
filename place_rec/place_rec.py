@@ -29,7 +29,7 @@ else:
     import matplotlib.pyplot as plt
 
 # NOTE: if you change this, reading a signature from file might read a wrong signature; Comparing signatures will also fail; Solution - delete all current signatures
-STEP = 5
+STEP = 4
 THRESHOLD_DIFFERENCE = 260.0
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -41,12 +41,12 @@ SignaturePoint = collections.namedtuple(
         "SignaturePoint", ["x", "y", "theta", "rstart", "rend"])
 
 SIGNATURE_POINTS = [
-    #SignaturePoint(x=126, y=147, theta=math.pi/2, rstart=0,  rend=360),
-    SignaturePoint(x=124, y=120, theta=math.pi/2, rstart=30, rend=150),             # 42 from the wall
-    # SignaturePoint(x=150, y=40, theta=0, rstart=30, rend=150),
-    # SignaturePoint(x=40, y=128, theta=0, rstart=30, rend=150),
-    # SignaturePoint(x=170, y=40,  theta=0.0,       rstart=30, rend=150),
-    # SignaturePoint(x=140, y=40,  theta=0.0,       rstart=30, rend=150),
+    SignaturePoint(x=100, y=40, theta=0, rstart=30, rend=135), #first point for detecting in A
+    SignaturePoint(x=150, y=40, theta=0, rstart=30, rend=150), #second point for detecting in A
+    SignaturePoint(x=105, y=70, theta=math.pi/2, rstart=22, rend=110),
+    SignaturePoint(x=105, y=140,  theta=math.pi/2,rstart=-20, rend=160),
+    SignaturePoint(x=75, y=50,  theta=(math.pi*0.99),rstart=0, rend=90),
+    SignaturePoint(x=60, y=102, theta=math.pi/2, rstart=45,  rend=180),
 
     # Actual Singature points
     # A
@@ -362,6 +362,14 @@ def test_performance():
 
         raw_input("Place the robot in a the next signature point for a new test and press enter")    
 
+def get_training_data():
+    for sig_point in SIGNATURE_POINTS:
+        print sig_point
+        raw_input("Place the robot in a the next signature point for a new test and press enter")    
+
+        ls_normal = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend, sig_point)
+        ls_normal.save(sig_point, NORMAL_DIR)
+
 
 def get_correlation_diff(test_sig, observed_sig):
     return [(a - b) ** 2 for a, b in
@@ -408,7 +416,8 @@ rot_sensor = RotatingSensor()
 
 def main():
     if getpass.getuser() == "pi":
-        test_performance()
+        get_training_data()
+        #test_performance()
     else:
         show_plots()
 
