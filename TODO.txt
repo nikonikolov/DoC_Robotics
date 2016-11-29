@@ -1,11 +1,16 @@
 TO DO:
-    - calibrate PID for the sonar motor - need to do it from scratch - params from other motors are not relevant
     - calibrate PID for the moving motors - make sure we can go in straight lines and rotate properly
 
-    - take readings for places with and without bottles and compare them - might need to train a classifier
 
     - write code for finding free area to make sure you can run MCL in that area - essentially OCCUPANCY MAPPING
 
+    - MCL
+    - deciding on points to train for - must have backup ones
+    - test if taking the 10 sonar readings in a row causes problems as waves have not died out
+    - fix thresholding - use the binary approach to decide where to look and then use a weighted average based on the error
+
+IMPROVEMENTS:
+    - algorithm reasoning for signatures with junk readings
 
 
 MCL MODIFICATIONS:
