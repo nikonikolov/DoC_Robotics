@@ -154,7 +154,7 @@ def sigPointMCLStep(state, mcl_points):
     """
     if mcl_points:
         for point in mcl_points:
-            place_rec.rot_sensor.setOrientation(point.theta + state.theta)
+            place_rec.rot_sensor.setOrientation(point.theta - (state.theta - math.pi / 2))
             state = mcl.MCLStep(state)
     return state
 
