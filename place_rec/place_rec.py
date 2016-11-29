@@ -41,7 +41,8 @@ SignaturePoint = collections.namedtuple(
         "SignaturePoint", ["x", "y", "theta", "rstart", "rend"])
 
 SIGNATURE_POINTS = [
-    SignaturePoint(x=126, y=147, theta=math.pi/2, rstart=0,  rend=360),
+    #SignaturePoint(x=126, y=147, theta=math.pi/2, rstart=0,  rend=360),
+    SignaturePoint(x=124, y=120, theta=math.pi/2, rstart=30, rend=150),             # 42 from the wall
     # SignaturePoint(x=150, y=40, theta=0, rstart=30, rend=150),
     # SignaturePoint(x=40, y=128, theta=0, rstart=30, rend=150),
     # SignaturePoint(x=170, y=40,  theta=0.0,       rstart=30, rend=150),
@@ -270,7 +271,7 @@ class RotatingSensor:
 
             # Get the reading that is supposed to be read at that position
             particle = motion_predict.Particle(x=sig_point.x, y=sig_point.y, theta=theta)
-            expected_dist = walls.getWallDist(particle)
+            expected_dist = walls.getWallDist(particle, incidence_angle=False)
 
             # if the expected reading is not garbage and the actual reading is garbage, substitute the actual reading with the simulated one
             # when another signature is taken at the same point, the reading will either fail and be substituted again or it will succeed
@@ -289,9 +290,8 @@ class RotatingSensor:
         # TODO(reboot): When we reboot, we will need to change the offset angle
         # to the angle when the robot is facing forward. This is due to some weird
         # thing that resets the robot angle on reboot.
-        offset = math.pi / 180.0 * 0.0
+        offset = math.pi / 180.0 * -5.0
         orientation = math.pi / 2 + offset - orientation
-        orientation = (orientation % (math.pi * 2)) - math.pi
 
         myOrientation = motor_params.interface.getMotorAngle(
               ultrasound.SONAR_MOTOR_PORT)[0]

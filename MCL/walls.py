@@ -109,7 +109,7 @@ wallmap.add_wall( (G.x, G.y, H.x, H.y) )        # g
 wallmap.add_wall( (H.x, H.y, O.x, O.y) )        # h
 
 
-def getWallDist(particle, wallmap=wallmap):
+def getWallDist(particle, wallmap=wallmap,incidence_angle=True):
     """
     param: particle : @type motion_predict.Particle - x, y, theta
     param: wallmap  : @type Map
@@ -135,7 +135,7 @@ def getWallDist(particle, wallmap=wallmap):
         if acos_value  > 1 or acos_value < -1:
             continue 
         beta = math.acos(acos_value)
-        if beta > SONAR_MAX_ANGLE:
+        if incidence_angle and beta > SONAR_MAX_ANGLE:
             continue
 
         meetX = particle.x + dist*math.cos(particle.theta)

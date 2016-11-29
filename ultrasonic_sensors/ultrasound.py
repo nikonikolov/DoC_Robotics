@@ -14,7 +14,7 @@ MIN_DIST = 10.0 + SENSOR_OFFSET                 # Min distance from a wall for a
 MAX_ANGLE = 34.0 * math.pi / 180.0              # Max angle between wall normal and the robot for a reliable reading
 
 # Number of readings to take before get_reading() returns a value 
-NUM_READINGS = 10
+NUM_READINGS = 5
 GARBAGE = 265.0
 GARBAGE_THRESHOLD = 120.0
 
