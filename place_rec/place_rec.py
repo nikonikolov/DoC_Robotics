@@ -14,11 +14,16 @@ import numpy as np
 sys.path.append('/home/pi/DoC_Robotics')
 sys.path.append('/home/pi/DoC_Robotics/ultrasonic_sensors')
 sys.path.append('/home/pi/DoC_Robotics/touch_sensors')
+sys.path.append('/home/pi/DoC_Robotics/MCL')
+sys.path.append('/home/pi/DoC_Robotics/pmotion')
+
 
 if getpass.getuser() == "pi":
     import motor_params
     import ultrasound
     import touch_sensors
+    import walls
+    import motion_predict
 else:
     import matplotlib.pyplot as plt
 
@@ -34,6 +39,7 @@ SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 NORMAL_DIR = SCRIPT_DIR + "/data/normal/"
 BOTTLE_DIR = SCRIPT_DIR + "/data/bottles/"
 
+# NOTE: thete is in radians while rstart and rend are in degrees; theta must be in the range -180 to 180
 SignaturePoint = collections.namedtuple(
         "SignaturePoint", ["x", "y", "theta", "rstart", "rend"])
 
@@ -189,11 +195,12 @@ class RotatingSensor:
         self.orientation = orientation
 
 
-    def takeSignature(self, start_angle, end_angle):
+    def takeSignature(self, start_angle, end_angle, sig_point):
         """
             Take a signature and return LocationSignature()
             @param start_angle: orientation angle relative to the robot orienation to start taking sonar measurements from - in degrees
             @param end_angle:   orientation angle relative to the robot orienation to end taking sonar measurements - in degrees
+            @param sig_point:   point at which the reading is being taken 
         """
 
         ls = LocationSignature()
@@ -205,8 +212,28 @@ class RotatingSensor:
         for angle in range(int(start_angle), int(end_angle), step):
             self.setOrientation(float(angle) * math.pi / 180)
             reading = ultrasound.get_reading()
-            if reading > 200.0:
+            if reading > ultrasound.MAX_DIST
                 reading = ultrasound.GARBAGE
+  
+            # Get the absolute orientation at which the measurement is being taken
+            theta = sig_point.theta + math.radians(angle - 90)
+            if theta > math.pi:
+                theta -= 2 * math.pi
+            elif theta < -math.pi:
+                theta += 2 * math.pi
+
+            # Get the reading that is supposed to be read at that position
+            particle = motion_predict.Particle(x=sig_point.x, y=sig_point.y, theta=theta)
+            expected_dist = walls.getWallDist(particle)
+
+            # if the expected reading is not garbage and the actual reading is garbage, substitute the actual reading with the simulated one
+            # when another signature is taken at the same point, the reading will either fail and be substituted again or it will succeed
+            # if successful and no bottle, error will be too small to affect the algorithm; if bottle then the proper difference in signatures will be noted    
+            if expected_dist != ultrasound.GARBAGE and reading == ultrasound.GARBAGE:
+                reading = expected_dist
+
+            # note - if reading is not garbage but it is supposed to be, we should save the reading as it is: we either have a bottle or made a successful reading anyway
+
             ls.sig.append(reading)
 
         return ls
@@ -232,7 +259,7 @@ def test_production():
 
         raw_input("Place a bottle somewhere and press enter")    
 
-        ls_bottle = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend)
+        ls_bottle = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend, sig_point)
         ls_bottle.save(sig_point, BOTTLE_DIR)
     
         bottle_loc = get_bottle_belief(ls_bottle, ls_normal, sig_point)
@@ -259,12 +286,12 @@ def test_production():
 def test_performance():
     for sig_point in SIGNATURE_POINTS:
 
-        ls_normal = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend)
+        ls_normal = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend, sig_point)
         ls_normal.save(sig_point, NORMAL_DIR)
 
         raw_input("Place a bottle somewhere and press enter")    
 
-        ls_bottle = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend)
+        ls_bottle = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend, sig_point)
         ls_bottle.save(sig_point, BOTTLE_DIR)
     
         bottle_loc = get_bottle_belief(ls_normal, ls_bottle, sig_point)
