@@ -18,6 +18,7 @@ sys.path.append('/home/pi/DoC_Robotics/ultrasonic_sensors')
 sys.path.append('/home/pi/DoC_Robotics/touch_sensors')
 sys.path.append('/home/pi/DoC_Robotics/MCL')
 sys.path.append('/home/pi/DoC_Robotics/pmotion')
+sys.path.append('/home/pi/DoC_Robotics/touch_sensors')
 
 
 if getpass.getuser() == "pi":
@@ -42,25 +43,6 @@ SignaturePoint = collections.namedtuple(
         "SignaturePoint", ["x", "y", "theta", "rstart", "rend"])
 
 # Signature points structure for challenge.py
-"""
-SIGNATURE_POINTS = {
-    "A": [
-    SignaturePoint(x=100, y=40, theta=0, rstart=30, rend=135), #first point for detecting in A
-    SignaturePoint(x=150, y=40, theta=0, rstart=30, rend=150), #second point for detecting in A
-    ],
-    "B":
-    SignaturePoint(x=105, y=70, theta=math.pi/2, rstart=22, rend=110),
-    SignaturePoint(x=105, y=140,  theta=math.pi/2,rstart=-20, rend=160),
-    "C": [
-    SignaturePoint(x=75, y=50,  theta=math.pi,rstart=0, rend=90),
-    SignaturePoint(x=60, y=102, theta=math.pi/2, rstart=45,  rend=180),
-    ] 
-    "FINAL": [
-    SignaturePoint(x=84, y=30,  theta=-math.pi, rstart=0, rend=0),
-    ]
-}
-
-"""
 
 SIGNATURE_POINTS = [
     SignaturePoint(x=100, y=40, theta=0, rstart=30, rend=135), #first point for detecting in A
@@ -426,54 +408,6 @@ def show_plots():
         plt.show()
 
 rot_sensor = RotatingSensor()
-
-class BumpException(Exception):
-    """Exception when the touch sensor bumps into something."""
-    def __init__(self, sensor):
-        super(self)
-        self._sensor = sensor
-
-    @property
-    def sensor(self):
-        return self._sensor
-
-
-def move_while_listen_bump(dist):
-    angle = motor_params.better_dist_to_motor_angle(dist)
-    motor_params.interface.increaseMotorAngleReferences(
-            motor_params.motors, [angle,angle])
-    while True:
-        left = motor_params.interface.getSensorValue(
-                touch_sensors.TOUCH_PORT_LEFT)[0]
-        right = motor_params.interface.getSensorValue(
-                touch_sensors.TOUCH_PORT_RIGHT)[0]
-        if left:
-            motor_params.interface.setMotorPwm(
-                    motor_params.motors[0], 0)
-            motor_params.interface.setMotorPwm(
-                    motor_params.motors[1], 0)
-            raise BumpException(touch_sensors.TOUCH_PORT_LEFT)
-        elif right:
-            motor_params.interface.setMotorPwm(
-                    motor_params.motors[0], 0)
-            motor_params.interface.setMotorPwm(
-                    motor_params.motors[1], 0)
-            raise BumpException(touch_sensors.TOUCH_PORT_RIGHT)
-        elif motor_params.interface.motorAngleReferencesReached(
-                motor_params.motors):
-            break
-        else:
-            time.sleep(0.03)
-
-
-def do_challenge():
-    """Real main function, main routine to run during challenge."""
-    # Setup interrupt routines to detect for touch sensor bump.
-    try:
-        move_while_listen_bump(10.0)
-    except BumpException as e:
-        pass
-
 
 
 def main():
