@@ -216,10 +216,13 @@ class RotatingSensor:
             orientation = -math.pi
         elif orientation > math.pi:
             orientation = math.pi
-        ultrasound.rotate_sensor(self.orientation - orientation)
-        self.orientation = orientation
-        print "self.orientation =", orientation
-
+        myOrientation = motor_params.interface.getMotorAngle(SONAR_MOTOR_PORT)[0]
+        # orientation now between 0 & 2pi
+        myOrientation = myOrientation % (math.pi * 2)
+        if (myOrientation > math.pi):
+            myOrientation -= math.pi*2
+        print myOrientation, orientation
+        ultrasound.rotate_sensor(orientation - myOrientation)
 
 def test_production():
     for sig_point in SIGNATURE_POINTS:
