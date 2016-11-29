@@ -117,14 +117,19 @@ def rotate(angle):
         motor_angle = 0
     TurnOpposite(motor_angle)
 
-def forward(dist):
+
+def better_dist_to_motor_angle(dist):
     if dist > 0:
         angle = dist_to_motor_angle(dist)
     elif dist < 0:
         angle = -dist_to_motor_angle(-dist)
     else:
         angle = 0
-    angle = angle * 40.0 / 38.84
+    return angle * 40.0 / 38.84
+
+
+def forward(dist):
+    angle = better_dist_to_motor_angle(dist)
     interface.increaseMotorAngleReferences(motors,[angle,angle])
 
     while not interface.motorAngleReferencesReached(motors) :
