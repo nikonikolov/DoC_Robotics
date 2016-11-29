@@ -23,6 +23,77 @@ FINAL_WAYPOINT_MIN_OFFSET = 3.0
 
 NUMBER_OF_PARTICLES = motion_predict.NUMBER_OF_PARTICLES
 
+
+
+BOTTLES = {
+    "A": [
+        place_rec.SignaturePoint(x=100, y=40, theta=0, rstart=30, rend=135),
+        #first point for detecting in A
+        place_rec.SignaturePoint(x=150, y=40, theta=0, rstart=30, rend=150),
+        #second point for detecting in A
+    ],
+    "B": [
+        place_rec.SignaturePoint(x=105, y=70, theta=math.pi/2, rstart=22, rend=110),
+        place_rec.SignaturePoint(x=105, y=140,  theta=math.pi/2,rstart=-20, rend=160),
+    ],
+    "C": [
+        place_rec.SignaturePoint(x=75, y=50,  theta=math.pi,rstart=0, rend=90),
+        place_rec.SignaturePoint(x=60, y=102, theta=math.pi/2, rstart=45,  rend=180),
+    ],
+    "FINAL": [
+        place_rec.SignaturePoint(x=84, y=30,  theta=-math.pi, rstart=0, rend=0),
+    ]
+}
+
+
+MCL_POINTS = {
+    "A": [
+        #first point for detecting in A
+        [
+            #place_rec.SignaturePoint(x=100, y=40, theta=-math.pi/2, rstart=30, rend=135),
+            #place_rec.SignaturePoint(x=100, y=40, theta=0, rstart=30, rend=135)
+        ],
+        #second point for detecting in A
+        [
+            place_rec.SignaturePoint(x=150, y=40, theta=-math.pi/2, rstart=30, rend=150),
+            place_rec.SignaturePoint(x=150, y=40, theta=0, rstart=30, rend=150),
+        ],
+    ],
+    "B": [
+        #first point for detecting in B
+        [
+            #place_rec.SignaturePoint(x=105, y=70, theta=math.pi/2, rstart=22, rend=110),
+        ],
+        #second point for detecting in B
+        [
+            place_rec.SignaturePoint(x=105, y=140,  theta=0,rstart=-20, rend=160),
+            place_rec.SignaturePoint(x=105, y=140,  theta=math.pi/2,rstart=-20, rend=160),
+            place_rec.SignaturePoint(x=105, y=140,  theta=math.pi,rstart=-20, rend=160),
+        ],
+    ],
+    "C": [
+        #first point for detecting in C
+        [
+            place_rec.SignaturePoint(x=75, y=50,  theta=-math.pi/2,rstart=0, rend=90),
+            place_rec.SignaturePoint(x=75, y=50,  theta=math.pi/2,rstart=0, rend=90),
+        ],
+        #second point for detecting in C
+        [
+            place_rec.SignaturePoint(x=60, y=102, theta=math.pi/2, rstart=45,  rend=180),
+            place_rec.SignaturePoint(x=60, y=102, theta=0, rstart=45,  rend=180),
+        ],
+    ],
+    "FINAL": [
+        [
+            place_rec.SignaturePoint(x=84, y=30,  theta=-math.pi/2, rstart=0, rend=0),
+            place_rec.SignaturePoint(x=84, y=30,  theta=-math.pi, rstart=0, rend=0),
+        ],
+    ]
+    
+}
+
+
+
 def get_bottle(sig_point):
     """
     Arguements:
@@ -78,11 +149,10 @@ def sigPointMCLStep(state, mcl_points):
     mcl_points - an array of points with the same x and y, but different theta that corresponds to angles that we should face to run MCL "safely" - assuming there is no bottle there;
         Note that robot should already be at x, y
     """
-
-    for point in mcl_orientaitons:
-        uncertainRotate(state, point)
-        state = mcl.MCLStep(state)
-
+    if mcl_points:
+        for point in mcl_orientaitons:
+            uncertainRotate(state, point)
+            state = mcl.MCLStep(state)
     return state
 
 
@@ -124,28 +194,6 @@ def move_while_listen_bump(dist):
             break
         else:
             time.sleep(0.03)
-
-BOTTLES = {
-    "A": [
-        place_rec.SignaturePoint(x=100, y=40, theta=0, rstart=30, rend=135),
-        #first point for detecting in A
-        place_rec.SignaturePoint(x=150, y=40, theta=0, rstart=30, rend=150),
-        #second point for detecting in A
-    ],
-    "B": [
-        place_rec.SignaturePoint(x=105, y=70, theta=math.pi/2, rstart=22, rend=110),
-        place_rec.SignaturePoint(x=105, y=140,  theta=math.pi/2,rstart=-20, rend=160),
-    ],
-    "C": [
-        place_rec.SignaturePoint(x=75, y=50,  theta=math.pi,rstart=0, rend=90),
-        place_rec.SignaturePoint(x=60, y=102, theta=math.pi/2, rstart=45,  rend=180),
-    ],
-    "FINAL": [
-        place_rec.SignaturePoint(x=84, y=30,  theta=-math.pi, rstart=0, rend=0),
-    ]
-}
-
-
 def main():
 
     walls.wallmap.draw()
@@ -159,11 +207,13 @@ def main():
     
     # visitpoints is a list of points that we need to visit
     for key, visitpoints in BOTTLES.iteritems():
-        
+        # mcl_points is a list of lists
+        area_mcl_points = MCL_POINTS[key]
+
         # Bottles
         if key != "FINAL":
             # waypoint refers to the next destination
-            for waypoint, mcl_points in visitpoints:
+            for waypoint, mcl_points in zip(visitpoints, area_mcl_points):
                 
                 # Navigate properly
                 while True:
@@ -177,7 +227,8 @@ def main():
                         # TO DO: Smart navigation with not many rotations
                         state = uncertainNavigate(state, waypoint)
                         # Run MCL
-                        state = sigPointMCLStep(state, mcl_points)
+                        if key!= "A":
+                            state = sigPointMCLStep(state, mcl_points)
                         print "CURRENT STATE: x=%f, y =%f, theta=%f" % (state.x, state.y, state.theta)
     
                 # Make sure your orientation is the same as the orientation a signature must be taken at 
@@ -203,18 +254,20 @@ def main():
                     state = state.move_forward(distance)
 
                     # 2. Regardless of whether we hit the bottle or not.
-                    # TODO(fyquah): Possibly a better strategy?
+                    # TODO(fyquah): Possibly a better strategy? 
                     motor_params.forward(-distance)
                     state = state.move_forward(-distance)
 
                     if hit_bottle:
                         # 3. Break if we hit the bottle. Then we go on to
                         #    handle the next bottle area.
+                        state = uncertainNavigate(state, mcl_points)
                         break
                     else:
                         # 4. if we did not hit a bottle, we continue the loop.
                         #    Going to the next waypoint in the area.
                         continue
+        
         # Final endpoint
         else:
             waypoint = visitpoints[0]
@@ -229,8 +282,8 @@ def main():
                     break
                 else:
                     # TO DO: Make sure you are tunning MCL facing to the proper walls
-                    state = motion_predict.navigateToWaypoint(state, waypoint)
-                    state = mcl.MCLStep(state)
+                    state = uncertainNavigate(state, waypoint)
+                    state = sigPointMCLStep(state)
                     print "CURRENT STATE: x=%f, y =%f, theta=%f" % (state.x, state.y, state.theta)
     
     
