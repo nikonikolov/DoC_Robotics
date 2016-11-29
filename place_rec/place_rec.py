@@ -291,11 +291,7 @@ class RotatingSensor:
         # thing that resets the robot angle on reboot.
         offset = math.pi / 180.0 * 0.0
         orientation = math.pi / 2 + offset - orientation
-        
-        if orientation < -math.pi:
-            orientation = -math.pi
-        elif orientation > math.pi:
-            orientation = math.pi
+        orientation = (orientation % (math.pi * 2)) - math.pi
 
         myOrientation = motor_params.interface.getMotorAngle(
               ultrasound.SONAR_MOTOR_PORT)[0]
