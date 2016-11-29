@@ -45,7 +45,8 @@ SignaturePoint = collections.namedtuple(
         "SignaturePoint", ["x", "y", "theta", "rstart", "rend"])
 
 SIGNATURE_POINTS = [
-    SignaturePoint(x=40, y=128, theta=0, rstart=30, rend=150),
+    SignaturePoint(x=170, y=40, theta=0, rstart=30, rend=150),
+    #SignaturePoint(x=40, y=128, theta=0, rstart=30, rend=150),
     # SignaturePoint(x=170, y=40,  theta=0.0,       rstart=30, rend=150),
     # SignaturePoint(x=140, y=40,  theta=0.0,       rstart=30, rend=150),
 
@@ -57,7 +58,6 @@ SIGNATURE_POINTS = [
     # SignaturePoint(x=126, y=147, theta=math.pi/2, rstart=0,  rend=360),
     # C
     # SignaturePoint(x=42,  y=109, theta=math.pi*2, rstart=0,  rend=360)
-
 ]
 # Angle is in degrees, distance is in cm.
 BottleLocation = collections.namedtuple(
@@ -97,7 +97,7 @@ def remove_dc_component(x):
 
 def threshold_differences(test_values, observations):
     # Then only we threshold them.
-    threshold = 200.0
+    threshold = 500.0
     return [1 if ((observed - expected) ** 2) > 200.0 else 0
             for observed, expected
             in zip(observations, test_values)]
@@ -287,7 +287,11 @@ class RotatingSensor:
 
     def setOrientation(self, orientation):
         # We need to orientation to be in robot terms
-        orientation = math.pi * 29.0 / 180.0 - orientation
+        # TODO(reboot): When we reboot, we will need to change the offset angle
+        # to the angle when the robot is facing forward. This is due to some weird
+        # thing that resets the robot angle on reboot.
+        offset = math.pi / 180.0 * 96.0
+        orientation = math.pi / 2 + offset - orientation
         
         if orientation < -math.pi:
             orientation = -math.pi
@@ -409,7 +413,7 @@ rot_sensor = RotatingSensor()
 
 def main():
     if getpass.getuser() == "pi":
-        test_production()
+        test_performance()
     else:
         show_plots()
 
