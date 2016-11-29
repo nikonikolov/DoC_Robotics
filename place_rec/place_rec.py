@@ -45,7 +45,8 @@ SignaturePoint = collections.namedtuple(
         "SignaturePoint", ["x", "y", "theta", "rstart", "rend"])
 
 SIGNATURE_POINTS = [
-    SignaturePoint(x=170, y=40, theta=0, rstart=30, rend=150),
+    SignaturePoint(x=40, y=128, theta=0, rstart=30, rend=150),
+    # SignaturePoint(x=170, y=40, theta=0, rstart=30, rend=150),
     # SignaturePoint(x=140, y=40, theta=0, rstart=30, rend=150),
 ]
 # Angle is in degrees, distance is in cm.
