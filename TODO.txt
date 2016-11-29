@@ -1,15 +1,18 @@
 TO DO:
     - calibrate PID for the moving motors - make sure we can go in straight lines and rotate properly
     - fix the bumping
-    - decide on MCL points and make algorithm for deciding where to look for MCL - code to find the closest wall 
-    - increase bumper size
 
-    - write code for finding free area to make sure you can run MCL in that area - essentially OCCUPANCY MAPPING
+
+    - write smarter navigate to waypoint - don't rotate if you are very close to the waypoint
+    - account for going to all points and not hitting anything
+    - code for shifting measurements - might need to take measurmeents in a different fashion
+
 
     - MCL
     - deciding on points to train for - must have backup ones
     - test if taking the 10 sonar readings in a row causes problems as waves have not died out
-    
+
+    - make sure you go to both clusters    
 
 IMPROVEMENTS:
     - algorithm reasoning for signatures with junk readings
