@@ -80,7 +80,13 @@ def binary_signal_partition_by(arr):
     return indices
 
 
+def remove_dc_component(x):
+    mean = np.mean(x)
+    return [t - mean for t in x]
+
+
 def threshold_differences(test_values, observations):
+    # Then only we threshold them.
     threshold = 200.0
     return [1 if ((observed - expected) ** 2) > 200.0 else 0
             for observed, expected
@@ -127,14 +133,16 @@ def get_bottle_belief(test_signature, observed_signature, point):
     # TODO(fyquah): Dynamically calculate this based on the test signature.
 
     # Get array of the same size of the as the signatures that contains zeros and ones based on threshold
-    thresholded = threshold_differences(test_signature.sig,
-                                        observations)
+    filtered_test_sig = remove_dc_component(test_signature.sig)
+    filtered_observations = remove_dc_component(observations)
+    thresholded = threshold_differences(filtered_test_sig,
+                                        filtered_observations)
     print "Thresholded:"
     print thresholded
-    print "Observations:"
-    print observations
-    print "Expected:"
-    print test_signature.sig
+    print "Filtered Observations:"
+    print filtered_observations
+    print "Filtered test signature:"
+    print filtered_test_sig
     print "Angles"
     print angles
 
@@ -367,18 +375,20 @@ def show_plots():
         test_sig.read(sig_point, BOTTLE_DIR)
 
         error = get_correlation_diff(test_sig, observed_sig)
+        filtered_test_sig = remove_dc_component(test_sig.sig)
+        filtered_observed_sig = remove_dc_component(observed_sig.sig)
         thresholded = threshold_differences(
-                test_sig.sig, observed_sig.sig)
+                filtered_test_sig, filtered_observed_sig)
 
         plt.figure()
         plt.title("Observed Signature")
-        plt.ylim(0, 270)
-        plt.plot(observed_sig.sig)
+        # plt.ylim(-150, 150)
+        plt.plot(filtered_observed_sig)
 
         plt.figure()
         plt.title("Test Signature")
-        plt.ylim(0, 270)
-        plt.plot(test_sig.sig)
+        # plt.ylim(-270, 150)
+        plt.plot(filtered_test_sig)
 
         plt.figure()
         plt.title("Correlation Error")
