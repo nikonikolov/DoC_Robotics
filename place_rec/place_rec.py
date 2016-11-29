@@ -30,11 +30,7 @@ else:
 
 # NOTE: if you change this, reading a signature from file might read a wrong signature; Comparing signatures will also fail; Solution - delete all current signatures
 STEP = 5
-
-FACE_FORWARD = math.pi / 2
-FACE_LEFT = math.pi
-FACE_RIGHT = 0.0
-FACE_BACK = -math.pi / 2
+THRESHOLD_DIFFERENCE = 260.0
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 NORMAL_DIR = SCRIPT_DIR + "/data/normal/"
@@ -46,9 +42,18 @@ SignaturePoint = collections.namedtuple(
 
 SIGNATURE_POINTS = [
     SignaturePoint(x=170, y=40, theta=0, rstart=30, rend=150),
-    # SignaturePoint(x=1123, y=1123, theta=0, rstart=30, rend=150),
-    # SignaturePoint(x=170, y=40, theta=0, rstart=30, rend=150),
-    # SignaturePoint(x=140, y=40, theta=0, rstart=30, rend=150),
+    #SignaturePoint(x=40, y=128, theta=0, rstart=30, rend=150),
+    # SignaturePoint(x=170, y=40,  theta=0.0,       rstart=30, rend=150),
+    # SignaturePoint(x=140, y=40,  theta=0.0,       rstart=30, rend=150),
+
+    # Actual Singature points
+    # A
+    # SignaturePoint(x=84,  y=30,  theta=0.0,       rstart=60, rend=-45),
+    # SignaturePoint(x=160, y=30,  theta=0.0,       rstart=85, rend=-45)
+    # B
+    # SignaturePoint(x=126, y=147, theta=math.pi/2, rstart=0,  rend=360),
+    # C
+    # SignaturePoint(x=42,  y=109, theta=math.pi*2, rstart=0,  rend=360)
 ]
 # Angle is in degrees, distance is in cm.
 BottleLocation = collections.namedtuple(
@@ -88,8 +93,7 @@ def remove_dc_component(x):
 
 def threshold_differences(test_values, observations):
     # Then only we threshold them.
-    threshold = 500.0
-    return [1 if ((observed - expected) ** 2) > 200.0 else 0
+    return [1 if ((observed - expected) ** 2) > THRESHOLD_DIFFERENCE else 0
             for observed, expected
             in zip(observations, test_values)]
 
@@ -149,7 +153,7 @@ def get_bottle_belief(test_signature, observed_signature, point):
     print filtered_test_sig
     print "Angles"
     print angles
-
+he
     # Get a list of ranges speficying the stard and end indices of the biggest clusters 
     clusters = remove_cluster_anomalies(binary_signal_partition_by(thresholded))
     if len(clusters) == 1:
