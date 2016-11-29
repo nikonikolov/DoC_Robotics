@@ -14,11 +14,16 @@ import numpy as np
 sys.path.append('/home/pi/DoC_Robotics')
 sys.path.append('/home/pi/DoC_Robotics/ultrasonic_sensors')
 sys.path.append('/home/pi/DoC_Robotics/touch_sensors')
+sys.path.append('/home/pi/DoC_Robotics/MCL')
+sys.path.append('/home/pi/DoC_Robotics/pmotion')
+
 
 if getpass.getuser() == "pi":
     import motor_params
     import ultrasound
     import touch_sensors
+    import walls
+    import motion_predict
 else:
     import matplotlib.pyplot as plt
 
@@ -34,6 +39,7 @@ SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 NORMAL_DIR = SCRIPT_DIR + "/data/normal/"
 BOTTLE_DIR = SCRIPT_DIR + "/data/bottles/"
 
+# NOTE: thete is in radians while rstart and rend are in degrees; theta must be in the range -180 to 180
 SignaturePoint = collections.namedtuple(
         "SignaturePoint", ["x", "y", "theta", "rstart", "rend"])
 
@@ -78,6 +84,20 @@ def threshold_differences(test_values, observations):
             in zip(observations, test_values)]
 
 
+def weighted_average_bottle_belief(bottle_vals, observations, angles):
+    """
+    Arguments:
+        bottle_vals - truncated array of reading where the bottle is supposed to be
+        observations - truncated array of reading of the place without a bottle there
+        angles - truncated array of the corresponding angles for the above readings
+    """
+    total_error = sum( abs(b-o) for b, o in zip(bottle_vals, observations) )
+
+    angle = sum( float(abs(b-o))/total_error * a for b, o in zip(bottle_vals, observations, angles) )
+    distance = sum( float(abs(b-o))/total_error * b for b, o in zip(bottle_vals, observations) ) + 5
+
+    return BottleLocation(distance=distance, angle=angle - 90.0)
+
 def get_bottle_belief(test_signature, observed_signature, point):
     """Check if a bottle is observed.
 
@@ -96,6 +116,7 @@ def get_bottle_belief(test_signature, observed_signature, point):
     observations = observed_signature.sig
     # TODO(fyquah): Dynamically calculate this based on the test signature.
 
+    # Get array of the same size of the as the signatures that contains zeros and ones based on threshold
     thresholded = threshold_differences(test_signature.sig,
                                         observations)
     print "Thresholded:"
@@ -106,12 +127,22 @@ def get_bottle_belief(test_signature, observed_signature, point):
     print test_signature.sig
     print "Angles"
     print angles
+
+    # Get a list of ranges speficying the stard and end indices of the biggest clusters 
     clusters = remove_cluster_anomalies(binary_signal_partition_by(thresholded))
     if len(clusters) == 1:
         cluster_indices = range(clusters[0][0], clusters[0][1])
-        cluster_readings = [observations[i] for i in cluster_indices]
-        distance = np.median(cluster_readings) + 10.0
-        angle = np.median([angles[i] for i in cluster_indices])
+        
+        normal_clustered = [test_sig.sig[i] for i in cluster_indices]
+        bottle_clustered = [observations[i] for i in cluster_indices]
+        angles_clustered = [angles[i] for i in cluster_indices]
+
+        distance = np.median(bottle_clustered) + 10.0
+        angle = np.median(angles_clustered)
+        
+        # Using weighted bottle belief
+        return weighted_average_bottle_belief(bottle_clustered, normal_clustered, angles_clustered)
+        
         return BottleLocation(
                 distance=distance, angle=angle - 90.0)
     else:
@@ -189,11 +220,12 @@ class RotatingSensor:
         self.orientation = orientation
 
 
-    def takeSignature(self, start_angle, end_angle):
+    def takeSignature(self, start_angle, end_angle, sig_point):
         """
             Take a signature and return LocationSignature()
             @param start_angle: orientation angle relative to the robot orienation to start taking sonar measurements from - in degrees
             @param end_angle:   orientation angle relative to the robot orienation to end taking sonar measurements - in degrees
+            @param sig_point:   point at which the reading is being taken 
         """
 
         ls = LocationSignature()
@@ -205,8 +237,28 @@ class RotatingSensor:
         for angle in range(int(start_angle), int(end_angle), step):
             self.setOrientation(float(angle) * math.pi / 180)
             reading = ultrasound.get_reading()
-            if reading > 200.0:
+            if reading > ultrasound.MAX_DIST
                 reading = ultrasound.GARBAGE
+  
+            # Get the absolute orientation at which the measurement is being taken
+            theta = sig_point.theta + math.radians(angle - 90)
+            if theta > math.pi:
+                theta -= 2 * math.pi
+            elif theta < -math.pi:
+                theta += 2 * math.pi
+
+            # Get the reading that is supposed to be read at that position
+            particle = motion_predict.Particle(x=sig_point.x, y=sig_point.y, theta=theta)
+            expected_dist = walls.getWallDist(particle)
+
+            # if the expected reading is not garbage and the actual reading is garbage, substitute the actual reading with the simulated one
+            # when another signature is taken at the same point, the reading will either fail and be substituted again or it will succeed
+            # if successful and no bottle, error will be too small to affect the algorithm; if bottle then the proper difference in signatures will be noted    
+            if expected_dist != ultrasound.GARBAGE and reading == ultrasound.GARBAGE:
+                reading = expected_dist
+
+            # note - if reading is not garbage but it is supposed to be, we should save the reading as it is: we either have a bottle or made a successful reading anyway
+
             ls.sig.append(reading)
 
         return ls
@@ -242,7 +294,7 @@ def test_production():
 
         raw_input("Place a bottle somewhere and press enter")    
 
-        ls_bottle = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend)
+        ls_bottle = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend, sig_point)
         ls_bottle.save(sig_point, BOTTLE_DIR)
     
         bottle_loc = get_bottle_belief(ls_bottle, ls_normal, sig_point)
@@ -266,12 +318,12 @@ def test_production():
 def test_performance():
     for sig_point in SIGNATURE_POINTS:
 
-        ls_normal = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend)
+        ls_normal = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend, sig_point)
         ls_normal.save(sig_point, NORMAL_DIR)
 
         raw_input("Place a bottle somewhere and press enter")    
 
-        ls_bottle = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend)
+        ls_bottle = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend, sig_point)
         ls_bottle.save(sig_point, BOTTLE_DIR)
     
         bottle_loc = get_bottle_belief(ls_normal, ls_bottle, sig_point)

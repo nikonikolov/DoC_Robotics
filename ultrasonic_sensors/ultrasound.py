@@ -8,7 +8,7 @@ SONAR_MOTOR_PORT = 2
 ULTRASONIC_PORT = 3
 
 # TO DO - CALIBRATE THESE VALUES
-SENSOR_OFFSET = 6.5                             # Offset of the sensor from the center of the robot
+SENSOR_OFFSET = 1.0                             # Offset of the sensor from the center of the robot
 MAX_DIST = 100.0 + SENSOR_OFFSET                # Max distance from a wall for a reliable reading
 MIN_DIST = 10.0 + SENSOR_OFFSET                 # Min distance from a wall for a reliable reading 
 MAX_ANGLE = 34.0 * math.pi / 180.0              # Max angle between wall normal and the robot for a reliable reading
@@ -16,6 +16,7 @@ MAX_ANGLE = 34.0 * math.pi / 180.0              # Max angle between wall normal 
 # Number of readings to take before get_reading() returns a value 
 NUM_READINGS = 10
 GARBAGE = 265.0
+GARBAGE_THRESHOLD = 120.0
 
 interface = motor_params.interface
 

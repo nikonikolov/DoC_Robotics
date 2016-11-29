@@ -88,16 +88,16 @@ class Map:
             self.canvas.drawLine(wall);
 
 
-# TO DO - return 0 if the measurement is supposed to be out of range
-def getWallDist(particle, wallmap):
+def getWallDist(particle, wallmap=wallmap):
     """
     param: particle : @type motion_predict.Particle - x, y, theta
     param: wallmap  : @type Map
 
     Calculate distance from each wall. Then take the shortest wall where the point
     of intersection is within the wall
+    Return ultrasound.GARBAGE if the distance is out of the range of the sonar sensor
     """
-    smallest_inside_dist = float("inf")
+    smallest_inside_dist = ultrasound.GARBAGE
 
     for wall in wallmap.walls:
         Ax, Ay, Bx, By = wall

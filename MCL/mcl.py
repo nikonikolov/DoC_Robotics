@@ -28,7 +28,7 @@ def calculate_likelihood(x, y, theta, z):
     particle = motion_predict.Particle(x=x, y=y, theta=theta)
     m = walls.getWallDist(particle, walls.wallmap)          # calculate estimated measurment for this particle
     # if incidence angle or distance is out of range then skip the update
-    if m == float("inf"):
+    if m == ultrasound.GARBAGE:
         return -1
     return np.exp(-np.power(z - m, 2.) / (2 * np.power(SONAR_STD, 2.))) + SONAR_CONSTANT_LIKELIHOOD
 
