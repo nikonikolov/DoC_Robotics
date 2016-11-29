@@ -51,8 +51,8 @@ def calibrate():
               motor_params.MOTOR_RIGHT, right_motor_params)
 
         # Choose your action here.
-        motor_params.rotate(180.0)
-        motor_params.rotate(-180.0)
+        motor_params.forward(50)
+        motor_params.forward(-50)
         # End of choose action.
 
         interface.stopLogging()
