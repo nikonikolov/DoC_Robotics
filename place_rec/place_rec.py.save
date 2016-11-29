@@ -9,7 +9,6 @@ import os
 import sys
 import collections
 import getpass
-import time
 
 import numpy as np
 
@@ -18,7 +17,6 @@ sys.path.append('/home/pi/DoC_Robotics/ultrasonic_sensors')
 sys.path.append('/home/pi/DoC_Robotics/touch_sensors')
 sys.path.append('/home/pi/DoC_Robotics/MCL')
 sys.path.append('/home/pi/DoC_Robotics/pmotion')
-sys.path.append('/home/pi/DoC_Robotics/touch_sensors')
 
 
 if getpass.getuser() == "pi":
@@ -31,7 +29,7 @@ else:
     import matplotlib.pyplot as plt
 
 # NOTE: if you change this, reading a signature from file might read a wrong signature; Comparing signatures will also fail; Solution - delete all current signatures
-STEP = 4
+STEP = 5
 THRESHOLD_DIFFERENCE = 260.0
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -42,15 +40,22 @@ BOTTLE_DIR = SCRIPT_DIR + "/data/bottles/"
 SignaturePoint = collections.namedtuple(
         "SignaturePoint", ["x", "y", "theta", "rstart", "rend"])
 
-# Signature points structure for challenge.py
-
 SIGNATURE_POINTS = [
     SignaturePoint(x=100, y=40, theta=0, rstart=30, rend=135), #first point for detecting in A
     SignaturePoint(x=150, y=40, theta=0, rstart=30, rend=150), #second point for detecting in A
-    SignaturePoint(x=105, y=70, theta=math.pi/2, rstart=22, rend=110),
-    SignaturePoint(x=105, y=140,  theta=math.pi/2,rstart=-20, rend=160),
-    SignaturePoint(x=75, y=50,  theta=(math.pi*0.99),rstart=0, rend=90),
-    SignaturePoint(x=60, y=102, theta=math.pi/2, rstart=45,  rend=180),
+    
+    SignaturePoint(x=40, y=128, theta=0, rstart=30, rend=150),
+    # SignaturePoint(x=170, y=40,  theta=0.0,       rstart=30, rend=150),
+    # SignaturePoint(x=140, y=40,  theta=0.0,       rstart=30, rend=150),
+
+    # Actual Singature points
+    # A
+    # SignaturePoint(x=84,  y=30,  theta=0.0,       rstart=60, rend=-45),
+    # SignaturePoint(x=160, y=30,  theta=0.0,       rstart=85, rend=-45)
+    # B
+    # SignaturePoint(x=126, y=147, theta=math.pi/2, rstart=0,  rend=360),
+    # C
+    # SignaturePoint(x=42,  y=109, theta=math.pi*2, rstart=0,  rend=360)
 ]
 # Angle is in degrees, distance is in cm.
 BottleLocation = collections.namedtuple(
@@ -285,7 +290,7 @@ class RotatingSensor:
         # TODO(reboot): When we reboot, we will need to change the offset angle
         # to the angle when the robot is facing forward. This is due to some weird
         # thing that resets the robot angle on reboot.
-        offset = math.pi / 180.0 * +1.0
+        offset = math.pi / 180.0 * -5.0
         orientation = math.pi / 2 + offset - orientation
 
         myOrientation = motor_params.interface.getMotorAngle(
@@ -357,14 +362,6 @@ def test_performance():
 
         raw_input("Place the robot in a the next signature point for a new test and press enter")    
 
-def get_training_data():
-    for sig_point in SIGNATURE_POINTS:
-        print sig_point
-        raw_input("Place the robot in a the next signature point for a new test and press enter")    
-
-        ls_normal = rot_sensor.takeSignature(sig_point.rstart, sig_point.rend, sig_point)
-        ls_normal.save(sig_point, NORMAL_DIR)
-
 
 def get_correlation_diff(test_sig, observed_sig):
     return [(a - b) ** 2 for a, b in
@@ -409,14 +406,9 @@ def show_plots():
 
 rot_sensor = RotatingSensor()
 
-
 def main():
     if getpass.getuser() == "pi":
-       get_training_data()
-        #test_performance()
-        #do_challenge()
-        # test_performance()
-        # test_production()
+        test_performance()
     else:
         show_plots()
 
