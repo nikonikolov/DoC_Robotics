@@ -224,6 +224,16 @@ class RotatingSensor:
         print myOrientation, orientation
         ultrasound.rotate_sensor(orientation - myOrientation)
 
+
+def bump_termination_callback():
+    left = motor_params.interface.getSensorValue(
+            touch_sensors.TOUCH_PORT_LEFT)[0] | left
+    right = motor_params.interface.getSensorValue(
+            touch_sensors.TOUCH_PORT_RIGHT)[0] | right
+    if left or right:
+        return True
+
+
 def test_production():
     for sig_point in SIGNATURE_POINTS:
 
@@ -244,13 +254,10 @@ def test_production():
                     motor_params.motors, [8.0, 8.0])
             left = 0
             right = 0
+
+            motor_params.slow_down_forward(
+                    bottle_loc.distance, bump_termination_callback)
             while True:
-                left = motor_params.interface.getSensorValue(touch_sensors.TOUCH_PORT_LEFT)[0] | left
-                right = motor_params.interface.getSensorValue(touch_sensors.TOUCH_PORT_RIGHT)[0] | right
-                if left or right:
-                    motor_params.interface.setMotorPwm(motor_params.motors[0], 0)
-                    motor_params.interface.setMotorPwm(motor_params.motors[1], 0)
-                    break
         else:
             print "Bottle loc is None!"
 

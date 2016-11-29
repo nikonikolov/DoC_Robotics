@@ -1,3 +1,4 @@
+import threading
 import time
 
 import brickpi
@@ -129,6 +130,36 @@ def forward(dist):
     while not interface.motorAngleReferencesReached(motors) :
         time.sleep(0.03)
     print "Destination reached!"
+
+
+def angle_to_dist(angle):
+    """Angles is in degrees. Used for forward calculation."""
+    return (angle * 38.84 / 40.0 - 0.172055463539) / 0.362569757118
+
+
+
+def slow_down_forward(dist, termination_callback):
+    """
+    Forward with decreasing velocity as we get close to an object.
+
+    Arguments:
+        dist: The distance in centimeters to move the roboto.
+        termination_callback: A callback that is run, with no arguments
+                              at every loop iteration. If the callback
+                              returns True, the motors stop immediately.
+    """
+    distance_moved = 0.0
+    beginning_angle = getMotorAngle(0)
+    interface.setMotorRotationSpeedReferences(
+            motor_params.motors, [20.0, 20.0])
+    while not termination_callback() and distance_moved < dist:
+        angle = interface.getMotorAngleReference(0)
+        distance_moved = angle_to_dist(angle - beginning_angle)
+        speed = max(2.0, min(8.0, ))
+        interface.setMotorRotationSpeedReferences(
+                motor_params.motors, [speed, speed])
+    interface.setMotorPwm(motor_params.motors[0], 0)
+    interface.setMotorPwm(motor_params.motors[1], 0)
 
 
 # angle is in radians
