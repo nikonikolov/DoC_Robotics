@@ -41,7 +41,7 @@ BOTTLES = {
         place_rec.SignaturePoint(x=60, y=102, theta=math.pi/2, rstart=45,  rend=180),
     ],
     "FINAL": [
-        place_rec.SignaturePoint(x=84, y=30,  theta=-math.pi, rstart=0, rend=0),
+        place_rec.SignaturePoint(x=84, y=30,  theta=-math.pi/2, rstart=0, rend=0),
     ]
 }
 
