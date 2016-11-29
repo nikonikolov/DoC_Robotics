@@ -87,6 +87,9 @@ class State(StateBase):
 
         return Particle(x=x_total/NUMBER_OF_PARTICLES, y=y_total/NUMBER_OF_PARTICLES, theta=theta_average)
 
+    def __str__(self):
+        return "x = %.3f, y = %.3f, t = %.3f" % (self.x, self.y, self.theta)
+        
 
 Particle = collections.namedtuple("Particle", ["x", "y", "theta"])
 Dest = collections.namedtuple("Dest", ["x", "y"])

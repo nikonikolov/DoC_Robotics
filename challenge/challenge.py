@@ -116,12 +116,14 @@ def uncertainRotate(state, dest):
         state - of type State
         dest - absolute endpoint
     """
-    goal_theta = math.atan2(dest.y - state.y, dest.x - state.x)
-    delta_theta_rad = goal_theta - state.theta
+    goal_theta = dest.theta - state.theta
+    delta_theta_rad = goal_theta
     if delta_theta_rad > math.pi:
         delta_theta_rad -= 2*math.pi
     elif delta_theta_rad < -math.pi:
         delta_theta_rad += 2*math.pi  
+    print "delta_theta_rad = ", delta_theta_rad
+    print "goal_theta =", goal_theta
     motor_params.rotate(delta_theta_rad / math.pi * 180.0)
     return state.rotate(delta_theta_rad)
 
@@ -232,6 +234,8 @@ def main():
                         print "CURRENT STATE: x=%f, y =%f, theta=%f" % (state.x, state.y, state.theta)
     
                 # Make sure your orientation is the same as the orientation a signature must be taken at 
+                print "waypoint: ", waypoint
+                print "state: ", state
                 state = uncertainRotate(state, waypoint)
 
                 # Compare signatures
