@@ -141,15 +141,15 @@ def get_bottle_belief(test_signature, observed_signature, point):
     # TODO(fyquah): Dynamically calculate this based on the test signature.
 
     # Get array of the same size of the as the signatures that contains zeros and ones based on threshold
-    filtered_test_sig = remove_dc_component(test_signature.sig)
-    filtered_observations = remove_dc_component(observations)
+    filtered_test_sig = test_signature.sig
+    filtered_observations = observations
     thresholded = threshold_differences(filtered_test_sig,
                                         filtered_observations)
     print "Thresholded:"
     print thresholded
-    print "Filtered Observations:"
+    print "Observations:"
     print filtered_observations
-    print "Filtered test signature:"
+    print "test signature:"
     print filtered_test_sig
     print "Angles"
     print angles
@@ -381,8 +381,8 @@ def show_plots():
         test_sig.read(sig_point, BOTTLE_DIR)
 
         error = get_correlation_diff(test_sig, observed_sig)
-        filtered_test_sig = remove_dc_component(test_sig.sig)
-        filtered_observed_sig = remove_dc_component(observed_sig.sig)
+        filtered_test_sig = test_sig.sig
+        filtered_observed_sig = observed_sig.sig
         thresholded = threshold_differences(
                 filtered_test_sig, filtered_observed_sig)
 
