@@ -2,6 +2,7 @@
 # By Jacek Zienkiewicz and Andrew Davison, Imperial College London, 2014
 # Based on original C code by Adrien Angeli, 2009
 
+import bisect
 import random
 import math
 import os
@@ -44,7 +45,8 @@ SignaturePoint = collections.namedtuple(
         "SignaturePoint", ["x", "y", "theta", "rstart", "rend"])
 
 SIGNATURE_POINTS = [
-    SignaturePoint(x=140, y=40, theta=0, rstart=30, rend=150),
+    SignaturePoint(x=170, y=40, theta=0, rstart=30, rend=150),
+    # SignaturePoint(x=140, y=40, theta=0, rstart=30, rend=150),
 ]
 # Angle is in degrees, distance is in cm.
 BottleLocation = collections.namedtuple(
@@ -95,6 +97,13 @@ def weighted_average_bottle_belief(bottle_vals, observations, angles):
 
     angle = sum( float(abs(b-o))/total_error * a for b, o, a in zip(bottle_vals, observations, angles) )
     distance = sum( float(abs(b-o))/total_error * b for b, o in zip(bottle_vals, observations) ) + 5
+
+    i = bisect.bisect_right(angles, angle)
+    d1 = observations[i]
+    d2 = observations[i+1]
+    a1 = angles[i]
+    a2 = angles[i+1]
+    distance = (d2 - d1) / (a2 - a1) * (angle - a1) + d1
 
     return BottleLocation(distance=distance, angle=angle - 90.0)
 
@@ -385,7 +394,7 @@ rot_sensor = RotatingSensor()
 
 def main():
     if getpass.getuser() == "pi":
-        test_performance()
+        test_production()
     else:
         show_plots()
 
