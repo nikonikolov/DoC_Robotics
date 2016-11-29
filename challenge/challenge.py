@@ -3,12 +3,12 @@ import os
 import math
 import sys
 
-sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '../pmotion')
-sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '../ultrasonic_sensors')
-sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '../MCL')
-sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '../place_rec')
-sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '../')
-sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '../touch_sensors')
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../pmotion')
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../ultrasonic_sensors')
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../MCL')
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../place_rec')
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../')
+sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../touch_sensors')
 
 import touch_sensors
 import motion_predict
