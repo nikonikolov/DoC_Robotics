@@ -155,7 +155,8 @@ def slow_down_forward(dist, termination_callback):
     while not termination_callback() and distance_moved < dist:
         angle = interface.getMotorAngle(0)[0]
         distance_moved = angle_to_dist(angle - beginning_angle)
-        speed = max(2.0, min(8.0, dist - distance_moved))
+        # Multiply by 0.7, just to be more conservative about the distance.
+        speed = max(3.0, min(8.0, dist * 0.7 - distance_moved))
         print "target dist = ", dist
         print "distance left = ", dist - distance_moved
         print "distanced moved = ", distance_moved
