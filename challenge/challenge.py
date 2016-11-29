@@ -68,6 +68,18 @@ def uncertainNavigate(state, dest):
     motor_params.forward(dist)
     return state.move_forward(dist)
 
+def sigPointMCLStep(state, mcl_points):
+    """
+    mcl_points - an array of points with the same x and y, but different theta that corresponds to angles that we should face to run MCL "safely" - assuming there is no bottle there;
+        Note that robot should already be at x, y
+    """
+
+    for point in mcl_orientaitons:
+        uncertainRotate(state, point)
+        state = mcl.MCLStep(state)
+
+    return state
+
 
 def main():
 
@@ -88,7 +100,7 @@ def main():
         # Bottles
         if key != "FINAL":
             # waypoint refers to the next destination
-            for waypoint in visitpoints:
+            for waypoint, mcl_points in visitpoints:
                 
                 # Navigate properly
                 while True:
@@ -99,9 +111,10 @@ def main():
                         # We have reached our destination
                         break
                     else:
-                        # TO DO: Decide where to run MCL
+                        # TO DO: Smart navigation with not many rotations
                         state = uncertainNavigate(state, waypoint)
-                        state = mcl.MCLStep(state)
+                        # Run MCL
+                        state = sigPointMCLStep(state, mcl_points)
                         print "CURRENT STATE: x=%f, y =%f, theta=%f" % (state.x, state.y, state.theta)
     
                 # Make sure your orientation is the same as the orientation a signature must be taken at 
