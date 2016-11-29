@@ -45,7 +45,7 @@ SignaturePoint = collections.namedtuple(
         "SignaturePoint", ["x", "y", "theta", "rstart", "rend"])
 
 SIGNATURE_POINTS = [
-    SignaturePoint(x=40, y=128, theta=0, rstart=30, rend=150),
+    SignaturePoint(x=1123, y=1123, theta=0, rstart=30, rend=150),
     # SignaturePoint(x=170, y=40, theta=0, rstart=30, rend=150),
     # SignaturePoint(x=140, y=40, theta=0, rstart=30, rend=150),
 ]
@@ -277,7 +277,11 @@ class RotatingSensor:
 
     def setOrientation(self, orientation):
         # We need to orientation to be in robot terms
-        orientation = math.pi * 29.0 / 180.0 - orientation
+        # TODO(reboot): When we reboot, we will need to change the offset angle
+        # to the angle when the robot is facing forward. This is due to some weird
+        # thing that resets the robot angle on reboot.
+        offset = math.pi / 180.0 * 96.0
+        orientation = math.pi / 2 + offset - orientation
         
         if orientation < -math.pi:
             orientation = -math.pi
@@ -399,7 +403,7 @@ rot_sensor = RotatingSensor()
 
 def main():
     if getpass.getuser() == "pi":
-        test_production()
+        test_performance()
     else:
         show_plots()
 
