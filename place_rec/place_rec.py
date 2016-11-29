@@ -44,7 +44,7 @@ SignaturePoint = collections.namedtuple(
         "SignaturePoint", ["x", "y", "theta", "rstart", "rend"])
 
 SIGNATURE_POINTS = [
-    SignaturePoint(x=3, y=3, theta=5, rstart=30, rend=150),
+    SignaturePoint(x=170, y=40, theta=0, rstart=30, rend=150),
 ]
 # Angle is in degrees, distance is in cm.
 BottleLocation = collections.namedtuple(
@@ -93,7 +93,7 @@ def weighted_average_bottle_belief(bottle_vals, observations, angles):
     """
     total_error = sum( abs(b-o) for b, o in zip(bottle_vals, observations) )
 
-    angle = sum( float(abs(b-o))/total_error * a for b, o in zip(bottle_vals, observations, angles) )
+    angle = sum( float(abs(b-o))/total_error * a for b, o, a in zip(bottle_vals, observations, angles) )
     distance = sum( float(abs(b-o))/total_error * b for b, o in zip(bottle_vals, observations) ) + 5
 
     return BottleLocation(distance=distance, angle=angle - 90.0)
@@ -133,7 +133,7 @@ def get_bottle_belief(test_signature, observed_signature, point):
     if len(clusters) == 1:
         cluster_indices = range(clusters[0][0], clusters[0][1])
         
-        normal_clustered = [test_sig.sig[i] for i in cluster_indices]
+        normal_clustered = [test_signature.sig[i] for i in cluster_indices]
         bottle_clustered = [observations[i] for i in cluster_indices]
         angles_clustered = [angles[i] for i in cluster_indices]
 
@@ -237,7 +237,7 @@ class RotatingSensor:
         for angle in range(int(start_angle), int(end_angle), step):
             self.setOrientation(float(angle) * math.pi / 180)
             reading = ultrasound.get_reading()
-            if reading > ultrasound.MAX_DIST
+            if reading > ultrasound.MAX_DIST:
                 reading = ultrasound.GARBAGE
   
             # Get the absolute orientation at which the measurement is being taken
@@ -268,12 +268,16 @@ class RotatingSensor:
             orientation = -math.pi
         elif orientation > math.pi:
             orientation = math.pi
-        myOrientation = motor_params.interface.getMotorAngle(SONAR_MOTOR_PORT)[0]
+
+        myOrientation = motor_params.interface.getMotorAngle(
+              ultrasound.SONAR_MOTOR_PORT)[0]
         # orientation now between 0 & 2pi
         myOrientation = myOrientation % (math.pi * 2)
         if (myOrientation > math.pi):
             myOrientation -= math.pi*2
-        print myOrientation, orientation
+        print "orientation =", orientation / math.pi * 180.0
+        print "myOrientation =", myOrientation / math.pi * 180.0
+        raw_input("")
         ultrasound.rotate_sensor(orientation - myOrientation)
 
 
@@ -309,7 +313,6 @@ def test_production():
 
             motor_params.slow_down_forward(
                     bottle_loc.distance, bump_termination_callback)
-            while True:
         else:
             print "Bottle loc is None!"
 
@@ -380,7 +383,7 @@ rot_sensor = RotatingSensor()
 
 def main():
     if getpass.getuser() == "pi":
-        test_production()
+        test_performance()
     else:
         show_plots()
 

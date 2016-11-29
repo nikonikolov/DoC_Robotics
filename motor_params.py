@@ -155,7 +155,7 @@ def slow_down_forward(dist, termination_callback):
     while not termination_callback() and distance_moved < dist:
         angle = interface.getMotorAngleReference(0)
         distance_moved = angle_to_dist(angle - beginning_angle)
-        speed = max(2.0, min(8.0, ))
+        speed = max(2.0, min(8.0, dist - distance_moved))
         interface.setMotorRotationSpeedReferences(
                 motor_params.motors, [speed, speed])
     interface.setMotorPwm(motor_params.motors[0], 0)

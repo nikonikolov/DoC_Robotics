@@ -88,6 +88,27 @@ class Map:
             self.canvas.drawLine(wall);
 
 
+canvas = Canvas()  # global canvas we are going to draw on
+wallmap = Map(canvas);
+O = Point(0, 0)
+A = Point(0, 168)
+B = Point(84, 168)
+C = Point(84, 126)
+D = Point(84, 210)
+E = Point(168, 210)
+F = Point(168, 84)
+G = Point(210, 84)
+H = Point(210, 0)
+wallmap.add_wall( (O.x, O.y, A.x, A.y) )        # a
+wallmap.add_wall( (A.x, A.y, B.x, B.y) )        # b
+wallmap.add_wall( (C.x, C.y, D.x, D.y) )        # c
+wallmap.add_wall( (D.x, D.y, E.x, E.y) )        # d
+wallmap.add_wall( (E.x, E.y, F.x, F.y) )        # e
+wallmap.add_wall( (F.x, F.y, G.x, G.y) )        # f
+wallmap.add_wall( (G.x, G.y, H.x, H.y) )        # g
+wallmap.add_wall( (H.x, H.y, O.x, O.y) )        # h
+
+
 def getWallDist(particle, wallmap=wallmap):
     """
     param: particle : @type motion_predict.Particle - x, y, theta
@@ -102,7 +123,11 @@ def getWallDist(particle, wallmap=wallmap):
     for wall in wallmap.walls:
         Ax, Ay, Bx, By = wall
 
-        dist = ((By - Ay)*(Ax - particle.x) - (Bx - Ax)*(Ay - particle.y)) / ( (By-Ay)*math.cos(particle.theta) - (Bx-Ax)*math.sin(particle.theta) )
+        # TODO(fyquah): Handle ZeroDivisionError?
+        denom = (By-Ay)*math.cos(particle.theta) - (Bx-Ax)*math.sin(particle.theta)
+        if abs(denom) < 0.001:
+            continue
+        dist = ((By - Ay)*(Ax - particle.x) - (Bx - Ax)*(Ay - particle.y)) / denom
         if dist < SONAR_MIN_DIST or dist > SONAR_MAX_DIST:
             continue
         acos_value = math.cos(particle.theta) * (Ay - By) + math.sin(particle.theta) * (Bx - Ax) \
@@ -148,27 +173,6 @@ class Particles:
     
     def draw(self):
         self.canvas.drawParticles(self.data);
-
-
-canvas = Canvas()  # global canvas we are going to draw on
-wallmap = Map(canvas);
-O = Point(0, 0)
-A = Point(0, 168)
-B = Point(84, 168)
-C = Point(84, 126)
-D = Point(84, 210)
-E = Point(168, 210)
-F = Point(168, 84)
-G = Point(210, 84)
-H = Point(210, 0)
-wallmap.add_wall( (O.x, O.y, A.x, A.y) )        # a
-wallmap.add_wall( (A.x, A.y, B.x, B.y) )        # b
-wallmap.add_wall( (C.x, C.y, D.x, D.y) )        # c
-wallmap.add_wall( (D.x, D.y, E.x, E.y) )        # d
-wallmap.add_wall( (E.x, E.y, F.x, F.y) )        # e
-wallmap.add_wall( (F.x, F.y, G.x, G.y) )        # f
-wallmap.add_wall( (G.x, G.y, H.x, H.y) )        # g
-wallmap.add_wall( (H.x, H.y, O.x, O.y) )        # h
 
 
 def main():

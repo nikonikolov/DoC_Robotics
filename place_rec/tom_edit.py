@@ -6,6 +6,7 @@ import random
 import math
 import os
 import sys
+import time
 
 import motor_params
 
@@ -122,18 +123,20 @@ class RotatingSensor:
         return ls
 
     def setOrientation(self, orientation):
-        if orientation < -math.pi:
-            orientation = -math.pi
-        elif orientation > math.pi:
-            orientation = math.pi
+	orientation = orientation+1
+        while orientation < -math.pi:
+            orientation += 2*math.pi
+        while orientation > math.pi:
+            orientation -= 2*math.pi
         myOrientation = interface.getMotorAngle(SONAR_MOTOR_PORT)[0]
 	myOrientation = myOrientation % (math.pi*2) #orientation now between 0 & 2pi
 	if (myOrientation > math.pi):
             myOrientation -= math.pi*2
 	print myOrientation, orientation
-        ultrasound.rotate_sensor(orientation - myOrientation)
+        self.rotate_sensor(orientation - myOrientation)
 
-    def rotate_sensor(angle):
+
+    def rotate_sensor(self, angle):
         """
             @param: angle - the angle the motor should rotate by - in radians
         """

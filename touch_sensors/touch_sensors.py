@@ -85,12 +85,13 @@ def setup():
     interface.sensorEnable(TOUCH_PORT_RIGHT, brickpi.SensorType.SENSOR_TOUCH)
     
 def main():
-   setup()
    interface.setMotorRotationSpeedReferences(
             motor_params.motors, [FORWARD_SPEED, FORWARD_SPEED])
-    current_state = STATE_DRIVE
-    while True:
-        current_state = navigate(current_state)
+   current_state = STATE_DRIVE
+   while True:
+       current_state = navigate(current_state)
 
+setup()
 
-main()
+if __name__ == "__main__":
+    main()
