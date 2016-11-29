@@ -84,6 +84,20 @@ def threshold_differences(test_values, observations):
             in zip(observations, test_values)]
 
 
+def weighted_average_bottle_belief(bottle_vals, observations, angles):
+    """
+    Arguments:
+        bottle_vals - truncated array of reading where the bottle is supposed to be
+        observations - truncated array of reading of the place without a bottle there
+        angles - truncated array of the corresponding angles for the above readings
+    """
+    total_error = sum( abs(b-o) for b, o in zip(bottle_vals, observations) )
+
+    angle = sum( float(abs(b-o))/total_error * a for b, o in zip(bottle_vals, observations, angles) )
+    distance = sum( float(abs(b-o))/total_error * b for b, o in zip(bottle_vals, observations) ) + 5
+
+    return BottleLocation(distance=distance, angle=angle - 90.0)
+
 def get_bottle_belief(test_signature, observed_signature, point):
     """Check if a bottle is observed.
 
@@ -102,6 +116,7 @@ def get_bottle_belief(test_signature, observed_signature, point):
     observations = observed_signature.sig
     # TODO(fyquah): Dynamically calculate this based on the test signature.
 
+    # Get array of the same size of the as the signatures that contains zeros and ones based on threshold
     thresholded = threshold_differences(test_signature.sig,
                                         observations)
     print "Thresholded:"
@@ -112,12 +127,22 @@ def get_bottle_belief(test_signature, observed_signature, point):
     print test_signature.sig
     print "Angles"
     print angles
+
+    # Get a list of ranges speficying the stard and end indices of the biggest clusters 
     clusters = remove_cluster_anomalies(binary_signal_partition_by(thresholded))
     if len(clusters) == 1:
         cluster_indices = range(clusters[0][0], clusters[0][1])
-        cluster_readings = [observations[i] for i in cluster_indices]
-        distance = np.median(cluster_readings) + 10.0
-        angle = np.median([angles[i] for i in cluster_indices])
+        
+        normal_clustered = [test_sig.sig[i] for i in cluster_indices]
+        bottle_clustered = [observations[i] for i in cluster_indices]
+        angles_clustered = [angles[i] for i in cluster_indices]
+
+        distance = np.median(bottle_clustered) + 10.0
+        angle = np.median(angles_clustered)
+        
+        # Using weighted bottle belief
+        return weighted_average_bottle_belief(bottle_clustered, normal_clustered, angles_clustered)
+        
         return BottleLocation(
                 distance=distance, angle=angle - 90.0)
     else:
