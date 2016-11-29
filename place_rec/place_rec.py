@@ -155,14 +155,8 @@ def get_bottle_belief(test_signature, observed_signature, point):
         bottle_clustered = [observations[i] for i in cluster_indices]
         angles_clustered = [angles[i] for i in cluster_indices]
 
-        distance = np.median(bottle_clustered) + 10.0
-        angle = np.median(angles_clustered)
-        
         # Using weighted bottle belief
         return weighted_average_bottle_belief(bottle_clustered, normal_clustered, angles_clustered)
-        
-        return BottleLocation(
-                distance=distance, angle=angle - 90.0)
     else:
         return None
 
@@ -179,7 +173,7 @@ class LocationSignature:
         for i in range(len(self.sig)):
             print self.sig[i]
 
-    def delete_loc_files(self):
+    def delete_loc_files(self, target_dir):
         """
         Delete all files in target_dir
         """
@@ -214,7 +208,7 @@ class LocationSignature:
             if sig_point.x == int(args[0]) and sig_point.y == int(args[1]):
                 filename = f
         if filename == "":
-            print "ERROR in SignatureManager.read() - no file with coordinates %d %d %d in %s" % x, y, STEP, target_dir
+            print "ERROR in SignatureManager.read() - no file with coordinates %d %d %d in %s" % sig_point.x, sig_point.x, STEP, target_dir
 
         f = open(target_dir + filename, 'r')
         for line in f:
