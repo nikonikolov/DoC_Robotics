@@ -46,8 +46,18 @@ SignaturePoint = collections.namedtuple(
 
 SIGNATURE_POINTS = [
     SignaturePoint(x=40, y=128, theta=0, rstart=30, rend=150),
-    # SignaturePoint(x=170, y=40, theta=0, rstart=30, rend=150),
-    # SignaturePoint(x=140, y=40, theta=0, rstart=30, rend=150),
+    # SignaturePoint(x=170, y=40,  theta=0.0,       rstart=30, rend=150),
+    # SignaturePoint(x=140, y=40,  theta=0.0,       rstart=30, rend=150),
+
+    # Actual Singature points
+    # A
+    # SignaturePoint(x=84,  y=30,  theta=0.0,       rstart=60, rend=-45),
+    # SignaturePoint(x=160, y=30,  theta=0.0,       rstart=85, rend=-45)
+    # B
+    # SignaturePoint(x=126, y=147, theta=math.pi/2, rstart=0,  rend=360),
+    # C
+    # SignaturePoint(x=42,  y=109, theta=math.pi*2, rstart=0,  rend=360)
+
 ]
 # Angle is in degrees, distance is in cm.
 BottleLocation = collections.namedtuple(
