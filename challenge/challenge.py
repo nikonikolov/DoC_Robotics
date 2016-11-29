@@ -150,7 +150,7 @@ def sigPointMCLStep(state, mcl_points):
         Note that robot should already be at x, y
     """
     if mcl_points:
-        for point in mcl_orientaitons:
+        for point in mcl_points:
             uncertainRotate(state, point)
             state = mcl.MCLStep(state)
     return state
@@ -283,7 +283,7 @@ def main():
                 else:
                     # TO DO: Make sure you are tunning MCL facing to the proper walls
                     state = uncertainNavigate(state, waypoint)
-                    state = sigPointMCLStep(state)
+                    state = sigPointMCLStep(state, mcl_points)
                     print "CURRENT STATE: x=%f, y =%f, theta=%f" % (state.x, state.y, state.theta)
     
     
