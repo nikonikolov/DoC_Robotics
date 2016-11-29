@@ -217,7 +217,7 @@ def main():
         if key != "FINAL":
             # waypoint refers to the next destination
             for waypoint, mcl_points in zip(visitpoints, area_mcl_points):
-                
+                distance = 0.0
                 # Navigate properly
                 while True:
                     x_is_close = abs(state.x - waypoint.x) <= WAYPOINT_MIN_OFFSET
@@ -235,8 +235,6 @@ def main():
                         print "CURRENT STATE: x=%f, y =%f, theta=%f" % (state.x, state.y, state.theta)
     
                 # Make sure your orientation is the same as the orientation a signature must be taken at 
-                print "waypoint: ", waypoint
-                print "state: ", state
                 state = uncertainRotate(state, waypoint)
 
                 # Compare signatures
@@ -258,21 +256,27 @@ def main():
                     # screw up. (Due to the bottle).
                     state = state.move_forward(distance)
 
-                    # 2. Regardless of whether we hit the bottle or not.
-                    # TODO(fyquah): Possibly a better strategy? 
-                    motor_params.forward(-distance)
-                    state = state.move_forward(-distance)
-
                     if hit_bottle:
+                        # 2. If we hit the bottle, we will want to reverse.
+                        motor_params.forward(-distance)
+                        state = state.move_forward(-distance)
+
                         # 3. Break if we hit the bottle. Then we go on to
                         #    handle the next bottle area.
                         state = uncertainNavigate(state, mcl_points)
+                        state = sigPointMCLStep(state, mcl_points)
                         break
                     else:
                         # 4. if we did not hit a bottle, we continue the loop.
                         #    Going to the next waypoint in the area.
                         continue
-        
+            else:
+                # If we finish all the exhausted all the waypoints without finding
+                # the bottle, we'd want to move backwards, based on the latest
+                # distance that we've moved forward.
+                if distance:
+                    motor_params.forward(-distance)
+                    state = state.move_forward(-distance)
         # Final endpoint
         else:
             waypoint = visitpoints[0]

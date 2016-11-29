@@ -166,11 +166,6 @@ def slow_down_forward(dist, termination_callback, overshoot=0.0):
         distance_moved = angle_to_dist(angle - beginning_angle)
         # Multiply by 0.7, just to be more conservative about the distance.
         speed = max(3.0, min(8.0, dist * 0.7 - distance_moved))
-        print "target dist = ", dist
-        print "target dist + overshoot = ", dist + overshoot
-        print "distance left = ", dist - distance_moved
-        print "distanced moved = ", distance_moved
-        print "Current speed = ", speed
         interface.setMotorRotationSpeedReferences(
                 motors, [speed, speed])
     interface.setMotorPwm(motors[0], 0)

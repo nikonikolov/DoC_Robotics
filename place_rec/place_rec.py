@@ -296,10 +296,7 @@ class RotatingSensor:
             myOrientation -= math.pi*2
         print "orientation =", orientation / math.pi * 180.0
         print "myOrientation =", myOrientation / math.pi * 180.0
-        delta = (orientation - myOrientation) % (2 * math.pi)
-        if delta > math.pi:
-            delta = math.pi - 2 * math.pi
-        ultrasound.rotate_sensor(delta)
+        ultrasound.rotate_sensor(orientation - myOrientation)
 
 
 def bump_termination_callback():

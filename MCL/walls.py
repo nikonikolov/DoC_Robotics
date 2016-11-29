@@ -55,12 +55,12 @@ class Canvas:
         y1 = self.__screenY(line[1]);
         x2 = self.__screenX(line[2]);
         y2 = self.__screenY(line[3]);
-        print "drawLine:" + str((x1,y1,x2,y2))
+        # print "drawLine:" + str((x1,y1,x2,y2))
 
     def drawParticles(self,data):
         #display = [(self.__screenX(p.x]), self.__screenY(p.y)) + d[2:] for p, w in data];
         display = [(self.__screenX(d[0]), self.__screenY(d[1])) + d[2:] for d in data];
-        print "drawParticles:" + str(display);
+        # print "drawParticles:" + str(display);
 
     def __screenX(self,x):
         return (x + self.margin)*self.scale
@@ -122,24 +122,24 @@ def getWallDist(particle, wallmap=wallmap,incidence_angle=True):
 
     for wall in wallmap.walls:
         Ax, Ay, Bx, By = wall
-        print "-- Testing wall: ", wall
+        # print "-- Testing wall: ", wall
 
         # TODO(fyquah): Handle ZeroDivisionError?
         denom = (By-Ay)*math.cos(particle.theta) - (Bx-Ax)*math.sin(particle.theta)
-        print "denom = ", denom
+        # print "denom = ", denom
         if abs(denom) < 0.001:
             continue
         dist = ((By - Ay)*(Ax - particle.x) - (Bx - Ax)*(Ay - particle.y)) / denom
-        print "dist = ", dist
+        # print "dist = ", dist
         if dist < SONAR_MIN_DIST or dist > SONAR_MAX_DIST:
             continue
         acos_value = (math.cos(particle.theta) * (Ay - By) + math.sin(particle.theta) * (Bx - Ax)) \
                 / (math.sqrt((Ay - By) ** 2 + (Bx - Ax) ** 2))
-        print "acos = ", acos_value
+        # print "acos = ", acos_value
         if acos_value  > 1 or acos_value < -1:
             continue 
         beta = math.acos(acos_value)
-        print "beta = ", beta
+        # print "beta = ", beta
         if incidence_angle and beta > SONAR_MAX_ANGLE:
             continue
 
