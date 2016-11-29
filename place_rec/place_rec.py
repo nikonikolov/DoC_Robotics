@@ -45,7 +45,7 @@ SignaturePoint = collections.namedtuple(
         "SignaturePoint", ["x", "y", "theta", "rstart", "rend"])
 
 SIGNATURE_POINTS = [
-    SignaturePoint(x=140, y=40, theta=0, rstart=30, rend=150),
+    SignaturePoint(x=170, y=40, theta=0, rstart=30, rend=150),
     # SignaturePoint(x=1123, y=1123, theta=0, rstart=30, rend=150),
     # SignaturePoint(x=170, y=40, theta=0, rstart=30, rend=150),
     # SignaturePoint(x=140, y=40, theta=0, rstart=30, rend=150),
@@ -88,7 +88,7 @@ def remove_dc_component(x):
 
 def threshold_differences(test_values, observations):
     # Then only we threshold them.
-    threshold = 200.0
+    threshold = 500.0
     return [1 if ((observed - expected) ** 2) > 200.0 else 0
             for observed, expected
             in zip(observations, test_values)]
