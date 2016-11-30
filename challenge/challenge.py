@@ -75,8 +75,8 @@ MCL_POINTS = {
     "C": [
         #first point for detecting in C
         [
-            place_rec.SignaturePoint(x=75, y=50,  theta=-math.pi/2,rstart=0, rend=90),
             place_rec.SignaturePoint(x=75, y=50,  theta=math.pi/2,rstart=0, rend=90),
+            place_rec.SignaturePoint(x=75, y=50,  theta=-math.pi/2,rstart=0, rend=90),
         ],
         #second point for detecting in C
         [

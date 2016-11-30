@@ -47,12 +47,17 @@ orientation_offset = None
 # Signature points structure for challenge.py
 
 SIGNATURE_POINTS = [
-    SignaturePoint(x=100, y=40, theta=0, rstart=30, rend=135), #first point for detecting in A
-    SignaturePoint(x=150, y=40, theta=0, rstart=30, rend=150), #second point for detecting in A
-    SignaturePoint(x=105, y=70, theta=math.pi/2, rstart=22, rend=110),
-    SignaturePoint(x=105, y=140,  theta=math.pi/2,rstart=-20, rend=160),
-    SignaturePoint(x=75, y=50,  theta=(math.pi*0.99),rstart=0, rend=90),
-    SignaturePoint(x=60, y=102, theta=math.pi/2, rstart=45,  rend=180),
+    # In B
+    # SignaturePoint(x=90, y=105, theta=0.0, rstart=90, rend=180),
+    SignaturePoint(x=126, y=145,  theta=math.pi/2,rstart=0, rend=150),
+
+    # In A
+    # SignaturePoint(x=100, y=40, theta=0, rstart=30, rend=135), #first point for detecting in A
+    # SignaturePoint(x=150, y=40, theta=0, rstart=30, rend=150), #second point for detecting in A
+
+    # # In C
+    # SignaturePoint(x=75, y=50,  theta=(math.pi*0.99),rstart=0, rend=90),
+    # SignaturePoint(x=60, y=102, theta=math.pi/2, rstart=45,  rend=180),
 ]
 # Angle is in degrees, distance is in cm.
 BottleLocation = collections.namedtuple(
@@ -512,8 +517,8 @@ def rotate():
 
 def main():
     if getpass.getuser() == "pi":
-        rotate()
-       # get_training_data()
+        get_training_data()
+        # rotate()
         #test_performance()
         #do_challenge()
         # test_performance()
