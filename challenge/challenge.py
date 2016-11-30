@@ -29,7 +29,7 @@ NUMBER_OF_PARTICLES = motion_predict.NUMBER_OF_PARTICLES
 
 BOTTLES = [
     ("A", [
-        place_rec.SignaturePoint(x=100, y=40, theta=0, rstart=30, rend=135),
+        # place_rec.SignaturePoint(x=100, y=40, theta=0, rstart=30, rend=135),
         #first point for detecting in A
         place_rec.SignaturePoint(x=150, y=40, theta=0, rstart=20, rend=140),
         #second point for detecting in A
@@ -51,10 +51,10 @@ BOTTLES = [
 MCL_POINTS = {
     "A": [
         #first point for detecting in A
-        [
-            place_rec.SignaturePoint(x=100, y=40, theta=-math.pi/2, rstart=30, rend=135),
-            place_rec.SignaturePoint(x=100, y=40, theta=0, rstart=30, rend=135)
-        ],
+        # [
+        #     place_rec.SignaturePoint(x=100, y=40, theta=-math.pi/2, rstart=30, rend=135),
+        #     place_rec.SignaturePoint(x=100, y=40, theta=0, rstart=30, rend=135)
+        # ],
         #second point for detecting in A
         [
             place_rec.SignaturePoint(x=140, y=40, theta=-math.pi/2, rstart=30, rend=150),
@@ -162,7 +162,7 @@ def sigPointMCLStep(state, mcl_points):
                     point.theta - original_theta + math.pi / 2)
             state = mcl.MCLStep(state)
 
-            state = state.pure_rotate(original_theta - point.theta)
+            state = state.pure_rotate(original_theta - state.theta)
             # print "State right after uncertainRotate to", point
             # print state
     # place_rec.rot_sensor.setOrientation(math.pi / 2)
@@ -326,7 +326,7 @@ def main():
                     # TO DO: Make sure you are tunning MCL facing to the proper walls
                     state = uncertainNavigate(state, waypoint)
                     state = sigPointMCLStep(state, mcl_points)
-                    # print "CURRENT STATE: x=%f, y =%f, theta=%f" % (state.x, state.y, state.theta)
+                    print "CURRENT STATE: x=%f, y =%f, theta=%f" % (state.x, state.y, state.theta)
     
     
 

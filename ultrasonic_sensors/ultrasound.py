@@ -8,13 +8,13 @@ SONAR_MOTOR_PORT = 2
 ULTRASONIC_PORT = 3
 
 # TO DO - CALIBRATE THESE VALUES
-SENSOR_OFFSET = 1.0                             # Offset of the sensor from the center of the robot
+SENSOR_OFFSET = 3.0                             # Offset of the sensor from the center of the robot
 MAX_DIST = 100.0 + SENSOR_OFFSET                # Max distance from a wall for a reliable reading
 MIN_DIST = 10.0 + SENSOR_OFFSET                 # Min distance from a wall for a reliable reading 
 MAX_ANGLE = 34.0 * math.pi / 180.0              # Max angle between wall normal and the robot for a reliable reading
 
 # Number of readings to take before get_reading() returns a value 
-NUM_READINGS = 5
+NUM_READINGS = 3
 GARBAGE = 265.0
 GARBAGE_THRESHOLD = 120.0
 
@@ -134,7 +134,7 @@ def setup():
     # Setup ultrasonic sensor here.
     interface.sensorEnable(ULTRASONIC_PORT, brickpi.SensorType.SENSOR_ULTRASONIC);
     get_reading.history = []
-    get_reading.HISTORY_SIZE = 5
+    get_reading.HISTORY_SIZE = 3
 
     # The motor holding the sonar sensor.
     G = 250.0
@@ -149,7 +149,7 @@ def setup():
     sonar_motor_params.pidParameters.maxOutput = 255
     kp = 0.6 * G
     sonar_motor_params.pidParameters.k_p = kp
-    sonar_motor_params.pidParameters.k_i = 3.0 * kp / T
+    sonar_motor_params.pidParameters.k_i = 3.3 * kp / T
     sonar_motor_params.pidParameters.K_d = 1.5 * kp * T / 8.0
     interface.setMotorAngleControllerParameters(SONAR_MOTOR_PORT, sonar_motor_params)
 
