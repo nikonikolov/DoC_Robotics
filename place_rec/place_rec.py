@@ -41,6 +41,8 @@ BOTTLE_DIR = SCRIPT_DIR + "/data/bottles/"
 # NOTE: thete is in radians while rstart and rend are in degrees; theta must be in the range -180 to 180
 SignaturePoint = collections.namedtuple(
         "SignaturePoint", ["x", "y", "theta", "rstart", "rend"])
+orientation_offset = None
+
 
 # Signature points structure for challenge.py
 
@@ -224,6 +226,7 @@ class LocationSignature:
             print "WARNING: SignatureManager.read() - signature does not exist"
 
 
+
 class RotatingSensor:
     """
         Save state of the rotating sonar sensor and take LocationSignature readings
@@ -281,7 +284,7 @@ class RotatingSensor:
         return ls
 
     def setOrientation(self, orientation):
-        cval = math.pi / 180.0 * +50.5
+        cval = math.pi / 180.0 * orientation_offset
         lowerLimit = cval - math.pi
         higherLimit = cval + math.pi
 
@@ -319,7 +322,7 @@ class RotatingSensor:
         # TODO(reboot): When we reboot, we will need to change the offset angle
         # to the angle when the robot is facing forward. This is due to some weird
         # thing that resets the robot angle on reboot.
-        offset = math.pi / 180.0 * +1806.5
+        offset = math.pi / 180.0 * +23.0
         pivotPoint = (offset + 110.0 * math.pi / 180.0) % (math.pi * 2)
         orientation = (math.pi / 2 + offset - orientation) % (math.pi * 2)
 
@@ -490,6 +493,14 @@ def show_plots():
         plt.show()
 
 rot_sensor = RotatingSensor()
+
+
+def setup():
+    global orientation_offset
+    raw_input("Please make sure that the ultrasonic sensor is facing forwards. Then, Please hit enter.")
+    orientation_offset =  motor_params.interface.getMotorAngle(2)[0] * 180.0 / math.pi
+
+setup()
 
 
 def rotate():

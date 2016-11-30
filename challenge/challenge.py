@@ -153,9 +153,11 @@ def sigPointMCLStep(state, mcl_points):
     mcl_points - an array of points with the same x and y, but different theta that corresponds to angles that we should face to run MCL "safely" - assuming there is no bottle there;
         Note that robot should already be at x, y
     """
+    place_rec.rot_sensor.setOrientation(0.0)
     if mcl_points:
         for point in mcl_points:
-            place_rec.rot_sensor.setOrientation(point.theta - (state.theta - math.pi / 2))
+            # place_rec.rot_sensor.setOrientation(point.theta - (state.theta - math.pi / 2))
+            uncertainRotate(state, point)
             state = mcl.MCLStep(state)
     return state
 
