@@ -88,7 +88,7 @@ MCL_POINTS = {
     "FINAL": [
         [
             place_rec.SignaturePoint(x=84, y=30,  theta=-math.pi/2, rstart=0, rend=0),
-            place_rec.SignaturePoint(x=84, y=30,  theta=-math.pi, rstart=0, rend=0),
+            place_rec.SignaturePoint(x=84, y=30,  theta=math.pi, rstart=0, rend=0),
         ],
     ]
     
@@ -125,8 +125,6 @@ def uncertainRotate(state, dest):
         delta_theta_rad -= 2*math.pi
     elif delta_theta_rad < -math.pi:
         delta_theta_rad += 2*math.pi  
-    print "delta_theta_rad = ", delta_theta_rad
-    print "goal_theta =", goal_theta
     motor_params.rotate(delta_theta_rad / math.pi * 180.0)
     return state.rotate(delta_theta_rad)
 
@@ -227,7 +225,8 @@ def main():
             for waypoint, mcl_points in zip(visitpoints, area_mcl_points):
                 distance = 0.0
                 # Navigate properly
-                while True:
+                for i in range(1,3):
+                #while True:
                     x_is_close = abs(state.x - waypoint.x) <= WAYPOINT_MIN_OFFSET
                     y_is_close = abs(state.y - waypoint.y) <= WAYPOINT_MIN_OFFSET
     
