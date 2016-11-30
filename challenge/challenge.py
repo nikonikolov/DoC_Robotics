@@ -211,6 +211,7 @@ def main():
     
     # visitpoints is a list of points that we need to visit
     for key, visitpoints in BOTTLES:
+        print "Going into key = ", key
         # mcl_points is a list of lists
         area_mcl_points = MCL_POINTS[key]
 
@@ -230,6 +231,7 @@ def main():
                     else:
                         # TO DO: Smart navigation with not many rotations
                         state = uncertainNavigate(state, waypoint)
+                        print "Navigating to ", waypoint
                         # Run MCL
                         if key!= "A":
                             state = sigPointMCLStep(state, mcl_points)
@@ -267,7 +269,9 @@ def main():
 
                         # 3. Break if we hit the bottle. Then we go on to
                         #    handle the next bottle area.
+                        print "Starting sigPointMclStep:"
                         state = sigPointMCLStep(state, mcl_points)
+                        print "breaking from first waypoint loop"
                         break
                     else:
                         # 4. if we did not hit a bottle, we continue the loop.
