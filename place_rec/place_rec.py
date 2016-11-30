@@ -502,7 +502,7 @@ rot_sensor = RotatingSensor()
 
 def setup():
     global orientation_offset
-    raw_input("Please make sure that the ultrasonic sensor is facing forwards. Then, Please hit enter.")
+    print("Please make sure that the ultrasonic sensor is facing forwards. I am not perforaming any checks.")
     orientation_offset =  motor_params.interface.getMotorAngle(2)[0] * 180.0 / math.pi
 
 setup()
