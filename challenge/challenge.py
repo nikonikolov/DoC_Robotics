@@ -212,6 +212,7 @@ def main():
             weights=[1.0 / NUMBER_OF_PARTICLES
                      for _ in range(NUMBER_OF_PARTICLES)])
     mcl.draw_particles(state)
+    raw_input("Click enter to begin")
     
     # visitpoints is a list of points that we need to visit
     for key, visitpoints in BOTTLES:
