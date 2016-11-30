@@ -286,17 +286,30 @@ class RotatingSensor:
         # to the angle when the robot is facing forward. This is due to some weird
         # thing that resets the robot angle on reboot.
         offset = math.pi / 180.0 * +1.0
-        orientation = math.pi / 2 + offset - orientation
+        pivotPoint = offset + 110.0 * math.pi / 180.0
+        orientation = (math.pi / 2 + offset - orientation) % (math.pi * 2)
 
         myOrientation = motor_params.interface.getMotorAngle(
-              ultrasound.SONAR_MOTOR_PORT)[0]
+              ultrasound.SONAR_MOTOR_PORT)[0] % (math.pi * 2)
         # orientation now between 0 & 2pi
         myOrientation = myOrientation % (math.pi * 2)
-        if (myOrientation > math.pi):
-            myOrientation -= math.pi*2
-        print "orientation =", orientation / math.pi * 180.0
-        print "myOrientation =", myOrientation / math.pi * 180.0
-        ultrasound.rotate_sensor(orientation - myOrientation)
+
+        # check if clockwise direction would have cross pass the pivotPoint.
+        # If it doesn't, we should just take the clockwise.
+        delta = (orientation - myOrientation) % (math.pi * 2)
+        delta_2 = delta
+        cross_pivot_point = False
+        if myOrientation > orientation:
+            myOrientation = 0.0
+            delta_2 -= 2 * math.pi - myOrientation
+
+        if myOrientation <= pivotPoint <= orientation:
+            cross_pivot_point = True
+
+        if cross_pivot_point:
+            ultrasound.rotate_sensor(delta - 2 * math.pi)
+        else:
+            ultrasound.rotate_sensor(delta)
 
 
 def bump_termination_callback():
@@ -410,9 +423,14 @@ def show_plots():
 rot_sensor = RotatingSensor()
 
 
+def rotate():
+    rot_sensor.setOrientation(0.0)
+
+
 def main():
     if getpass.getuser() == "pi":
-       get_training_data()
+        rotate()
+       # get_training_data()
         #test_performance()
         #do_challenge()
         # test_performance()
