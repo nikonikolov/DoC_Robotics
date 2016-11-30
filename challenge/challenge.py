@@ -19,8 +19,8 @@ import place_rec
 import motor_params
 
 # TO DO: CALIBRATE THESE VALUES AND THE SONAR LIKELIHOOD VALUES IN mcl
-WAYPOINT_MIN_OFFSET = 5.0
-FINAL_WAYPOINT_MIN_OFFSET = 3.0
+WAYPOINT_MIN_OFFSET = 3.0
+FINAL_WAYPOINT_MIN_OFFSET = 1.0
 
 NUMBER_OF_PARTICLES = motion_predict.NUMBER_OF_PARTICLES
 
@@ -75,13 +75,14 @@ MCL_POINTS = {
     "C": [
         #first point for detecting in C
         [
-            place_rec.SignaturePoint(x=75, y=50,  theta=math.pi/2,rstart=0, rend=90),
+            place_rec.SignaturePoint(x=75, y=50,  theta=math.pi,rstart=0, rend=90),
             place_rec.SignaturePoint(x=75, y=50,  theta=-math.pi/2,rstart=0, rend=90),
         ],
         #second point for detecting in C
         [
-            place_rec.SignaturePoint(x=60, y=102, theta=math.pi/2, rstart=45,  rend=180),
+            place_rec.SignaturePoint(x=60, y=102, theta=math.pi, rstart=45,  rend=180),
             place_rec.SignaturePoint(x=60, y=102, theta=0, rstart=45,  rend=180),
+            place_rec.SignaturePoint(x=60, y=102, theta=math.pi/2, rstart=45,  rend=180),
         ],
     ],
     "FINAL": [
