@@ -226,7 +226,7 @@ def main():
             for waypoint, mcl_points in zip(visitpoints, area_mcl_points):
                 distance = 0.0
                 # Navigate properly
-                for i in range(1,3):
+                for i in range(1,4):
                 #while True:
                     x_is_close = abs(state.x - waypoint.x) <= WAYPOINT_MIN_OFFSET
                     y_is_close = abs(state.y - waypoint.y) <= WAYPOINT_MIN_OFFSET
