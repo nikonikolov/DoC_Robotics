@@ -288,12 +288,20 @@ class RotatingSensor:
         offset = math.pi / 180.0 * +1.0
         orientation = math.pi / 2 + offset - orientation
 
+        orientation = orientation % (math.pi * 2)
+        if orientation < 0:
+            orientation =+ 2*math.pi
+
         myOrientation = motor_params.interface.getMotorAngle(
               ultrasound.SONAR_MOTOR_PORT)[0]
         # orientation now between 0 & 2pi
         myOrientation = myOrientation % (math.pi * 2)
         if (myOrientation > math.pi):
             myOrientation -= math.pi*2
+        if myOrientation < 0:
+            myOrientation += 2*math.pi    
+        #if (myOrientation > math.pi):
+        #    myOrientation -= math.pi*2
         print "orientation =", orientation / math.pi * 180.0
         print "myOrientation =", myOrientation / math.pi * 180.0
         ultrasound.rotate_sensor(orientation - myOrientation)
