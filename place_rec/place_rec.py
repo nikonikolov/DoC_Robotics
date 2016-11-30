@@ -281,27 +281,68 @@ class RotatingSensor:
         return ls
 
     def setOrientation(self, orientation):
+        cval = math.pi / 180.0 * +1806.5
+        lowerLimit = cval - math.pi
+        higherLimit = cval + math.pi
+
+        # Transform orientation to the 
+        orientation = math.pi / 2 - orientation
+        orientation = orientation + cval
+
+        # Clamp orientation
+        orientation = orientation % (2 * math.pi)
+        while orientation > higherLimit:
+            orientation -= 2 * math.pi
+        while orientation < lowerLimit:
+            orientation += 2 * math.pi
+
+        # Clamp myOrientation
+        myOr = motor_params.interface.getMotorAngle(
+              ultrasound.SONAR_MOTOR_PORT)[0] % (math.pi * 2)
+        while myOr > higherLimit:
+            myOr -= 2 * math.pi
+        while myOr < lowerLimit:
+            myOr += 2 * math.pi
+
+        ultrasound.rotate_sensor(orientation - myOr)
+
+    """
+    Overthing
+    def setOrientation(self, orientation):
+        myOrientation = motor_params.interface.getMotorAngle(
+              ultrasound.SONAR_MOTOR_PORT)[0]
+        myOrientation = (myOrientation - )
+    """
+    """
+    def setOrientation(self, orientation):
         # We need to orientation to be in robot terms
         # TODO(reboot): When we reboot, we will need to change the offset angle
         # to the angle when the robot is facing forward. This is due to some weird
         # thing that resets the robot angle on reboot.
-        offset = math.pi / 180.0 * +1.0
-        pivotPoint = offset + 110.0 * math.pi / 180.0
+        offset = math.pi / 180.0 * +1806.5
+        pivotPoint = (offset + 110.0 * math.pi / 180.0) % (math.pi * 2)
         orientation = (math.pi / 2 + offset - orientation) % (math.pi * 2)
 
         myOrientation = motor_params.interface.getMotorAngle(
               ultrasound.SONAR_MOTOR_PORT)[0] % (math.pi * 2)
         # orientation now between 0 & 2pi
         myOrientation = myOrientation % (math.pi * 2)
+        print "orientation =", orientation / math.pi * 180.0
+        print "myOrientation =", myOrientation / math.pi * 180.0
+        print "pivotPoint = ", pivotPoint / math.pi * 180.0
 
         # check if clockwise direction would have cross pass the pivotPoint.
         # If it doesn't, we should just take the clockwise.
         delta = (orientation - myOrientation) % (math.pi * 2)
         delta_2 = delta
         cross_pivot_point = False
+
         if myOrientation > orientation:
-            myOrientation = 0.0
-            delta_2 -= 2 * math.pi - myOrientation
+            if myOrientation < pivotPoint:
+                cross_pivot_point = True
+            else:
+                myOrientation = 0.0
+                delta_2 -= 2 * math.pi - myOrientation
 
         if myOrientation <= pivotPoint <= orientation:
             cross_pivot_point = True
@@ -310,7 +351,35 @@ class RotatingSensor:
             ultrasound.rotate_sensor(delta - 2 * math.pi)
         else:
             ultrasound.rotate_sensor(delta)
+    """
+    """
+    def setOrientation(self, orientation):
+        # We need to orientation to be in robot terms
+        # TODO(reboot): When we reboot, we will need to change the offset angle
+        # to the angle when the robot is facing forward. This is due to some weird
+        # thing that resets the robot angle on reboot.
+        offset = math.pi / 180.0 * +1806.5
+        orientation = math.pi / 2 + offset - orientation
 
+        orientation = orientation % (math.pi * 2)
+        if orientation < 0:
+            orientation =+ 2*math.pi
+
+        myOrientation = motor_params.interface.getMotorAngle(
+        ultrasound.SONAR_MOTOR_PORT)[0]
+        # orientation now between 0 & 2pi
+        myOrientation = myOrientation % (math.pi * 2)
+        if (myOrientation > math.pi):
+            myOrientation -= math.pi*2
+        if myOrientation < 0:
+            myOrientation += 2*math.pi    
+        #if (myOrientation > math.pi):
+        #    myOrientation -= math.pi*2
+        print "orientation =", orientation / math.pi * 180.0
+        print "myOrientation =", myOrientation / math.pi * 180.0
+           
+        ultrasound.rotate_sensor(myOrientation - orientation)
+    """
 
 def bump_termination_callback():
     left = motor_params.interface.getSensorValue(
@@ -424,7 +493,10 @@ rot_sensor = RotatingSensor()
 
 
 def rotate():
-    rot_sensor.setOrientation(0.0)
+    for i in range(0, 360, 10):
+        rot_sensor.setOrientation(i * math.pi / 180.0)
+    for i in range(0, 360, 10):
+        rot_sensor.setOrientation(i * math.pi / 180.0)
 
 
 def main():
