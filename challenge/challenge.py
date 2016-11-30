@@ -31,11 +31,11 @@ BOTTLES = [
     ("A", [
         place_rec.SignaturePoint(x=100, y=40, theta=0, rstart=30, rend=135),
         #first point for detecting in A
-        place_rec.SignaturePoint(x=140, y=40, theta=0, rstart=20, rend=125),
+        place_rec.SignaturePoint(x=150, y=40, theta=0, rstart=20, rend=140),
         #second point for detecting in A
     ]),
     ("C", [
-        place_rec.SignaturePoint(x=75, y=60,  theta=math.pi,rstart=0, rend=120),
+        place_rec.SignaturePoint(x=75, y=60,  theta=math.pi,rstart=0, rend=125),
         place_rec.SignaturePoint(x=60, y=102, theta=math.pi/2, rstart=45,  rend=180),
     ]),
     ("B", [
@@ -226,7 +226,7 @@ def main():
             for waypoint, mcl_points in zip(visitpoints, area_mcl_points):
                 distance = 0.0
                 # Navigate properly
-                for i in range(1,4):
+                for i in range(1,3):
                 #while True:
                     x_is_close = abs(state.x - waypoint.x) <= WAYPOINT_MIN_OFFSET
                     y_is_close = abs(state.y - waypoint.y) <= WAYPOINT_MIN_OFFSET

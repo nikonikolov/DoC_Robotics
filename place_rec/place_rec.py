@@ -53,10 +53,10 @@ SIGNATURE_POINTS = [
 
     # In A
     # SignaturePoint(x=100, y=40, theta=0, rstart=30, rend=135), #first point for detecting in A
-    # SignaturePoint(x=140, y=40, theta=0, rstart=20, rend=125), #second point for detecting in A
+    #SignaturePoint(x=150, y=40, theta=0, rstart=20, rend=140), #second point for detecting in A
 
     # # In C
-     SignaturePoint(x=75, y=60,  theta=math.pi,rstart=0, rend=120),
+     SignaturePoint(x=75, y=60,  theta=math.pi,rstart=0, rend=125),
     # SignaturePoint(x=60, y=102, theta=math.pi/2, rstart=45,  rend=180),
 ]
 # Angle is in degrees, distance is in cm.

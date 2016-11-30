@@ -13,7 +13,7 @@ class RotationHere(Exception):
 
 
 def rotation_noise(p, alpha):
-    angle = p + alpha + random.gauss(0, 1.3) * math.pi / 180.0
+    angle = p + alpha + random.gauss(0, 1.5) * math.pi / 180.0
     #angle = p + alpha + random.gauss(0, 2.0) * math.pi / 180.0
     if angle > math.pi:
         angle -= 2 * math.pi
@@ -59,8 +59,9 @@ class State(StateBase):
         particles = []
         for particle in self.particles:
             x, y, theta = particle
-            e = random.gauss(0, 1.3)
-            f = random.gauss(0, 0.25 * math.pi / 180.0)
+            e = random.gauss(0, 2.0 * d / 60.0)
+            f = random.gauss(0, 0.3 * math.pi / 180.0)
+            #f = random.gauss(0, 0.25 * math.pi / 180.0)
             particles.append(Particle(
                     x + (d + e) * math.cos(theta),
                     y + (d + e) * math.sin(theta),
