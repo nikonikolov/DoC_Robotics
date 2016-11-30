@@ -265,7 +265,7 @@ def main():
                     distance, hit_bottle = motor_params.slow_down_forward(
                             bottle_loc.distance,
                             place_rec.bump_termination_callback,
-                            overshoot=15.0)
+                            overshoot=5.0)
                     # Don't perform MCL here, we are fairly sure that it will
                     # screw up. (Due to the bottle).
                     state = state.move_forward(distance)
