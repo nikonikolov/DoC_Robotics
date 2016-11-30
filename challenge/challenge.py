@@ -51,8 +51,8 @@ MCL_POINTS = {
     "A": [
         #first point for detecting in A
         [
-            #place_rec.SignaturePoint(x=100, y=40, theta=-math.pi/2, rstart=30, rend=135),
-            #place_rec.SignaturePoint(x=100, y=40, theta=0, rstart=30, rend=135)
+            place_rec.SignaturePoint(x=100, y=40, theta=-math.pi/2, rstart=30, rend=135),
+            place_rec.SignaturePoint(x=100, y=40, theta=0, rstart=30, rend=135)
         ],
         #second point for detecting in A
         [
@@ -157,7 +157,8 @@ def sigPointMCLStep(state, mcl_points):
     if mcl_points:
         for point in mcl_points:
             # place_rec.rot_sensor.setOrientation(point.theta - (state.theta - math.pi / 2))
-            uncertainRotate(state, point)
+            state = uncertainRotate(state, point)
+            print "After uncertainRotate(", state, ", ", point, ")"
             state = mcl.MCLStep(state)
     return state
 
@@ -266,8 +267,8 @@ def main():
 
                     if hit_bottle:
                         # 2. If we hit the bottle, we will want to reverse.
-                        motor_params.forward(-distance)
-                        state = state.move_forward(-distance)
+                        motor_params.forward(-distance * 0.8)
+                        state = state.move_forward(-distance * 0.8)
 
                         # 3. Break if we hit the bottle. Then we go on to
                         #    handle the next bottle area.
