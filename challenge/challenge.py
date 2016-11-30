@@ -35,7 +35,7 @@ BOTTLES = [
         #second point for detecting in A
     ]),
     ("C", [
-        place_rec.SignaturePoint(x=75, y=50,  theta=math.pi,rstart=0, rend=90),
+        place_rec.SignaturePoint(x=75, y=60,  theta=math.pi,rstart=0, rend=120),
         place_rec.SignaturePoint(x=60, y=102, theta=math.pi/2, rstart=45,  rend=180),
     ]),
     ("B", [
@@ -76,8 +76,8 @@ MCL_POINTS = {
     "C": [
         #first point for detecting in C
         [
-            place_rec.SignaturePoint(x=75, y=50,  theta=math.pi,rstart=0, rend=90),
-            place_rec.SignaturePoint(x=75, y=50,  theta=-math.pi/2,rstart=0, rend=90),
+            place_rec.SignaturePoint(x=75, y=60,  theta=math.pi,rstart=0, rend=120),
+            place_rec.SignaturePoint(x=75, y=60,  theta=-math.pi/2,rstart=0, rend=120),
         ],
         #second point for detecting in C
         [
