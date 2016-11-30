@@ -242,7 +242,8 @@ def main():
                         # print "Navigating to ", waypoint
                         # Run MCL
                         if key!= "A":
-                            state = sigPointMCLStep(state, mcl_points)
+                            if i != 2:
+                                state = sigPointMCLStep(state, mcl_points)
                         # print "CURRENT STATE: x=%f, y =%f, theta=%f" % (state.x, state.y, state.theta)
     
                 # Make sure your orientation is the same as the orientation a signature must be taken at 
