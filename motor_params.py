@@ -110,9 +110,10 @@ def rotate(angle):
     #travel_dist = angle/360*perimeter
     #motor_angle = dist_to_motor_angle(travel_dist)
     if angle<0:
-        motor_angle = rotate_right_to_motor_angle(-angle)
+
+        motor_angle = rotate_right_to_motor_angle(-angle) * 345.0 / 360.0
     elif angle>0:
-        motor_angle = rotate_left_to_motor_angle(-angle)
+        motor_angle = rotate_left_to_motor_angle(-angle) * 345.0 / 360.0
     else:
         motor_angle = 0
     TurnOpposite(motor_angle)

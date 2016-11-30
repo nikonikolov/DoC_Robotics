@@ -38,7 +38,7 @@ def get_reading():
     if med_reading < 20:
         med_reading +=3.5
     med_reading += SENSOR_OFFSET
-    print "US Reading: " + str(med_reading)
+    # print "US Reading: " + str(med_reading)
     
     return med_reading
 
@@ -50,7 +50,7 @@ def rotate_sensor(angle):
     interface.increaseMotorAngleReference(SONAR_MOTOR_PORT, angle)
     while not interface.motorAngleReferenceReached(SONAR_MOTOR_PORT):
 	time.sleep(0.03)
-    print "Ultrasonic rotation reached."
+    # print "Ultrasonic rotation reached."
 
 
 #OLD PRACTICAL PARAMS
