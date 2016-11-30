@@ -48,7 +48,7 @@ orientation_offset = None
 
 SIGNATURE_POINTS = [
     # In B
-    # SignaturePoint(x=90, y=105, theta=0.0, rstart=80, rend=180),
+    # SignaturePoint(x=90, y=105, theta=0.0, rstart=90, rend=172),
     # SignaturePoint(x=126, y=145,  theta=math.pi/2,rstart=0, rend=150),
 
     # In A
