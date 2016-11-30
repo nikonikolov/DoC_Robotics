@@ -299,6 +299,7 @@ def main():
         # Final endpoint
         else:
             waypoint = visitpoints[0]
+            mcl_points = area_mcl_points[0]
 
             # Navigate properly
             while True:
