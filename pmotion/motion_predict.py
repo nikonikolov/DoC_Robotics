@@ -44,6 +44,19 @@ class State(StateBase):
 
         return math.atan2(y, x)
 
+    def _squeeze(self, angle):
+        if angle > math.pi:
+            angle -= 2 * math.pi
+        elif angle < -math.pi:
+            angle += 2 * math.pi
+        return angle
+
+    def pure_rotate(self, alpha):
+        return State(particles=[Particle(x=p.x, y=p.y,
+                                         theta=self._squeeze(p.theta + alpha))
+                for p in self.particles],
+                     weights=self.weights)
+
     def rotate(self, alpha):
         return State(particles=[Particle(x=p.x, y=p.y, theta=rotation_noise(p.theta, alpha)) for p in self.particles],
                      weights=self.weights)

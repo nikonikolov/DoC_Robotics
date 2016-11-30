@@ -156,11 +156,16 @@ def sigPointMCLStep(state, mcl_points):
     place_rec.rot_sensor.setOrientation(math.pi / 2)
     if mcl_points:
         for point in mcl_points:
-            # place_rec.rot_sensor.setOrientation(point.theta - (state.theta - math.pi / 2))
-            state = uncertainRotate(state, point)
+            original_theta = state.theta
+            state = state.pure_rotate(point.theta - original_theta)
+            place_rec.rot_sensor.setOrientation(
+                    point.theta - original_theta + math.pi / 2)
+            state = mcl.MCLStep(state)
+
+            state = state.pure_rotate(original_theta - point.theta)
             # print "State right after uncertainRotate to", point
             # print state
-            state = mcl.MCLStep(state)
+    # place_rec.rot_sensor.setOrientation(math.pi / 2)
     return state
 
 
