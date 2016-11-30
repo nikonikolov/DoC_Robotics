@@ -281,7 +281,7 @@ class RotatingSensor:
         return ls
 
     def setOrientation(self, orientation):
-        cval = math.pi / 180.0 * +1806.5
+        cval = math.pi / 180.0 * +50.5
         lowerLimit = cval - math.pi
         higherLimit = cval + math.pi
 

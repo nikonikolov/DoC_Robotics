@@ -2,6 +2,7 @@ import time
 import os
 import math
 import sys
+import collections
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../pmotion')
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/../ultrasonic_sensors')
@@ -25,25 +26,25 @@ NUMBER_OF_PARTICLES = motion_predict.NUMBER_OF_PARTICLES
 
 
 
-BOTTLES = {
-    "A": [
+BOTTLES = [
+    ("A", [
         place_rec.SignaturePoint(x=100, y=40, theta=0, rstart=30, rend=135),
         #first point for detecting in A
         place_rec.SignaturePoint(x=150, y=40, theta=0, rstart=30, rend=150),
         #second point for detecting in A
-    ],
-    "B": [
+    ]),
+    ("B", [
         place_rec.SignaturePoint(x=105, y=70, theta=math.pi/2, rstart=22, rend=110),
         place_rec.SignaturePoint(x=105, y=140,  theta=math.pi/2,rstart=-20, rend=160),
-    ],
-    "C": [
+    ]),
+    ("C", [
         place_rec.SignaturePoint(x=75, y=50,  theta=math.pi,rstart=0, rend=90),
         place_rec.SignaturePoint(x=60, y=102, theta=math.pi/2, rstart=45,  rend=180),
-    ],
-    "FINAL": [
+    ]),
+    ("FINAL", [
         place_rec.SignaturePoint(x=84, y=30,  theta=-math.pi/2, rstart=0, rend=0),
-    ]
-}
+    ])
+]
 
 
 MCL_POINTS = {
@@ -203,13 +204,13 @@ def main():
 
     state = motion_predict.State(
             particles=[motion_predict.Particle(
-                    x=BOTTLES["FINAL"][0].x, y=BOTTLES["FINAL"][0].y, theta=0)] * NUMBER_OF_PARTICLES,
+                    x=BOTTLES[3][1][0].x, y=BOTTLES[3][1][0].y, theta=0)] * NUMBER_OF_PARTICLES,
             weights=[1.0 / NUMBER_OF_PARTICLES
                      for _ in range(NUMBER_OF_PARTICLES)])
     mcl.draw_particles(state)
     
     # visitpoints is a list of points that we need to visit
-    for key, visitpoints in BOTTLES.iteritems():
+    for key, visitpoints in BOTTLES:
         # mcl_points is a list of lists
         area_mcl_points = MCL_POINTS[key]
 
@@ -247,7 +248,10 @@ def main():
                     continue
                 # We have a possible bottle location
                 else:
+                    print "bottle_loc = ", bottle_loc
                     # 1. Try navigating to the bottle.
+                    state = state.rotate(bottle_loc.angle)
+                    motor_params.rotate(bottle_loc.angle)
                     distance, hit_bottle = motor_params.slow_down_forward(
                             bottle_loc.distance,
                             place_rec.bump_termination_callback,
@@ -263,7 +267,6 @@ def main():
 
                         # 3. Break if we hit the bottle. Then we go on to
                         #    handle the next bottle area.
-                        state = uncertainNavigate(state, mcl_points)
                         state = sigPointMCLStep(state, mcl_points)
                         break
                     else:
