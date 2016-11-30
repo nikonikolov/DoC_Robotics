@@ -164,10 +164,10 @@ def slow_down_forward(dist, termination_callback, overshoot=0.0):
         if termination_callback():
             hit_bottle = True
             break
-        angle = interface.getMotorAngle(0)[0]
+        angle = interface.getMotorAngles([0, 1])[0][0]
         distance_moved = angle_to_dist(angle - beginning_angle)
-        print "distanced_moved = ", distance_moved
-        print "Dist + overshoot =", dist + overshoot
+        # print "distanced_moved = ", distance_moved
+        # print "Dist + overshoot =", dist + overshoot
         # Multiply by 0.7, just to be more conservative about the distance.
         # Don't need this, because we are moving in constant velocity anyways.
         # interface.setMotorRotationSpeedReferences(

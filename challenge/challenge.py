@@ -17,6 +17,7 @@ import walls
 import mcl
 import place_rec
 import motor_params
+import ultrasound
 
 # TO DO: CALIBRATE THESE VALUES AND THE SONAR LIKELIHOOD VALUES IN mcl
 WAYPOINT_MIN_OFFSET = 3.0
@@ -262,10 +263,19 @@ def main():
                     state = state.rotate(math.radians(bottle_loc.angle))
                     print "State right before moving towards bottle:"
                     print state
+                    nearest_wall_dist = walls.getWallDist(
+                            motion_predict.Particle(x=state.x, y=state.y, theta=state.theta),
+                            incidence_angle=False)
+                    if nearest_wall_dist == ultrasound.GARBAGE:
+                        overshoot = 5.0
+                    else:
+                        # bottle.distance + overshoot == nearest_wall_dist - 10.0
+                        overshoot = nearest_wall_dist - 10.0 - bottle_loc.distance
+
                     distance, hit_bottle = motor_params.slow_down_forward(
                             bottle_loc.distance,
                             place_rec.bump_termination_callback,
-                            overshoot=5.0)
+                            overshoot=overshoot)
                     # Don't perform MCL here, we are fairly sure that it will
                     # screw up. (Due to the bottle).
                     state = state.move_forward(distance)
@@ -288,21 +298,17 @@ def main():
                     else:
                         # 4. if we did not hit a bottle, we continue the loop.
                         #    Going to the next waypoint in the area.
+                        motor_params.forward(-distance * 0.8)
+                        state = state.move_forward(-distance * 0.8)
                         continue
-            else:
-                # If we finish all the exhausted all the waypoints without finding
-                # the bottle, we'd want to move backwards, based on the latest
-                # distance that we've moved forward.
-                if distance:
-                    motor_params.forward(-distance)
-                    state = state.move_forward(-distance)
         # Final endpoint
         else:
             waypoint = visitpoints[0]
             mcl_points = area_mcl_points[0]
 
             # Navigate properly
-            while True:
+            for i in range(1,4):
+            #while True:
                 x_is_close = abs(state.x - waypoint.x) <= FINAL_WAYPOINT_MIN_OFFSET
                 y_is_close = abs(state.y - waypoint.y) <= FINAL_WAYPOINT_MIN_OFFSET
     
