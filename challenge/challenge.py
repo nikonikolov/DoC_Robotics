@@ -158,8 +158,8 @@ def sigPointMCLStep(state, mcl_points):
         for point in mcl_points:
             # place_rec.rot_sensor.setOrientation(point.theta - (state.theta - math.pi / 2))
             state = uncertainRotate(state, point)
-            print "State right after uncertainRotate to", point
-            print state
+            # print "State right after uncertainRotate to", point
+            # print state
             state = mcl.MCLStep(state)
     return state
 
@@ -216,8 +216,8 @@ def main():
     
     # visitpoints is a list of points that we need to visit
     for key, visitpoints in BOTTLES:
-        print "Going into key = ", key
-        print "Entering state is ", state
+        # print "Going into key = ", key
+        # print "Entering state is ", state
         # mcl_points is a list of lists
         area_mcl_points = MCL_POINTS[key]
 
@@ -237,13 +237,13 @@ def main():
                         break
                     else:
                         # TO DO: Smart navigation with not many rotations
-                        print "state = ", state
+                        # print "state = ", state
                         state = uncertainNavigate(state, waypoint)
-                        print "Navigating to ", waypoint
+                        # print "Navigating to ", waypoint
                         # Run MCL
                         if key!= "A":
                             state = sigPointMCLStep(state, mcl_points)
-                        print "CURRENT STATE: x=%f, y =%f, theta=%f" % (state.x, state.y, state.theta)
+                        # print "CURRENT STATE: x=%f, y =%f, theta=%f" % (state.x, state.y, state.theta)
     
                 # Make sure your orientation is the same as the orientation a signature must be taken at 
                 state = uncertainRotate(state, waypoint)
@@ -254,16 +254,16 @@ def main():
                 # We did not find a bottle, go to the next waypoint
                 # TO DO: What to do if we went to all waypoints and we still did not hit a bottle
                 if bottle_loc is None:
-                    print "BOTTLE NOT DETECTED"
+                    # print "BOTTLE NOT DETECTED"
                     continue
                 # We have a possible bottle location
                 else:
-                    print "bottle_loc = ", bottle_loc
+                    # print "bottle_loc = ", bottle_loc
                     # 1. Try navigating to the bottle.
                     motor_params.rotate(bottle_loc.angle)
                     state = state.rotate(math.radians(bottle_loc.angle))
-                    print "State right before moving towards bottle:"
-                    print state
+                    # print "State right before moving towards bottle:"
+                    # print state
                     nearest_wall_dist = walls.getWallDist(
                             motion_predict.Particle(x=state.x, y=state.y, theta=state.theta),
                             incidence_angle=False)
@@ -282,19 +282,19 @@ def main():
                     state = state.move_forward(distance)
 
                     if hit_bottle:
-                        print "State right after touching bottle:"
-                        print state
+                        # print "State right after touching bottle:"
+                        # print state
                         # 2. If we hit the bottle, we will want to reverse.
                         motor_params.forward(-distance * 0.8)
                         state = state.move_forward(-distance * 0.8)
-                        print "State right after reversing from bottle:"
-                        print state
+                        # print "State right after reversing from bottle:"
+                        # print state
 
                         # 3. Break if we hit the bottle. Then we go on to
                         #    handle the next bottle area.
                         state = sigPointMCLStep(state, mcl_points)
-                        print "State right after performing MCL"
-                        print state
+                        # print "State right after performing MCL"
+                        # print state
                         break
                     else:
                         # 4. if we did not hit a bottle, we continue the loop.
@@ -320,7 +320,7 @@ def main():
                     # TO DO: Make sure you are tunning MCL facing to the proper walls
                     state = uncertainNavigate(state, waypoint)
                     state = sigPointMCLStep(state, mcl_points)
-                    print "CURRENT STATE: x=%f, y =%f, theta=%f" % (state.x, state.y, state.theta)
+                    # print "CURRENT STATE: x=%f, y =%f, theta=%f" % (state.x, state.y, state.theta)
     
     
 

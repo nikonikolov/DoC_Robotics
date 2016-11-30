@@ -97,8 +97,9 @@ def MCLStep(state):
 
 
 def draw_particles(state):
-    particles = [(p.x, p.y, p.theta, w) for w, p in zip(state.weights, state.particles)]
-    walls.wallmap.canvas.drawParticles(particles)
+    pass
+    # particles = [(p.x, p.y, p.theta, w) for w, p in zip(state.weights, state.particles)]
+    # walls.wallmap.canvas.drawParticles(particles)
 
 
 def main():
