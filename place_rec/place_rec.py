@@ -49,11 +49,11 @@ orientation_offset = None
 SIGNATURE_POINTS = [
     # In B
     # SignaturePoint(x=90, y=105, theta=0.0, rstart=90, rend=180),
-    SignaturePoint(x=126, y=145,  theta=math.pi/2,rstart=0, rend=150),
+    # SignaturePoint(x=126, y=145,  theta=math.pi/2,rstart=0, rend=150),
 
     # In A
     # SignaturePoint(x=100, y=40, theta=0, rstart=30, rend=135), #first point for detecting in A
-    # SignaturePoint(x=150, y=40, theta=0, rstart=30, rend=150), #second point for detecting in A
+     SignaturePoint(x=140, y=40, theta=0, rstart=20, rend=125), #second point for detecting in A
 
     # # In C
     # SignaturePoint(x=75, y=50,  theta=(math.pi*0.99),rstart=0, rend=90),
