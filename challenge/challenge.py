@@ -307,7 +307,7 @@ def main():
             mcl_points = area_mcl_points[0]
 
             # Navigate properly
-            for i in range(1,4):
+            for i in range(1,3):
             #while True:
                 x_is_close = abs(state.x - waypoint.x) <= FINAL_WAYPOINT_MIN_OFFSET
                 y_is_close = abs(state.y - waypoint.y) <= FINAL_WAYPOINT_MIN_OFFSET
