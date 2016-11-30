@@ -157,7 +157,7 @@ def slow_down_forward(dist, termination_callback, overshoot=0.0):
     distance_moved = 0.0
     hit_bottle = False
     beginning_angle = interface.getMotorAngle(0)[0]
-    speed = 3.0
+    speed = 5.0
     interface.setMotorRotationSpeedReferences(
             motors, [speed, speed])
     while distance_moved < dist + overshoot:
@@ -167,8 +167,9 @@ def slow_down_forward(dist, termination_callback, overshoot=0.0):
         angle = interface.getMotorAngle(0)[0]
         distance_moved = angle_to_dist(angle - beginning_angle)
         # Multiply by 0.7, just to be more conservative about the distance.
-        interface.setMotorRotationSpeedReferences(
-                motors, [speed, speed])
+        # Don't need this, because we are moving in constant velocity anyways.
+        # interface.setMotorRotationSpeedReferences(
+        #         motors, [speed, speed])
     interface.setMotorPwm(motors[0], 0)
     interface.setMotorPwm(motors[1], 0)
     return distance_moved, hit_bottle
